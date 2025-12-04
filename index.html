@@ -30,9 +30,6 @@ textarea { resize: vertical; }
 /* Cortes dinámicos */
 .corte { margin-bottom:10px; border:1px solid #ddd; padding:10px; border-radius:5px; background:#f9f9f9; }
 
-/* Previsualización */
-.preview { margin-top:5px; max-width:100%; border-radius:5px; }
-
 /* Modal */
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
 .modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; width:90%; max-height:90vh; overflow-y:auto; }
@@ -73,7 +70,6 @@ textarea { resize: vertical; }
 
   <label>Imagen del Vehículo</label>
   <input type="file" id="imagenVehiculo" accept="image/*">
-  <img id="vehiculoPreview" class="preview" style="display:none;">
 
   <label>Tipo de Encendido</label>
   <select id="tipoEncendido" required></select>
@@ -84,7 +80,6 @@ textarea { resize: vertical; }
       <select class="tipoCorte" required></select>
       <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
       <input type="file" class="imgCorte" accept="image/*">
-      <img class="preview cortePreview" style="display:none;">
     </div>
   </div>
   <button type="button" id="addCorteBtn">Agregar otro corte</button>
@@ -92,12 +87,10 @@ textarea { resize: vertical; }
   <label>Apertura</label>
   <textarea id="aperturaDesc" placeholder="Descripción apertura"></textarea>
   <input type="file" id="aperturaImg" accept="image/*">
-  <img id="aperturaPreview" class="preview" style="display:none;">
 
   <label>Cables de alimentación</label>
   <textarea id="cablesDesc" placeholder="Descripción cables"></textarea>
   <input type="file" id="cablesImg" accept="image/*">
-  <img id="cablesPreview" class="preview" style="display:none;">
 
   <label>Nota importante</label>
   <textarea id="nota"></textarea>
@@ -137,31 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
       fillSelectAll('.tipoCorte', data.tipoCorte);
       fillSelect('tipoEncendido', data.encendido);
     });
-
-  // Previsualización de imágenes
-  document.getElementById('imagenVehiculo').addEventListener('change', e=> previewFile(e,'vehiculoPreview'));
-  document.getElementById('aperturaImg').addEventListener('change', e=> previewFile(e,'aperturaPreview'));
-  document.getElementById('cablesImg').addEventListener('change', e=> previewFile(e,'cablesPreview'));
-  document.querySelectorAll('.imgCorte').forEach(input=>input.addEventListener('change', e=>{
-    const img = input.nextElementSibling; // preview dentro del mismo div corte
-    previewFile(e, img);
-  }));
 });
-
-function previewFile(event, previewElement){
-  let preview;
-  if(typeof previewElement === 'string') preview = document.getElementById(previewElement);
-  else preview = previewElement;
-  const file = event.target.files[0];
-  if(file){
-    const reader = new FileReader();
-    reader.onload = () => { preview.src = reader.result; preview.style.display='block'; }
-    reader.readAsDataURL(file);
-  } else {
-    preview.style.display='none';
-    preview.src='';
-  }
-}
 
 function fillSelect(id, options) {
   const select = document.getElementById(id);
@@ -183,15 +152,9 @@ document.getElementById('addCorteBtn').addEventListener('click', () => {
   div.className='corte';
   div.innerHTML = `<select class="tipoCorte" required></select>
                    <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
-                   <input type="file" class="imgCorte" accept="image/*">
-                   <img class="preview cortePreview" style="display:none;">`;
+                   <input type="file" class="imgCorte" accept="image/*">`;
   container.appendChild(div);
   fillSelectAll('.tipoCorte', validaciones.tipoCorte);
-  // Listener de preview
-  div.querySelector('.imgCorte').addEventListener('change', e=>{
-    const img = div.querySelector('.cortePreview');
-    previewFile(e,img);
-  });
 });
 
 // Form submit
@@ -202,30 +165,45 @@ document.getElementById('formulario').addEventListener('submit', async e=>{
   const año = document.getElementById('año').value.trim();
   const tipoCorte = document.querySelector('.tipoCorte').value.trim();
 
-  const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
-  const data = await res.json();
+  try {
+    const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
+    const data = await res.json();
 
-  if(data.sameTypeExists){
-    showModal(data.sameTypeRow);
-    return;
+    if(data.sameTypeExists){
+      showModal(data.sameTypeRow);
+      return;
+    }
+
+    const payload = {
+      colaborador: document.getElementById('colaborador').value.trim(),
+      categoria: document.getElementById('categoria').value,
+      marca, modelo, año,
+      tipoEncendido: document.getElementById('tipoEncendido').value,
+      cortes: await getCortesData(),
+      apertura: await getFileData('aperturaDesc','aperturaImg'),
+      cables: await getFileData('cablesDesc','cablesImg'),
+      nota: document.getElementById('nota').value.trim(),
+      plasticos: document.getElementById('plasticos').value.trim()
+    };
+
+    const postRes = await fetch(WEB_APP_URL, {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const postData = await postRes.json();
+
+    if(postData.success){
+      alert('Corte enviado exitosamente.');
+      window.location.href='index.html';
+    } else {
+      alert('Hubo un error al enviar el corte.');
+    }
+
+  } catch(err){
+    console.error(err);
+    alert('Error al comunicarse con el servidor.');
   }
-
-  const payload = {
-    colaborador: document.getElementById('colaborador').value.trim(),
-    categoria: document.getElementById('categoria').value,
-    marca, modelo, año,
-    tipoEncendido: document.getElementById('tipoEncendido').value,
-    cortes: await getCortesData(),
-    apertura: await getFileData('aperturaDesc','aperturaImg'),
-    cables: await getFileData('cablesDesc','cablesImg'),
-    nota: document.getElementById('nota').value.trim(),
-    plasticos: document.getElementById('plasticos').value.trim()
-  };
-
-  const postRes = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify(payload)});
-  const postData = await postRes.json();
-  alert('Corte enviado exitosamente.');
-  window.location.href='index.html';
 });
 
 // Modal
@@ -252,21 +230,24 @@ function showModal(row){
 // Helper
 async function getCortesData(){
   const cortes=[];
-  for(const node of document.querySelectorAll('.corte')){
-    const tipo=node.querySelector('.tipoCorte').value.trim();
-    const desc=node.querySelector('.descCorte').value.trim();
-    const imgNode=node.querySelector('.imgCorte');
-    const base64=imgNode.files[0]?await fileToBase64(imgNode.files[0]):null;
-    cortes.push({tipo,descripcion:desc,base64});
+  const nodes = document.querySelectorAll('.corte');
+  for(const node of nodes){
+    const tipo = node.querySelector('.tipoCorte').value.trim();
+    const desc = node.querySelector('.descCorte').value.trim();
+    const imgNode = node.querySelector('.imgCorte');
+    const base64 = imgNode.files[0]?await fileToBase64(imgNode.files[0]):null;
+    cortes.push({tipo, descripcion: desc, base64});
   }
   return cortes;
 }
+
 async function getFileData(descId,fileId){
   const desc=document.getElementById(descId)?.value.trim()||'';
   const fileNode=document.getElementById(fileId);
   const base64=fileNode.files[0]?await fileToBase64(fileNode.files[0]):null;
   return {descripcion:desc,base64};
 }
+
 function fileToBase64(file){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
@@ -278,3 +259,4 @@ function fileToBase64(file){
 </script>
 </body>
 </html>
+
