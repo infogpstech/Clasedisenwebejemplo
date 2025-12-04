@@ -29,6 +29,7 @@ textarea { resize: vertical; }
 
 /* Cortes dinámicos */
 .corte { margin-bottom:10px; border:1px solid #ddd; padding:10px; border-radius:5px; background:#f9f9f9; }
+.corte img { max-width:200px; margin-top:5px; display:block; }
 
 /* Modal */
 .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
@@ -70,6 +71,7 @@ textarea { resize: vertical; }
 
   <label>Imagen del Vehículo</label>
   <input type="file" id="imagenVehiculo" accept="image/*">
+  <img id="previewVehiculo" style="max-width:200px; display:none; margin-top:5px;">
 
   <label>Tipo de Encendido</label>
   <select id="tipoEncendido" required></select>
@@ -80,6 +82,7 @@ textarea { resize: vertical; }
       <select class="tipoCorte" required></select>
       <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
       <input type="file" class="imgCorte" accept="image/*">
+      <img class="previewCorte" style="max-width:200px; display:none; margin-top:5px;">
     </div>
   </div>
   <button type="button" id="addCorteBtn">Agregar otro corte</button>
@@ -87,10 +90,12 @@ textarea { resize: vertical; }
   <label>Apertura</label>
   <textarea id="aperturaDesc" placeholder="Descripción apertura"></textarea>
   <input type="file" id="aperturaImg" accept="image/*">
+  <img id="previewApertura" style="max-width:200px; display:none; margin-top:5px;">
 
   <label>Cables de alimentación</label>
   <textarea id="cablesDesc" placeholder="Descripción cables"></textarea>
   <input type="file" id="cablesImg" accept="image/*">
+  <img id="previewCables" style="max-width:200px; display:none; margin-top:5px;">
 
   <label>Nota importante</label>
   <textarea id="nota"></textarea>
@@ -108,7 +113,7 @@ textarea { resize: vertical; }
     <h3>Corte existente encontrado</h3>
     <div id="modalBody"></div>
     <button id="confirmNoBtn">No, es diferente</button>
-    <button id="cancelBtn">Cerrar modal</button>
+    <button id="cancelBtn">Sí, es el mismo</button>
     <button id="backIndexBtn">Volver al índice</button>
   </div>
 </div>
@@ -121,6 +126,7 @@ textarea { resize: vertical; }
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwOUIrN9LL8zvMEqSOadz-s8XLTl9YjCXs530pG8GLwUM6GcaIy2k807B3yAeKDBq2g/exec';
 let validaciones = {};
 
+// --- Inicialización
 document.addEventListener('DOMContentLoaded', () => {
   fetch(WEB_APP_URL)
     .then(r => r.json())
@@ -131,13 +137,21 @@ document.addEventListener('DOMContentLoaded', () => {
       fillSelect('tipoEncendido', data.encendido);
     });
 
-  // Validación en tiempo real
-  ['marca','modelo','año'].forEach(id=>{
-    document.getElementById(id).addEventListener('change', checkDuplicate);
-    document.getElementById(id).addEventListener('blur', checkDuplicate);
+  // Previsualización Vehículo
+  document.getElementById('imagenVehiculo').addEventListener('change', e=>{
+    previewFile(e.target, 'previewVehiculo');
+  });
+  // Previsualización Apertura
+  document.getElementById('aperturaImg').addEventListener('change', e=>{
+    previewFile(e.target,'previewApertura');
+  });
+  // Previsualización Cables
+  document.getElementById('cablesImg').addEventListener('change', e=>{
+    previewFile(e.target,'previewCables');
   });
 });
 
+// Funciones auxiliares
 function fillSelect(id, options) {
   const select = document.getElementById(id);
   select.innerHTML = '';
@@ -149,40 +163,66 @@ function fillSelectAll(selector, options) {
     options.forEach(o => { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt); });
   });
 }
+function previewFile(fileInput, previewId){
+  const file = fileInput.files[0];
+  const preview = document.getElementById(previewId);
+  if(file){
+    const reader = new FileReader();
+    reader.onload = () => { preview.src = reader.result; preview.style.display='block'; };
+    reader.readAsDataURL(file);
+  } else { preview.style.display='none'; }
+}
 
-// Agregar corte
+// --- Agregar Corte Dinámico
 document.getElementById('addCorteBtn').addEventListener('click', () => {
   const container = document.getElementById('cortesContainer');
   if(container.children.length >= 3) return alert('Solo se permiten hasta 3 cortes.');
   const div = document.createElement('div');
   div.className='corte';
-  div.innerHTML = `<select class="tipoCorte" required></select>
-                   <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
-                   <input type="file" class="imgCorte" accept="image/*">`;
+  div.innerHTML = `
+    <select class="tipoCorte" required></select>
+    <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
+    <input type="file" class="imgCorte" accept="image/*">
+    <img class="previewCorte" style="max-width:200px; display:none; margin-top:5px;">`;
   container.appendChild(div);
   fillSelectAll('.tipoCorte', validaciones.tipoCorte);
+
+  // Evento previsualización del nuevo corte
+  const inputFile = div.querySelector('.imgCorte');
+  const previewImg = div.querySelector('.previewCorte');
+  inputFile.addEventListener('change', e=>{ 
+    const file = e.target.files[0];
+    if(file){ const reader = new FileReader();
+      reader.onload=()=>previewImg.src=reader.result;
+      reader.readAsDataURL(file);
+      previewImg.style.display='block';
+    } else { previewImg.style.display='none'; }
+  });
 });
 
-// Función para revisar duplicados en tiempo real
-async function checkDuplicate() {
+// --- Validación en tiempo real de Marca+Modelo+Año
+document.getElementById('marca').addEventListener('input', validarVehiculo);
+document.getElementById('modelo').addEventListener('input', validarVehiculo);
+document.getElementById('año').addEventListener('input', validarVehiculo);
+
+async function validarVehiculo(){
   const marca = document.getElementById('marca').value.trim();
   const modelo = document.getElementById('modelo').value.trim();
   const año = document.getElementById('año').value.trim();
-  const tipoCorte = document.querySelector('.tipoCorte')?.value || '';
+  const tipoCorte = document.querySelector('.tipoCorte')?.value.trim() || '';
 
-  if(!marca || !modelo || !año) return;
+  if(!marca || !modelo || !año || !tipoCorte) return;
 
   const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
   const data = await res.json();
 
-  if(data.sameTypeExists){
-    showModal(data.sameTypeRow);
-  }
+  if(data.sameTypeExists) showModal(data.sameTypeRow);
 }
 
-// Form submit
+// --- Form submit
 document.getElementById('formulario').addEventListener('submit', async e=>{
   e.preventDefault();
+
   const payload = {
     colaborador: document.getElementById('colaborador').value.trim(),
     categoria: document.getElementById('categoria').value,
@@ -199,15 +239,11 @@ document.getElementById('formulario').addEventListener('submit', async e=>{
 
   const postRes = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify(payload)});
   const postData = await postRes.json();
-  if(postData.success){
-    alert('Corte enviado exitosamente.');
-    window.location.href='index.html';
-  } else {
-    alert('Ocurrió un error al enviar el corte.');
-  }
+  alert('Corte enviado exitosamente.');
+  window.location.reload();
 });
 
-// Modal
+// --- Modal
 const modal = document.getElementById('modal');
 const modalBody = document.getElementById('modalBody');
 document.getElementById('cancelBtn').addEventListener('click', ()=> modal.style.display='none');
@@ -228,7 +264,7 @@ function showModal(row){
   modal.style.display='flex';
 }
 
-// Helpers
+// --- Helpers
 async function getCortesData(){
   const cortes=[];
   for(const node of document.querySelectorAll('.corte')){
@@ -240,14 +276,12 @@ async function getCortesData(){
   }
   return cortes;
 }
-
 async function getFileData(descId,fileId){
   const desc=document.getElementById(descId)?.value.trim()||'';
   const fileNode=document.getElementById(fileId);
   const base64=fileNode.files[0]?await fileToBase64(fileNode.files[0]):null;
   return {descripcion:desc,base64};
 }
-
 function fileToBase64(file){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
@@ -258,4 +292,4 @@ function fileToBase64(file){
 }
 </script>
 </body>
-    </html>
+          </html>
