@@ -1,28 +1,243 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Proyecto Web</title>
-</head>
-<body>
-    <h1>Bienvenido a Mi Proyecto Web</h1>
-    <p>Este es un proyecto de ejemplo para demostrar la estructura básica de un archivo HTML.</p>
-    <h2>Nombre del alumno</h2>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agregar Corte - GPSpedia</title>
 
-    <ul>
-        <li>
-            <a href="dashboard_interactivo.html">Maquetado Web</a>
-        </li>
-        <li>
-            <a href="ejercicio1.html">ejercicio web</a>
-        </li>
-        <li>
-            <a href="contenido_clase.pdf">contenido de la clase</a>
-        </li>
-        <li>
-            <a href="GDESR-AYD-IIBTP.pdf">Guia resuelta</a>
-        </li>
-    </ul>
+<style>
+/* --- ESTILOS GLOBAL Y HEADER/FOOTER --- */
+html { height: 100%; }
+body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; display:flex; flex-direction:column; min-height:100%; }
+h1,h2,h3,h4 { margin:10px 0; }
+.container { padding:20px; max-width:1240px; margin:0 auto; width:100%; box-sizing:border-box; flex:1 0 auto; }
+.backBtn { margin-bottom:15px; cursor:pointer; color:#007bff; display:inline-flex; align-items:center; font-weight:bold; padding:5px 10px; border-radius:5px; transition:background 0.2s; }
+.backBtn:hover { background:#e9f7ff; }
+
+/* --- HEADER --- */
+.header-container { display:flex; align-items:center; justify-content:flex-start; margin-bottom:20px; }
+.app-logo { max-width:96px; height:auto; border-radius:8px; margin-right:15px; }
+h1.app-title { text-align:left; margin:0; font-size:2.2em; color:#333; }
+
+/* --- FORMULARIO --- */
+form { background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); max-width:600px; margin:auto; }
+label { display:block; margin-top:10px; font-weight:bold; }
+input, select, textarea, button { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
+button { background:#007bff; color:white; border:none; cursor:pointer; margin-top:15px; }
+button:hover { background:#0056b3; }
+textarea { resize: vertical; }
+
+/* Cortes dinámicos */
+.corte { margin-bottom:10px; border:1px solid #ddd; padding:10px; border-radius:5px; background:#f9f9f9; }
+
+/* Modal */
+.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
+.modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; width:90%; max-height:90vh; overflow-y:auto; }
+.modal-content img { max-width:100%; margin-top:10px; border-radius:5px; }
+
+/* FOOTER */
+.footer { text-align:center; padding:20px 0; margin-top:40px; background-color:#333; color:#fff; font-size:0.9em; }
+
+/* Responsive */
+@media (max-width:480px) {
+    h1.app-title { font-size:1.8em; }
+}
+</style>
+</head>
+
+<body>
+<div class="header-container">
+      <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo GPSpedia" class="app-logo">
+      <h1 class="app-title">GPSpedia</h1>
+</div>
+
+<div class="container">
+<form id="formulario">
+  <label>Nombre del Colaborador</label>
+  <input type="text" id="colaborador" required>
+
+  <label>Categoría</label>
+  <select id="categoria" required></select>
+
+  <label>Marca</label>
+  <input type="text" id="marca" required>
+
+  <label>Modelo</label>
+  <input type="text" id="modelo" required>
+
+  <label>Año (generación)</label>
+  <input type="number" id="año" required>
+
+  <label>Imagen del Vehículo</label>
+  <input type="file" id="imagenVehiculo" accept="image/*">
+
+  <label>Tipo de Encendido</label>
+  <select id="tipoEncendido" required></select>
+
+  <label>Cortes</label>
+  <div id="cortesContainer">
+    <div class="corte">
+      <select class="tipoCorte" required></select>
+      <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
+      <input type="file" class="imgCorte" accept="image/*">
+    </div>
+  </div>
+  <button type="button" id="addCorteBtn">Agregar otro corte</button>
+
+  <label>Apertura</label>
+  <textarea id="aperturaDesc" placeholder="Descripción apertura"></textarea>
+  <input type="file" id="aperturaImg" accept="image/*">
+
+  <label>Cables de alimentación</label>
+  <textarea id="cablesDesc" placeholder="Descripción cables"></textarea>
+  <input type="file" id="cablesImg" accept="image/*">
+
+  <label>Nota importante</label>
+  <textarea id="nota"></textarea>
+
+  <label>Cómo desarmar los plásticos</label>
+  <textarea id="plasticos"></textarea>
+
+  <button type="submit">Enviar Corte</button>
+</form>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content">
+    <h3>Corte existente encontrado</h3>
+    <div id="modalBody"></div>
+    <button id="confirmNoBtn">No, es diferente</button>
+    <button id="cancelBtn">Sí, es el mismo</button>
+    <button id="backIndexBtn">Volver al índice</button>
+  </div>
+</div>
+
+<footer class="footer">
+  Gpspedia 2025© todos los derechos reservados.
+</footer>
+
+<script>
+const WEB_APP_URL = 'TU_WEB_APP_URL_AQUI';
+let validaciones = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetch(WEB_APP_URL)
+    .then(r => r.json())
+    .then(data => {
+      validaciones = data;
+      fillSelect('categoria', data.categorias);
+      fillSelectAll('.tipoCorte', data.tipoCorte);
+      fillSelect('tipoEncendido', data.encendido);
+    });
+});
+
+function fillSelect(id, options) {
+  const select = document.getElementById(id);
+  select.innerHTML = '';
+  options.forEach(o => { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; select.appendChild(opt); });
+}
+function fillSelectAll(selector, options) {
+  document.querySelectorAll(selector).forEach(sel => {
+    sel.innerHTML = '';
+    options.forEach(o => { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt); });
+  });
+}
+
+// Agregar corte
+document.getElementById('addCorteBtn').addEventListener('click', () => {
+  const container = document.getElementById('cortesContainer');
+  if(container.children.length >= 3) return alert('Solo se permiten hasta 3 cortes.');
+  const div = document.createElement('div');
+  div.className='corte';
+  div.innerHTML = `<select class="tipoCorte" required></select>
+                   <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
+                   <input type="file" class="imgCorte" accept="image/*">`;
+  container.appendChild(div);
+  fillSelectAll('.tipoCorte', validaciones.tipoCorte);
+});
+
+// Form submit
+document.getElementById('formulario').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const marca = document.getElementById('marca').value.trim();
+  const modelo = document.getElementById('modelo').value.trim();
+  const año = document.getElementById('año').value.trim();
+  const tipoCorte = document.querySelector('.tipoCorte').value.trim();
+
+  const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
+  const data = await res.json();
+
+  if(data.sameTypeExists){
+    showModal(data.sameTypeRow);
+    return;
+  }
+
+  const payload = {
+    colaborador: document.getElementById('colaborador').value.trim(),
+    categoria: document.getElementById('categoria').value,
+    marca, modelo, año,
+    tipoEncendido: document.getElementById('tipoEncendido').value,
+    cortes: await getCortesData(),
+    apertura: await getFileData('aperturaDesc','aperturaImg'),
+    cables: await getFileData('cablesDesc','cablesImg'),
+    nota: document.getElementById('nota').value.trim(),
+    plasticos: document.getElementById('plasticos').value.trim()
+  };
+
+  const postRes = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify(payload)});
+  const postData = await postRes.json();
+  alert('Corte enviado exitosamente.');
+  window.location.href='index.html';
+});
+
+// Modal
+const modal = document.getElementById('modal');
+const modalBody = document.getElementById('modalBody');
+document.getElementById('cancelBtn').addEventListener('click', ()=> modal.style.display='none');
+document.getElementById('confirmNoBtn').addEventListener('click', ()=>{
+  modal.style.display='none';
+  alert('Continuar con el nuevo corte.');
+});
+document.getElementById('backIndexBtn').addEventListener('click', ()=> window.location.href='index.html');
+
+function showModal(row){
+  modalBody.innerHTML=`<p>Marca: ${row.marca}</p>
+                       <p>Modelo: ${row.modelo}</p>
+                       <p>Generación: ${row.añoGeneracion}</p>
+                       <p>Cortes existentes:</p>`;
+  row.images.forEach(img=>{
+    modalBody.innerHTML+=`<p>${img.type}: ${img.desc}</p><img src="${img.url}">`;
+  });
+  modal.style.display='flex';
+}
+
+// Helper
+async function getCortesData(){
+  const cortes=[];
+  document.querySelectorAll('.corte').forEach(async node=>{
+    const tipo=node.querySelector('.tipoCorte').value.trim();
+    const desc=node.querySelector('.descCorte').value.trim();
+    const imgNode=node.querySelector('.imgCorte');
+    const base64=imgNode.files[0]?await fileToBase64(imgNode.files[0]):null;
+    cortes.push({tipo,descripcion:desc,base64});
+  });
+  return cortes;
+}
+async function getFileData(descId,fileId){
+  const desc=document.getElementById(descId)?.value.trim()||'';
+  const fileNode=document.getElementById(fileId);
+  const base64=fileNode.files[0]?await fileToBase64(fileNode.files[0]):null;
+  return {descripcion:desc,base64};
+}
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result.split(',')[1]);
+    reader.onerror=error=>reject(error);
+    reader.readAsDataURL(file);
+  });
+}
+</script>
 </body>
-</html>
+        </html>
