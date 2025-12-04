@@ -108,7 +108,7 @@ textarea { resize: vertical; }
     <h3>Corte existente encontrado</h3>
     <div id="modalBody"></div>
     <button id="confirmNoBtn">No, es diferente</button>
-    <button id="cancelBtn">Sí, es el mismo</button>
+    <button id="cancelBtn">Cerrar modal</button>
     <button id="backIndexBtn">Volver al índice</button>
   </div>
 </div>
@@ -130,6 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
       fillSelectAll('.tipoCorte', data.tipoCorte);
       fillSelect('tipoEncendido', data.encendido);
     });
+
+  // Validación en tiempo real
+  ['marca','modelo','año'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', checkDuplicate);
+    document.getElementById(id).addEventListener('blur', checkDuplicate);
+  });
 });
 
 function fillSelect(id, options) {
@@ -157,52 +163,47 @@ document.getElementById('addCorteBtn').addEventListener('click', () => {
   fillSelectAll('.tipoCorte', validaciones.tipoCorte);
 });
 
-// Form submit
-document.getElementById('formulario').addEventListener('submit', async e=>{
-  e.preventDefault();
+// Función para revisar duplicados en tiempo real
+async function checkDuplicate() {
   const marca = document.getElementById('marca').value.trim();
   const modelo = document.getElementById('modelo').value.trim();
   const año = document.getElementById('año').value.trim();
-  const tipoCorte = document.querySelector('.tipoCorte').value.trim();
+  const tipoCorte = document.querySelector('.tipoCorte')?.value || '';
 
-  try {
-    const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
-    const data = await res.json();
+  if(!marca || !modelo || !año) return;
 
-    if(data.sameTypeExists){
-      showModal(data.sameTypeRow);
-      return;
-    }
+  const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
+  const data = await res.json();
 
-    const payload = {
-      colaborador: document.getElementById('colaborador').value.trim(),
-      categoria: document.getElementById('categoria').value,
-      marca, modelo, año,
-      tipoEncendido: document.getElementById('tipoEncendido').value,
-      cortes: await getCortesData(),
-      apertura: await getFileData('aperturaDesc','aperturaImg'),
-      cables: await getFileData('cablesDesc','cablesImg'),
-      nota: document.getElementById('nota').value.trim(),
-      plasticos: document.getElementById('plasticos').value.trim()
-    };
+  if(data.sameTypeExists){
+    showModal(data.sameTypeRow);
+  }
+}
 
-    const postRes = await fetch(WEB_APP_URL, {
-      method:'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const postData = await postRes.json();
+// Form submit
+document.getElementById('formulario').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const payload = {
+    colaborador: document.getElementById('colaborador').value.trim(),
+    categoria: document.getElementById('categoria').value,
+    marca: document.getElementById('marca').value.trim(),
+    modelo: document.getElementById('modelo').value.trim(),
+    año: document.getElementById('año').value.trim(),
+    tipoEncendido: document.getElementById('tipoEncendido').value,
+    cortes: await getCortesData(),
+    apertura: await getFileData('aperturaDesc','aperturaImg'),
+    cables: await getFileData('cablesDesc','cablesImg'),
+    nota: document.getElementById('nota').value.trim(),
+    plasticos: document.getElementById('plasticos').value.trim()
+  };
 
-    if(postData.success){
-      alert('Corte enviado exitosamente.');
-      window.location.href='index.html';
-    } else {
-      alert('Hubo un error al enviar el corte.');
-    }
-
-  } catch(err){
-    console.error(err);
-    alert('Error al comunicarse con el servidor.');
+  const postRes = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify(payload)});
+  const postData = await postRes.json();
+  if(postData.success){
+    alert('Corte enviado exitosamente.');
+    window.location.href='index.html';
+  } else {
+    alert('Ocurrió un error al enviar el corte.');
   }
 });
 
@@ -227,16 +228,15 @@ function showModal(row){
   modal.style.display='flex';
 }
 
-// Helper
+// Helpers
 async function getCortesData(){
   const cortes=[];
-  const nodes = document.querySelectorAll('.corte');
-  for(const node of nodes){
-    const tipo = node.querySelector('.tipoCorte').value.trim();
-    const desc = node.querySelector('.descCorte').value.trim();
-    const imgNode = node.querySelector('.imgCorte');
-    const base64 = imgNode.files[0]?await fileToBase64(imgNode.files[0]):null;
-    cortes.push({tipo, descripcion: desc, base64});
+  for(const node of document.querySelectorAll('.corte')){
+    const tipo=node.querySelector('.tipoCorte').value.trim();
+    const desc=node.querySelector('.descCorte').value.trim();
+    const imgNode=node.querySelector('.imgCorte');
+    const base64=imgNode.files[0]?await fileToBase64(imgNode.files[0]):null;
+    cortes.push({tipo,descripcion:desc,base64});
   }
   return cortes;
 }
@@ -258,5 +258,4 @@ function fileToBase64(file){
 }
 </script>
 </body>
-</html>
-
+    </html>
