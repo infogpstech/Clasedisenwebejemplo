@@ -1,537 +1,703 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>GPSpedia — Agregar / Actualizar Corte (Multi-paso)</title>
+<meta charset="UTF-8">
+<title>Agregar Corte de Vehículo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-:root{--accent:#007bff;--accent-dark:#0056b3}
-*{box-sizing:border-box}
-body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f4f4;color:#222}
-.container{max-width:900px;margin:18px auto;padding:16px}
-.header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.app-logo{width:84px;height:auto;border-radius:8px}
-.title{font-size:1.6rem;margin:0}
-.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,0.06)}
-.row{display:flex;gap:12px;flex-wrap:wrap}
-.col{flex:1;min-width:150px}
-label{display:block;font-weight:700;margin-top:10px}
-input,select,textarea,button{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:0.95rem}
-textarea{min-height:90px;resize:vertical}
-button{background:var(--accent);color:#fff;border:none;cursor:pointer}
-button.alt{background:#f0f0f0;color:#222;border:1px solid #ddd}
-.small{padding:8px;font-size:0.9rem;border-radius:8px}
-.step-indicator{display:flex;gap:8px;margin-bottom:12px}
-.step-pill{padding:6px 10px;border-radius:999px;background:#eee;font-weight:700;color:#444}
-.hidden{display:none}
+    body {
+        font-family: 'Inter', sans-serif;
+        padding: 20px;
+        background: #f0f4f8;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+    }
 
-/* modal */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:9999}
-.modal{background:#fff;border-radius:12px;padding:16px;max-width:740px;width:92%;max-height:86vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,0.25)}
-.modal img{max-width:220px;border-radius:8px;margin-top:8px}
+    .container {
+        width: 100%;
+        max-width: 500px;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
 
-/* previews */
-.preview{display:block;margin-top:8px;max-width:260px;border-radius:8px}
-.preview-sm{max-width:120px}
+    .step {
+        display: none;
+    }
 
-/* cortes */
-.corte{background:#fbfbfb;padding:10px;border-radius:8px;border:1px solid #eee;margin-top:10px}
+    .step.active {
+        display: block;
+    }
 
-/* loading */
-.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.75);z-index:10000;display:none}
-.spinner{width:64px;height:64px;border-radius:50%;border:8px solid rgba(0,0,0,0.08);border-top-color:var(--accent);animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+    /* Estilos de Formulario */
+    label {
+        display: block;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
 
-/* responsive */
-@media (max-width:520px){ .row{flex-direction:column} .title{font-size:1.2rem} .preview{max-width:95%} }
+    input[type="text"], input[type="number"], select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        font-size: 16px;
+        transition: border-color 0.3s;
+    }
+
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+        border-color: #007bff;
+        outline: none;
+    }
+
+    .btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+        background: #0056b3;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+    }
+
+    .loading {
+        display: none;
+        font-size: 18px;
+        margin-top: 10px;
+        text-align: center;
+        color: #007bff;
+    }
+
+    .image-preview {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        margin-top: 10px;
+        display: none;
+        border-radius: 6px;
+        border: 1px solid #ddd;
+    }
+
+    .opcion {
+        background: #e9ecef;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 10px 0;
+        cursor: pointer;
+        border: 2px solid #e9ecef;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .opcion:hover {
+        background: #d1e7fd;
+        border-color: #007bff;
+    }
+
+    .alert-box {
+        padding: 15px;
+        margin-top: 15px;
+        border-radius: 8px;
+        font-weight: bold;
+        display: none;
+    }
+
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
 </style>
 </head>
+
 <body>
+
 <div class="container">
-  <div class="header">
-    <img class="app-logo" src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="GPSpedia">
-    <div>
-      <h1 class="title">GPSpedia — Agregar / Actualizar</h1>
-      <small>Formulario paso a paso — evita duplicados y sube imágenes a Drive</small>
-    </div>
-  </div>
+    <h2>Ingreso de Soluciones para Vehículos</h2>
 
-  <div class="card">
-    <div class="step-indicator">
-      <div class="step-pill">Paso 1 • Identificar</div>
-      <div class="step-pill">Paso 2 • Opciones</div>
-      <div class="step-pill">Paso 3 • Datos</div>
-    </div>
+    <div id="loading" class="loading">⏳ Procesando, espera un momento...</div>
+    <div id="alertBox" class="alert-box"></div>
 
-    <!-- STEP 1 -->
-    <div id="step1">
-      <label>Nombre del colaborador</label>
-      <input id="colaborador" placeholder="Ej. Pablo Peña" required>
+    <!-- PASO 1: DATOS BÁSICOS Y FILTRO -->
+    <div id="step1" class="step active">
+        <h3>1. Datos de Identificación</h3>
 
-      <div class="row">
-        <div class="col">
-          <label>Categoría</label>
-          <select id="categoria"></select>
-        </div>
-        <div class="col">
-          <label>Tipo de encendido</label>
-          <select id="tipoEncendido"></select>
-        </div>
-      </div>
+        <label for="colaborador">Colaborador</label>
+        <input type="text" id="colaborador" required>
 
-      <div class="row">
-        <div class="col">
-          <label>Marca</label>
-          <input id="marca" autocomplete="off" placeholder="Ej. Audi">
-        </div>
-        <div class="col">
-          <label>Modelo</label>
-          <input id="modelo" autocomplete="off" placeholder="Ej. A1">
-        </div>
-        <div class="col" style="min-width:120px">
-          <label>Año (ej. 2015)</label>
-          <input id="año" type="number" min="1900" max="2099" placeholder="2015">
-        </div>
-      </div>
+        <label for="categoria">Categoría (Tipo de vehículo)</label>
+        <select id="categoria" required></select>
 
-      <label>Imagen del vehículo (opcional)</label>
-      <input id="imagenVehiculo" type="file" accept="image/*">
-      <img id="previewVehiculo" class="preview" style="display:none">
+        <label for="marca">Marca</label>
+        <input type="text" id="marca" required>
 
-      <div style="display:flex;gap:8px;margin-top:14px">
-        <button id="btnStep1Next" class="small">Buscar / Siguiente</button>
-        <button id="btnReset" class="small alt">Limpiar</button>
-        <div id="inlineMsg" style="align-self:center;color:#666;margin-left:8px"></div>
-      </div>
+        <label for="modelo">Modelo</label>
+        <input type="text" id="modelo" required>
+
+        <label for="anio">Año (Generación)</label>
+        <input type="number" id="anio" required>
+
+        <label for="imagenVehiculo">Imagen del vehículo</label>
+        <input type="file" id="imagenVehiculo" accept="image/*" onchange="manejarFileChange('imagenVehiculo', 'previewVehiculo')">
+        <img id="previewVehiculo" class="image-preview">
+
+        <button class="btn" onclick="validarModelo()">Buscar y Continuar</button>
     </div>
 
-    <!-- STEP 2: opciones según coincidencia -->
-    <div id="step2" class="hidden" style="margin-top:14px">
-      <div id="foundCard" class="card" style="margin-bottom:12px"></div>
 
-      <div class="card">
-        <p><strong>¿Qué deseas hacer?</strong></p>
-        <div id="optionsBtns" style="display:flex;gap:8px;flex-wrap:wrap"></div>
-        <div style="margin-top:12px">
-          <button id="btnCreateNew" class="small">Crear nueva fila / generación</button>
-          <button id="btnBackTo1" class="small alt">Volver</button>
+    <!-- PASO 2: SELECCIÓN DE ACCIÓN (Si el modelo existe) -->
+    <div id="step2" class="step">
+        <h3>2. Modelo Encontrado</h3>
+        <p id="infoExistente">El modelo <strong id="modeloEncontrado"></strong> ya está registrado.</p>
+
+        <h4>¿Qué deseas agregar o actualizar?</h4>
+
+        <div id="opciones">
+            <!-- Las opciones se generan aquí dinámicamente -->
         </div>
-      </div>
+
+        <button class="btn-secondary" onclick="volverPaso(1)">Regresar a Búsqueda</button>
     </div>
 
-    <!-- STEP 3: formulario parcial (según elección) -->
-    <div id="step3" class="hidden" style="margin-top:14px">
-      <div id="formTitle"><h3>Agregar información</h3></div>
 
-      <!-- Cortes -->
-      <div id="formCortes" class="card hidden">
-        <label>Agregar cortes (máx 3)</label>
-        <div id="cortesList">
-          <!-- primer corte por defecto -->
-          <div class="corte">
-            <label>Tipo de corte</label>
-            <select class="tipoCorte"></select>
-            <label>Descripción</label>
-            <textarea class="descCorte"></textarea>
-            <label>Imagen (opcional)</label>
-            <input type="file" class="imgCorte" accept="image/*">
-            <img class="preview cortePreview" style="display:none">
-            <div style="margin-top:8px"><button type="button" class="removeCorteBtn small alt" style="display:none">Eliminar</button></div>
-          </div>
+    <!-- PASO 3: FORMULARIO DINÁMICO (Nuevo Modelo o Agregar Dato) -->
+    <div id="step3" class="step">
+        <h3 id="tituloStep3"></h3>
+
+        <div id="contenidoStep3">
+            <!-- El formulario se genera aquí dinámicamente -->
         </div>
-        <div style="margin-top:8px"><button id="addCorteBtn" class="small">Agregar otro corte</button></div>
-      </div>
 
-      <!-- Apertura -->
-      <div id="formApertura" class="card hidden" style="margin-top:10px">
-        <label>Apertura (si aplica)</label>
-        <label>Descripción</label>
-        <textarea id="aperturaDesc"></textarea>
-        <label>Imagen (opcional)</label>
-        <input id="aperturaImg" type="file" accept="image/*">
-        <img id="previewApertura" class="preview" style="display:none">
-      </div>
-
-      <!-- Cables -->
-      <div id="formCables" class="card hidden" style="margin-top:10px">
-        <label>Cables de alimentación (si aplica)</label>
-        <label>Descripción</label>
-        <textarea id="cablesDesc"></textarea>
-        <label>Imagen (opcional)</label>
-        <input id="cablesImg" type="file" accept="image/*">
-        <img id="previewCables" class="preview" style="display:none">
-      </div>
-
-      <!-- Nota y plasticos -->
-      <div id="formOther" class="card" style="margin-top:10px">
-        <label>Nota importante</label>
-        <textarea id="nota"></textarea>
-        <label>Cómo desarmar los plásticos</label>
-        <textarea id="plasticos"></textarea>
-      </div>
-
-      <div style="display:flex;gap:8px;margin-top:12px">
-        <button id="btnSubmit" class="small">Enviar</button>
-        <button id="btnBackTo2" class="small alt">Volver</button>
-      </div>
+        <button class="btn" onclick="enviar()">Enviar y Guardar</button>
+        <button class="btn-secondary" onclick="volverPaso(2)">Regresar a Opciones</button>
     </div>
-
-  </div>
 </div>
 
-<!-- modal genérico -->
-<div id="modalBackdrop" class="modal-backdrop hidden" style="display:none">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div id="modalBody"></div>
-    <div style="margin-top:12px" id="modalActions"></div>
-  </div>
-</div>
-
-<!-- loading -->
-<div id="loading" class="loading"><div><div class="spinner"></div><div style="margin-top:10px;font-weight:700;color:#333">Procesando…</div></div></div>
 
 <script>
-/* ---------- CONFIG ---------- */
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwqo311vkvkbH3fM4IAboCqzgP_oebN-FxvtbQJYnk_FZKa35dDM1J4B2S5t-4Y70U_/exec';
-const MAX_CORTES = 3;
+// **IMPORTANTE**: Reemplaza esta URL con el endpoint de tu Web App de Google Apps Script.
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHWviOzHjb5qsKCHBhscXzoyH4iM5S2jRNJl_NbaOsw5E4nQdwUQKw307LZewYd5wX/exec';
 
-/* ---------- DOM refs ---------- */
-const step1 = document.getElementById('step1');
-const step2 = document.getElementById('step2');
-const step3 = document.getElementById('step3');
-const inlineMsg = document.getElementById('inlineMsg');
-const foundCard = document.getElementById('foundCard');
-const optionsBtns = document.getElementById('optionsBtns');
+let datosExistentes = null;
+let listasValidacion = {
+    categorias: [],
+    tipoEncendido: [],
+    tipoCorte: []
+}; 
+let accionSeleccionada = "";
+let fileData = {}; // Para guardar {nombreCampo: {base64: '...', name: '...'}, ...}
 
-const categoriaSel = document.getElementById('categoria');
-const tipoEncendidoSel = document.getElementById('tipoEncendido');
 
-/* ---------- init: load validation options ---------- */
-let serverValidation = { categorias: ['Carro','Camión','Moto','Maquinaria'], encendido: ['Llave','Botón'], tipoCorte: ['No recomendado','Ignición','Bomba de combustible','Señal a botón','Señal a ahogador'] };
+// =============================================================
+// UTILIDADES: Carga, Alertas, y Cambio de Archivos
+// =============================================================
 
-async function loadValidation(){
-  try {
-    const res = await fetch(WEB_APP_URL);
-    const data = await res.json();
-    if(data.categorias) serverValidation.categorias = data.categorias;
-    if(data.encendido) serverValidation.encendido = data.encendido;
-    if(data.tipoCorte) serverValidation.tipoCorte = data.tipoCorte;
-  } catch(err){
-    console.warn('No se pudo cargar validaciones, se usan presets.', err);
-  }
-  // fill selects
-  fillSelect(categoriaSel, serverValidation.categorias);
-  fillSelect(tipoEncendidoSel, serverValidation.encendido);
-  fillAllTipoCorte();
-}
-loadValidation();
-
-function fillSelect(sel, arr){
-  sel.innerHTML = '';
-  arr.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+// Función para mostrar alertas (reemplaza alert())
+function mostrarAlerta(mensaje, tipo) {
+    const alertBox = document.getElementById("alertBox");
+    alertBox.innerText = mensaje;
+    alertBox.className = "alert-box";
+    alertBox.classList.add(tipo === 'error' ? 'alert-error' : 'alert-success');
+    alertBox.style.display = 'block';
+    setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
 }
 
-function fillAllTipoCorte(){
-  document.querySelectorAll('.tipoCorte').forEach(s => {
-    s.innerHTML = '';
-    serverValidation.tipoCorte.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; s.appendChild(o); });
-  });
-}
+// Función para manejar la previsualización y conversión a Base64
+function manejarFileChange(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    const preview = document.getElementById(previewId);
+    const file = input.files[0];
 
-/* ---------- previews ---------- */
-function setupPreview(inputId, imgId){
-  const inp = document.getElementById(inputId);
-  const img = document.getElementById(imgId);
-  if(!inp||!img) return;
-  inp.addEventListener('change', ()=> {
-    const f = inp.files[0];
-    if(!f){ img.style.display='none'; img.src=''; return; }
-    img.src = URL.createObjectURL(f); img.style.display='block';
-  });
-}
-setupPreview('imagenVehiculo','previewVehiculo');
-setupPreview('aperturaImg','previewApertura');
-setupPreview('cablesImg','previewCables');
-
-/* cortes initial preview */
-document.querySelectorAll('.imgCorte').forEach(input=>{
-  const preview = input.parentElement.querySelector('.cortePreview');
-  if(!preview) return;
-  input.addEventListener('change', ()=> {
-    const f = input.files[0];
-    if(!f){ preview.style.display='none'; preview.src=''; return; }
-    preview.src = URL.createObjectURL(f); preview.style.display='block';
-  });
-});
-
-/* ---------- helpers ---------- */
-function showStep(n){ step1.classList.add('hidden'); step2.classList.add('hidden'); step3.classList.add('hidden'); if(n===1) step1.classList.remove('hidden'); if(n===2) step2.classList.remove('hidden'); if(n===3) step3.classList.remove('hidden'); }
-showStep(1);
-
-function showModal(html, actions){
-  const mb = document.getElementById('modalBody'); const ma = document.getElementById('modalActions');
-  mb.innerHTML = html; ma.innerHTML = '';
-  (actions||[]).forEach(act => {
-    const b = document.createElement('button'); b.type='button'; b.textContent = act.label; b.className='small'; if(act.kind==='alt'){ b.classList.add('alt'); b.style.background='#eee'; b.style.color='#111'; }
-    b.addEventListener('click', ()=> { act.onClick(); hideModal(); });
-    ma.appendChild(b);
-  });
-  const close = document.createElement('button'); close.type='button'; close.textContent='Cerrar'; close.className='small alt'; close.addEventListener('click', hideModal);
-  ma.appendChild(close);
-  const mbg = document.getElementById('modalBackdrop'); mbg.style.display='flex'; mbg.classList.remove('hidden');
-}
-function hideModal(){ const mbg = document.getElementById('modalBackdrop'); mbg.style.display='none'; mbg.classList.add('hidden'); }
-
-/* ---------- debounce duplicate check while typing ---------- */
-let debounceTimer = null;
-['marca','modelo','año'].forEach(id => {
-  const el = document.getElementById(id);
-  el.addEventListener('input', ()=> {
-    clearTimeout(debounceTimer);
-    debounceTimer = setTimeout(()=> {
-      quickCheckExists();
-    }, 700);
-  });
-});
-
-async function quickCheckExists(){
-  const marca = document.getElementById('marca').value.trim();
-  const modelo = document.getElementById('modelo').value.trim();
-  const año = document.getElementById('año').value.trim();
-  if(!marca || !modelo || !año) { inlineMsg.textContent=''; return; }
-  try {
-    inlineMsg.textContent = 'Buscando registros...';
-    const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}`);
-    const data = await res.json();
-    // server may return exists/sameTypeExists/etc. We handle both possibilities.
-    if(data.exists || data.cortes || data.sameTypeExists || data.rowIndex){
-      inlineMsg.textContent = 'Registro encontrado. Pulsa "Buscar / Siguiente" para ver detalles.';
-    } else {
-      inlineMsg.textContent = 'No se encontró registro.';
-    }
-  } catch(err){
-    inlineMsg.textContent = '';
-    console.warn('checkExists error', err);
-  }
-}
-
-/* ---------- STEP 1 -> Next (fetch details) ---------- */
-document.getElementById('btnStep1Next').addEventListener('click', async ()=>{
-  const colaborador = document.getElementById('colaborador').value.trim();
-  const marca = document.getElementById('marca').value.trim();
-  const modelo = document.getElementById('modelo').value.trim();
-  const año = document.getElementById('año').value.trim();
-  const categoria = categoriaSel.value;
-  const tipoEnc = tipoEncendidoSel.value;
-
-  if(!colaborador){ alert('Ingresa tu nombre (colaborador).'); return; }
-  if(!marca || !modelo || !año){ alert('Marca, Modelo y Año son obligatorios.'); return; }
-
-  // show searching
-  inlineMsg.textContent = 'Consultando base de datos...';
-
-  try {
-    const q = `${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}`;
-    const r = await fetch(q);
-    const data = await r.json();
-    inlineMsg.textContent = '';
-
-    // Interpret response — different backend versions may return different shapes.
-    // We'll try to detect:
-    // - If server returns exists:true OR cortes array -> treat as existing row
-    // - If not, treat as not found
-
-    const exists = !!(data.exists || data.rowIndex || data.cortes || data.imagenVehiculo || data.sameTypeExists);
-
-    if(!exists){
-      // No registro: show message and option to create new (step2 options)
-      foundCard.innerHTML = `<p>No se encontró registro para <strong>${marca} ${modelo} (${año})</strong>.</p>`;
-      buildOptions(false, {});
-      showStep(2);
-      return;
+    if (!file) {
+        fileData[inputId] = null;
+        preview.style.display = "none";
+        preview.src = "";
+        return;
     }
 
-    // If exists, show details in foundCard and options conditioned by hasApertura/hasCables
-    // Try to get values
-    const cortes = data.cortes || data.images || [];
-    const imagenVehiculo = data.imagenVehiculo || data.imagen || '';
-    const hasApertura = !!data.hasApertura;
-    const hasCables = !!data.hasCables;
-    const colaboradores = data.colaboradores || data.colaborador || '';
-
-    // Build HTML
-    let html = `<h3>Registro encontrado</h3><p><strong>${data.marca || marca} ${data.modelo || modelo}</strong> — ${data.añoGeneracion || ''}</p>`;
-    if(imagenVehiculo) html += `<div><img src="${imagenVehiculo}" class="preview" alt="Imagen modelo"></div>`;
-    if(cortes && cortes.length){
-      html += `<p><strong>Cortes existentes:</strong></p>`;
-      cortes.forEach(c => {
-        html += `<div style="margin-bottom:8px"><strong>${c.type||c.tipo||'Corte'}</strong><div>${c.desc||c.descripcion||''}</div>${c.url?`<img src="${c.url}" class="preview-sm">`:''}</div>`;
-      });
+    // Validación de tamaño (opcional, 5MB máximo)
+    if (file.size > 5 * 1024 * 1024) {
+        mostrarAlerta("La imagen es demasiado grande. Máximo 5MB.", 'error');
+        input.value = ''; // Limpiar el input file
+        preview.style.display = "none";
+        return;
     }
-    if(colaboradores) html += `<p><strong>Colaboradores:</strong> ${colaboradores}</p>`;
 
-    foundCard.innerHTML = html;
-    buildOptions(true, { hasApertura, hasCables, cortes });
-
-    showStep(2);
-
-  } catch(err){
-    inlineMsg.textContent = '';
-    console.error('Error buscando registro', err);
-    alert('Error consultando el servidor. Revisa la consola.');
-  }
-});
-
-/* ---------- construir botones de opciones ---------- */
-function buildOptions(exists, row){
-  optionsBtns.innerHTML = '';
-  // Always allow add corte
-  const btnCorte = makeButton('Agregar nuevo corte', ()=> openFormFor('corte'));
-  optionsBtns.appendChild(btnCorte);
-
-  if(!row.hasApertura){
-    const btnApertura = makeButton('Agregar apertura', ()=> openFormFor('apertura'));
-    optionsBtns.appendChild(btnApertura);
-  }
-
-  if(!row.hasCables){
-    const btnCables = makeButton('Agregar cables', ()=> openFormFor('cables'));
-    optionsBtns.appendChild(btnCables);
-  }
-
-  const btnAll = makeButton('Agregar toda la información / Crear registro', ()=> openFormFor('all'));
-  optionsBtns.appendChild(btnAll);
-}
-
-function makeButton(text, cb){
-  const b = document.createElement('button'); b.type='button'; b.className='small'; b.textContent = text; b.addEventListener('click', cb); return b;
-}
-
-/* ---------- open step3 with chosen mode ---------- */
-function openFormFor(mode){
-  // hide all specific forms
-  document.getElementById('formCortes').classList.add('hidden');
-  document.getElementById('formApertura').classList.add('hidden');
-  document.getElementById('formCables').classList.add('hidden');
-  // show correct section(s)
-  if(mode === 'corte'){ document.getElementById('formTitle').innerHTML = '<h3>Agregar Corte</h3>'; document.getElementById('formCortes').classList.remove('hidden'); }
-  else if(mode === 'apertura'){ document.getElementById('formTitle').innerHTML = '<h3>Agregar Apertura</h3>'; document.getElementById('formApertura').classList.remove('hidden'); }
-  else if(mode === 'cables'){ document.getElementById('formTitle').innerHTML = '<h3>Agregar Cables</h3>'; document.getElementById('formCables').classList.remove('hidden'); }
-  else { document.getElementById('formTitle').innerHTML = '<h3>Agregar / Crear registro completo</h3>'; document.getElementById('formCortes').classList.remove('hidden'); document.getElementById('formApertura').classList.remove('hidden'); document.getElementById('formCables').classList.remove('hidden'); }
-  // ensure tipoCorte options are set
-  fillAllTipoCorte();
-  showStep(3);
-}
-
-/* ---------- agregar / eliminar cortes dinámicamente ---------- */
-document.getElementById('addCorteBtn').addEventListener('click', ()=> {
-  const list = document.getElementById('cortesList');
-  if(list.children.length >= MAX_CORTES){ alert('Máximo ' + MAX_CORTES + ' cortes.'); return; }
-  const div = document.createElement('div'); div.className='corte';
-  div.innerHTML = `
-    <label>Tipo de corte</label><select class="tipoCorte"></select>
-    <label>Descripción</label><textarea class="descCorte"></textarea>
-    <label>Imagen (opcional)</label><input type="file" class="imgCorte" accept="image/*">
-    <img class="preview cortePreview" style="display:none">
-    <div style="margin-top:8px"><button type="button" class="removeCorteBtn small alt">Eliminar</button></div>
-  `;
-  list.appendChild(div);
-  fillAllTipoCorte();
-  // setup preview & remove
-  const inp = div.querySelector('.imgCorte'); const prev = div.querySelector('.cortePreview');
-  inp.addEventListener('change', ()=> { const f=inp.files[0]; if(!f){ prev.style.display='none'; prev.src=''; return; } prev.src=URL.createObjectURL(f); prev.style.display='block'; });
-  const btnR = div.querySelector('.removeCorteBtn'); btnR.addEventListener('click', ()=> div.remove());
-});
-
-/* ---------- Back buttons ---------- */
-document.getElementById('btnBackTo1').addEventListener('click', ()=> showStep(1));
-document.getElementById('btnBackTo2').addEventListener('click', ()=> showStep(2));
-document.getElementById('btnReset').addEventListener('click', ()=> {
-  document.getElementById('colaborador').value=''; document.getElementById('marca').value=''; document.getElementById('modelo').value=''; document.getElementById('año').value=''; document.getElementById('imagenVehiculo').value=''; document.getElementById('previewVehiculo').style.display='none'; inlineMsg.textContent='';
-});
-
-/* ---------- Submit final ---------- */
-document.getElementById('btnSubmit').addEventListener('click', async ()=>{
-  // basic validation
-  const colaborador = document.getElementById('colaborador').value.trim();
-  const marca = document.getElementById('marca').value.trim();
-  const modelo = document.getElementById('modelo').value.trim();
-  const año = document.getElementById('año').value.trim();
-  if(!colaborador || !marca || !modelo || !año){ alert('Completa identificación (colaborador, marca, modelo, año).'); return; }
-
-  // build cortes array
-  const cortes = [];
-  for(const node of document.querySelectorAll('#cortesList .corte')){
-    const tipo = node.querySelector('.tipoCorte')?.value?.trim() || '';
-    const desc = node.querySelector('.descCorte')?.value?.trim() || '';
-    const fnode = node.querySelector('.imgCorte');
-    const file = fnode?.files[0] || null;
-    const base64 = file ? await fileToDataURL(file) : null;
-    if(tipo || desc || base64) cortes.push({ tipo, descripcion: desc, base64, name: file?file.name:null });
-  }
-
-  // apertura
-  const aperturaFile = document.getElementById('aperturaImg')?.files[0] || null;
-  const apertura = { descripcion: document.getElementById('aperturaDesc')?.value?.trim() || '', base64: aperturaFile ? await fileToDataURL(aperturaFile) : null, name: aperturaFile?aperturaFile.name:null };
-
-  // cables
-  const cablesFile = document.getElementById('cablesImg')?.files[0] || null;
-  const cables = { descripcion: document.getElementById('cablesDesc')?.value?.trim() || '', base64: cablesFile ? await fileToDataURL(cablesFile) : null, name: cablesFile?cablesFile.name:null };
-
-  // imagen vehiculo
-  const vehFile = document.getElementById('imagenVehiculo')?.files[0] || null;
-  const imagenVehiculo = { base64: vehFile ? await fileToDataURL(vehFile) : null, name: vehFile?vehFile.name:null };
-
-  const payload = {
-    colaborador,
-    categoria: categoriaSel.value,
-    marca, modelo, año,
-    tipoEncendido: tipoEncendidoSel.value,
-    cortes,
-    apertura,
-    cables,
-    nota: document.getElementById('nota')?.value?.trim() || '',
-    plasticos: document.getElementById('plasticos')?.value?.trim() || '',
-    imagenVehiculo
-  };
-
-  // show loader
-  document.getElementById('loading').style.display='flex';
-
-  try {
-    const res = await fetch(WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-    const j = await res.json();
-    document.getElementById('loading').style.display='none';
-    if(j && j.success){
-      showModal('<h3>Éxito</h3><p>Información agregada/actualizada correctamente.</p>', [{ label:'OK', onClick: ()=> location.reload() }]);
-    } else {
-      console.error('Respuesta inesperada', j);
-      showModal('<h3>Error</h3><p>No se pudo guardar la información. Revisa la consola.</p>', [{ label:'Cerrar', onClick: ()=> {} }]);
-    }
-  } catch(err){
-    document.getElementById('loading').style.display='none';
-    console.error(err);
-    showModal('<h3>Error</h3><p>Error al comunicarse con el servidor: '+(err.message||err)+'</p>', [{ label:'Cerrar', onClick: ()=> {} }]);
-  }
-});
-
-/* ---------- utilities ---------- */
-function fileToDataURL(file){
-  return new Promise((resolve,reject)=>{
     const reader = new FileReader();
-    reader.onload = e => resolve(e.target.result); // full dataURL
-    reader.onerror = err => reject(err);
+    reader.onload = function(e){
+        fileData[inputId] = {
+            base64: e.target.result.split(',')[1], // Eliminar el prefijo 'data:image/...;base64,'
+            name: file.name
+        };
+        preview.src = e.target.result;
+        preview.style.display = "block";
+    };
     reader.readAsDataURL(file);
-  });
 }
-function fillAllTipoCorte(){
-  document.querySelectorAll('.tipoCorte').forEach(s => {
-    s.innerHTML = '';
-    (serverValidation.tipoCorte||[]).forEach(t => { const o=document.createElement('option'); o.value=t; o.textContent=t; s.appendChild(o);});
-  });
+
+// Inicialización: Cargar listas de validación usando FETCH
+window.onload = async () => {
+    const loading = document.getElementById("loading");
+    loading.style.display = "block";
+
+    try {
+        const url = `${WEB_APP_URL}?action=getValidationData`;
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+
+        listasValidacion = data;
+        const catSelect = document.getElementById("categoria");
+        listasValidacion.categorias.forEach(c => {
+            let op = document.createElement("option");
+            op.value = c;
+            op.innerText = c;
+            catSelect.appendChild(op);
+        });
+        loading.style.display = "none";
+
+    } catch (error) {
+        loading.style.display = "none";
+        mostrarAlerta("Error al cargar las listas de validación: " + error.message, 'error');
+        console.error("Error de carga inicial:", error);
+    }
+};
+
+
+// =============================================================
+// FLUJO DE FASES
+// =============================================================
+
+// Paso 1: Búsqueda y Validación de Modelo
+async function validarModelo() {
+    // Recolectar datos del Paso 1
+    const colaborador = document.getElementById("colaborador").value.trim();
+    const categoria = document.getElementById("categoria").value;
+    const marca = document.getElementById("marca").value.trim();
+    const modelo = document.getElementById("modelo").value.trim();
+    const anio = document.getElementById("anio").value.trim();
+    
+    if (!colaborador || !categoria || !marca || !modelo || !anio) {
+        mostrarAlerta("Por favor, llena todos los campos obligatorios del Paso 1.", 'error');
+        return;
+    }
+    
+    // Si no se ha cargado una imagen del vehículo
+    if (!fileData.imagenVehiculo) {
+        mostrarAlerta("La Imagen del vehículo es obligatoria para el registro/actualización.", 'error');
+        return;
+    }
+
+    const loading = document.getElementById("loading");
+    loading.style.display = "block";
+
+    const params = new URLSearchParams({ 
+        action: 'buscarModelo', 
+        categoria: categoria, 
+        marca: marca, 
+        modelo: modelo, 
+        anio: anio 
+    });
+    
+    const url = `${WEB_APP_URL}?${params.toString()}`;
+
+    try {
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        datosExistentes = data;
+        loading.style.display = "none";
+
+        if (datosExistentes.existe === false) {
+            // No existe: Registrar modelo nuevo
+            accionSeleccionada = "nuevoModelo";
+            generarFormularioModeloNuevo();
+            volverPaso(3);
+
+        } else {
+            // Sí existe: Mostrar opciones de actualización
+            document.getElementById("modeloEncontrado").innerText = `${marca} ${modelo} (${anio})`;
+            mostrarOpcionesExistentes(datosExistentes);
+            volverPaso(2);
+        }
+    } catch(error) {
+        loading.style.display = "none";
+        mostrarAlerta("Error al validar el modelo: " + error.message, 'error');
+        console.error("Error de validación de modelo:", error);
+    }
+}
+
+// Paso 2: Mostrar opciones para modelo existente
+function mostrarOpcionesExistentes(info) {
+    const opcionesDiv = document.getElementById("opciones");
+    opcionesDiv.innerHTML = "";
+
+    // Corte faltante
+    if (!info.tieneCorte1 || !info.tieneCorte2 || !info.tieneCorte3) {
+        let div = crearOpcion("Agregar Corte " + (info.tieneCorte1 ? (info.tieneCorte2 ? '3' : '2') : '1'), 'corteNuevo');
+        opcionesDiv.appendChild(div);
+    }
+
+    // Apertura faltante
+    if (!info.tieneApertura) {
+        opcionesDiv.appendChild(crearOpcion("Agregar Apertura", 'apertura'));
+    }
+
+    // Cables de Alimentación faltantes
+    if (!info.tieneCables) {
+        opcionesDiv.appendChild(crearOpcion("Agregar Cables de Alimentación", 'cables'));
+    }
+
+    // Imagen Vehículo
+    // La imagen del vehículo se carga en el Paso 1, así que esta opción siempre debe estar disponible para actualizar, pero no se muestra si ya la tiene.
+    if (!info.tieneImagenVehiculo) {
+        opcionesDiv.appendChild(crearOpcion("Actualizar Imagen del Vehículo", 'imagenVehiculoUpdate'));
+    }
+    
+    // Otras opciones de actualización
+    opcionesDiv.appendChild(crearOpcion("Actualizar Nota Importante", 'nota'));
+    opcionesDiv.appendChild(crearOpcion("Actualizar Cómo Desarmar Plásticos", 'plasticos'));
+}
+
+function crearOpcion(texto, accion) {
+    let div = document.createElement("div");
+    div.className = "opcion";
+    div.innerText = texto;
+    div.onclick = () => {
+        // Al hacer clic, se inicia la acción
+        accionSeleccionada = accion;
+        document.getElementById("step3").scrollIntoView(); // Scroll para mejor UX
+        generarFormularioDinamico(accion);
+        volverPaso(3);
+    };
+    return div;
+}
+
+// =============================================================
+// GENERACIÓN DE FORMULARIOS DINÁMICOS
+// =============================================================
+
+function generarSelect(id, label, opciones) {
+    opciones = Array.isArray(opciones) ? opciones : [];
+
+    let html = `<label for="${id}">${label}</label><select id="${id}" required>`;
+    html += `<option value="">Selecciona una opción</option>`;
+    opciones.forEach(op => {
+        let selected = (id === 'tipoCorte' && op === 'No recomendado') ? 'selected' : '';
+        html += `<option value="${op}" ${selected}>${op}</option>`;
+    });
+    html += `</select>`;
+    return html;
+}
+
+function generarInputFile(id, label, previewId, required = true) {
+    const requiredAttr = required ? 'required' : '';
+    return `
+        <label for="${id}">${label}</label>
+        <input type="file" id="${id}" accept="image/*" onchange="manejarFileChange('${id}', '${previewId}')" ${requiredAttr}>
+        <img id="${previewId}" class="image-preview">
+    `;
+}
+
+function generarFormularioDinamico(accion) {
+    const contenido = document.getElementById("contenidoStep3");
+    let html = "";
+    let titulo = "";
+
+    // Opciones para los selects de validación
+    const tipoCorteSelect = generarSelect('tipoCorte', 'Tipo de corte (Validación)', listasValidacion.tipoCorte);
+    const tipoEncendidoSelect = generarSelect('tipoEncendido', 'Tipo de encendido (Validación)', listasValidacion.tipoEncendido);
+
+
+    switch (accion) {
+        case 'nuevoModelo':
+            titulo = "3. Registrar Modelo Nuevo";
+            // Para el nuevo modelo, la imagen del vehículo ya se capturó en el Paso 1.
+            html = `
+                ${tipoEncendidoSelect}
+                <label for="comoDesarmarPlasticos">Cómo desarmar los plásticos (Opcional)</label>
+                <textarea id="comoDesarmarPlasticos" rows="3"></textarea>
+                <hr style="margin: 20px 0;">
+                <h4>Corte Inicial (Corte 1)</h4>
+                ${tipoCorteSelect}
+                <label for="descCorte1">Descripción del corte</label>
+                <textarea id="descCorte1" rows="3" required></textarea>
+                ${generarInputFile('imgCorte1', 'Imagen del Corte 1', 'previewCorte1')}
+            `;
+            break;
+
+        case 'corteNuevo':
+            titulo = "3. Agregar Corte Adicional";
+            html = `
+                ${tipoCorteSelect}
+                <label for="descripcionCorte">Descripción del corte</label>
+                <textarea id="descripcionCorte" rows="3" required></textarea>
+                ${generarInputFile('imgCorte', 'Imagen del Corte', 'previewCorte')}
+            `;
+            break;
+
+        case 'apertura':
+            titulo = "3. Agregar Apertura";
+            html = `
+                <label for="descApertura">Apertura (Descripción)</label>
+                <textarea id="descApertura" rows="3" required></textarea>
+                ${generarInputFile('imgApertura', 'Imagen de la Apertura', 'previewApertura')}
+            `;
+            break;
+
+        case 'cables':
+            titulo = "3. Agregar Cables de Alimentación";
+            html = `
+                <label for="descCables">Cables de Alimentación (Descripción)</label>
+                <textarea id="descCables" rows="3" required></textarea>
+                ${generarInputFile('imgCables', 'Imagen de los Cables de Alimentación', 'previewCables')}
+            `;
+            break;
+
+        case 'plasticos':
+            titulo = "3. Actualizar Cómo Desarmar Plásticos";
+            html = `
+                <label for="comoDesarmarPlasticos">Cómo desarmar los plásticos</label>
+                <textarea id="comoDesarmarPlasticos" rows="3" required></textarea>
+            `;
+            break;
+
+        case 'nota':
+            titulo = "3. Actualizar Nota Importante";
+            html = `
+                <label for="notaImportante">Nota Importante</label>
+                <textarea id="notaImportante" rows="3" required></textarea>
+            `;
+            break;
+            
+        case 'imagenVehiculoUpdate':
+            titulo = "3. Actualizar Imagen del Vehículo";
+            html = `
+                <p>La imagen anterior se reemplazará.</p>
+                ${generarInputFile('imagenVehiculoUpdateFile', 'Nueva Imagen del Vehículo', 'previewVehiculoUpdate')}
+            `;
+            // Borrar imagen del Paso 1 para que no se envíe en este caso, solo se envíe la del nuevo input.
+            delete fileData.imagenVehiculo; 
+            break;
+
+        default:
+            html = "<p>Acción de formulario no válida.</p>";
+            break;
+    }
+
+    document.getElementById("tituloStep3").innerText = titulo;
+    contenido.innerHTML = html;
+}
+
+// =============================================================
+// ENVÍO DE DATOS
+// =============================================================
+
+async function enviar() {
+    const loading = document.getElementById("loading");
+    loading.style.display = "block";
+
+    // Recolectar datos del Paso 1 (son la base de cualquier envío)
+    const basePayload = {
+        colaborador: document.getElementById("colaborador").value.trim(),
+        categoria: document.getElementById("categoria").value,
+        marca: document.getElementById("marca").value.trim(),
+        modelo: document.getElementById("modelo").value.trim(),
+        anio: Number(document.getElementById("anio").value),
+        accion: accionSeleccionada,
+        // Si el modelo existe, usamos el índice de fila que vino en la búsqueda
+        rowIndex: datosExistentes?.rowIndex || null 
+    };
+
+    let finalPayload = {};
+
+    try {
+        // Validación general de datos base
+        if (!basePayload.colaborador || !basePayload.categoria || !basePayload.marca || !basePayload.modelo || !basePayload.anio) {
+             throw new Error("Faltan datos de identificación obligatorios (Colaborador, Categoría, Marca, Modelo, Año).");
+        }
+        
+        // La imagen del vehículo se re-evalúa al momento del envío para casos de "imagenVehiculoUpdate"
+        let currentImagenVehiculo = fileData.imagenVehiculo;
+
+        switch (accionSeleccionada) {
+            case 'nuevoModelo':
+                const tipoEncendido = document.getElementById('tipoEncendido').value;
+                const tipoCorte1 = document.getElementById('tipoCorte').value;
+                const descCorte1 = document.getElementById('descCorte1').value.trim();
+                
+                if (!tipoEncendido || !tipoCorte1 || !descCorte1 || !fileData.imgCorte1 || !currentImagenVehiculo) {
+                    throw new Error("Faltan datos o la Imagen del Vehículo y la Imagen del Corte 1 son obligatorias para un NUEVO modelo.");
+                }
+
+                finalPayload = {
+                    ...basePayload,
+                    tipoEncendido: tipoEncendido,
+                    comoDesarmarPlasticos: document.getElementById('comoDesarmarPlasticos').value.trim(),
+                    imagenVehiculo: currentImagenVehiculo, 
+                    corte1: {
+                        tipoCorte: tipoCorte1,
+                        descripcion: descCorte1,
+                        imagen: fileData.imgCorte1
+                    }
+                };
+                break;
+
+            case 'corteNuevo':
+                const tipoCorte = document.getElementById('tipoCorte').value;
+                const descripcionCorte = document.getElementById('descripcionCorte').value.trim();
+                if (!tipoCorte || !descripcionCorte || !fileData.imgCorte) {
+                    throw new Error("Faltan datos o la imagen del Corte es obligatoria.");
+                }
+
+                finalPayload = {
+                    ...basePayload,
+                    corte: {
+                        tipoCorte: tipoCorte,
+                        descripcion: descripcionCorte,
+                        imagen: fileData.imgCorte
+                    }
+                };
+                break;
+
+            case 'apertura':
+                const descApertura = document.getElementById('descApertura').value.trim();
+                if (!descApertura || !fileData.imgApertura) {
+                    throw new Error("Faltan datos o la imagen de la Apertura es obligatoria.");
+                }
+
+                finalPayload = {
+                    ...basePayload,
+                    apertura: {
+                        descripcion: descApertura,
+                        imagen: fileData.imgApertura
+                    }
+                };
+                break;
+
+            case 'cables':
+                const descCables = document.getElementById('descCables').value.trim();
+                if (!descCables || !fileData.imgCables) {
+                    throw new Error("Faltan datos o la imagen de los Cables es obligatoria.");
+                }
+
+                finalPayload = {
+                    ...basePayload,
+                    cables: {
+                        descripcion: descCables,
+                        imagen: fileData.imgCables
+                    }
+                };
+                break;
+                
+            case 'imagenVehiculoUpdate':
+                if (!fileData.imagenVehiculoUpdateFile) {
+                    throw new Error("La nueva imagen del vehículo es obligatoria para actualizar.");
+                }
+                 finalPayload = {
+                    ...basePayload,
+                    imagenVehiculo: fileData.imagenVehiculoUpdateFile
+                };
+                break;
+
+            case 'plasticos':
+                finalPayload = {
+                    ...basePayload,
+                    comoDesarmarPlasticos: document.getElementById('comoDesarmarPlasticos').value.trim()
+                };
+                break;
+
+            case 'nota':
+                finalPayload = {
+                    ...basePayload,
+                    notaImportante: document.getElementById('notaImportante').value.trim()
+                };
+                break;
+
+            default:
+                throw new Error("Acción de formulario no válida.");
+        }
+        
+        // Ejecutar el fetch a doPost
+        const res = await fetch(WEB_APP_URL, {
+            method: "POST",
+            // IMPORTANTE: Apps Script requiere este encabezado para JSON
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify(finalPayload)
+        });
+
+        const jsonRes = await res.json();
+        loading.style.display = "none";
+
+        if (jsonRes.success) {
+            mostrarAlerta("✅ ¡Guardado Correctamente! Recargando...", 'success');
+            // Recargar después de un breve delay para que el usuario lea el mensaje
+            setTimeout(() => { location.reload(); }, 2000);
+        } else {
+            throw new Error(jsonRes.error || "Error desconocido al guardar en Apps Script.");
+        }
+
+    } catch (e) {
+        loading.style.display = "none";
+        mostrarAlerta("❌ Error de envío: " + e.message, 'error');
+        console.error("Error en función enviar:", e);
+    }
+}
+
+
+// =============================================================
+// NAVEGACIÓN
+// =============================================================
+
+function volverPaso(n) {
+    document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+    document.getElementById("step" + n).classList.add("active");
+
+    // Lógica para el botón de Regresar en el Paso 3
+    const btnRegresar = document.querySelector("#step3 .btn-secondary");
+    if (btnRegresar) {
+        // Si datosExistentes es null, volvemos al paso 1 (Búsqueda). Si no, volvemos al paso 2 (Opciones).
+        btnRegresar.onclick = () => volverPaso(datosExistentes?.existe ? 2 : 1);
+    }
 }
 </script>
+
 </body>
 </html>
-
-
