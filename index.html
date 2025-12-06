@@ -170,7 +170,7 @@
         <div class="btn-group">
             <button class="btn" onclick="buscarModelo()">Buscar y Siguiente</button>
         </div>
-        <p class="loading" id="loadingBusqueda">Buscando modelo...</p>
+        <p class="loading" id="loadingBusqueda">Cargando datos y buscando modelo...</p>
     </div>
 
     <!-- Paso 2: Detalles del Primer Corte (Encendido, Corte 1) -->
@@ -235,11 +235,13 @@
 
 <script>
     // ** CRÍTICO: URL de Despliegue **
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzk45LuYuhAEnm2Wr8gbe3CdcT9rTYP0BLbEnDx-Hx716lSj8HLesbPJuWLpC_C5n7f/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxdI-mL9DQf12lH_uiJqGrp2ql6zZJq3Fg-Lo15raTW9ov80DWajGZUK-2ycjbroUD_rQ/exec';
 
+    // Variables globales para almacenar los datos de validación cargados desde Apps Script
     let categoriasData = [];
     let tipoEncendidoData = [];
     let tipoCorteData = [];
+    
     let accionSeleccionada = 'nuevoModelo'; // 'nuevoModelo' | 'corteNuevo' | 'apertura' | 'cables' | 'imagenVehiculoUpdate' | 'plasticos' | 'nota'
     let modeloExistenteRowIndex = null;
     let resultBusqueda = {}; // Guarda el resultado de la búsqueda
@@ -259,13 +261,15 @@
     }
 
     function hideMessage() {
+        const messageText = document.getElementById("messageText").innerText;
         document.getElementById("messageBox").style.display = 'none';
+        
         // Recargar la página solo si el mensaje es de éxito
-        if (document.getElementById("messageText").innerText.includes("Guardado correctamente") ||
-            document.getElementById("messageText").innerText.includes("Error: Ya existen 3 cortes")
+        if (messageText.includes("Guardado correctamente") ||
+            messageText.includes("Error: Ya existen 3 cortes")
         ) {
              // Evita la recarga automática después de un error de 3 cortes, solo recarga tras éxito
-             if (document.getElementById("messageText").innerText.includes("Guardado correctamente")) {
+             if (messageText.includes("Guardado correctamente")) {
                 location.reload();
              }
         }
@@ -275,10 +279,11 @@
         document.getElementById(elementId).style.display = show ? 'block' : 'none';
     }
 
-    // --- Carga Inicial de Listas de Validación ---
+    // --- Carga Inicial de Listas de Validación (CORREGIDO) ---
     async function loadValidationData() {
         showLoading('loadingBusqueda', true);
         try {
+            // Nueva acción para obtener todas las listas
             const url = `${WEB_APP_URL}?action=getValidationData`;
             const res = await fetch(url);
             
@@ -288,17 +293,19 @@
             
             const data = await res.json();
             
+            // Asignar los datos recibidos a las variables globales
             categoriasData = data.categorias || [];
             tipoEncendidoData = data.tipoEncendido || [];
             tipoCorteData = data.tipoCorte || [];
 
+            // Llenar los SELECT con los datos correctos
             populateSelect('categoria', categoriasData);
-            populateSelect('tipoEncendido', tipoEncendidoData);
-            populateSelect('tipoCorte1', tipoCorteData); // <--- CORRECCIÓN CLAVE: Llenar el desplegable
+            populateSelect('tipoEncendido', tipoEncendidoData); // CORREGIDO: Ahora usa data del script
+            populateSelect('tipoCorte1', tipoCorteData);        // CORREGIDO: Ahora usa data del script
 
         } catch (error) {
             console.error("Error al cargar datos de validación:", error);
-            showMessage(`Error de conexión inicial. Por favor, revisa la URL y el despliegue de Apps Script. Detalle: ${error.message}`);
+            showMessage(`Error de conexión inicial al cargar las validaciones. Por favor, revisa la URL y el despliegue de Apps Script. Detalle: ${error.message}`);
         } finally {
             showLoading('loadingBusqueda', false);
         }
@@ -330,7 +337,7 @@
         }
         
         if (document.getElementById("imgVehiculo").files.length === 0) {
-            showMessage("Por favor, adjunte la Imagen del Vehículo (Paso 1).");
+            showMessage("Por favor, adjunte la Imagen del Vehículo (Columna C) en el Paso 1.");
             return;
         }
 
@@ -356,7 +363,9 @@
                 // Modelo no encontrado, se procede a nuevo registro
                 accionSeleccionada = 'nuevoModelo';
                 document.getElementById('accionTitle').innerText = 'Nuevo Registro - Detalle Corte 1';
-                configurarContenidoPaso3('corte1'); // Muestra los campos de plásticos/opcionales
+                // Asegura que los desplegables estén llenos antes de ir al paso 2
+                populateSelect('tipoEncendido', tipoEncendidoData);
+                populateSelect('tipoCorte1', tipoCorteData);
                 mostrarPaso(2);
             }
             
@@ -788,12 +797,9 @@
         document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
         document.getElementById(`step${n}`).classList.add("active");
         
-        // Si vamos al paso 2, reconfiguramos el contenido por si venimos de buscarModelo
+        // Si vamos al paso 2 (Nuevo Modelo), aseguramos que los selectores estén llenos.
         if (n === 2 && accionSeleccionada === 'nuevoModelo') {
-            // Asegura que los desplegables se llenen si volvemos del paso 3 o inicio
-            populateSelect('tipoEncendido', tipoEncendidoData);
-            populateSelect('tipoCorte1', tipoCorteData);
-            
+            // Re-renderizar el contenido para asegurar los ID de los elementos y rellenar los selectores
             document.getElementById("contenidoStep2").innerHTML = `
                 <h3 style="margin-top: 0;">Información del Corte 1</h3>
                 
@@ -810,9 +816,10 @@
                 <input type="file" id="imgCorte1" accept="image/*">
                 <img id="previewCorte1" class="image-preview" style="display: none;">
             `;
-            // Re-adjuntar listeners y llenar desplegables
+            // Re-adjuntar listeners y llenar desplegables con los datos cargados globalmente
             populateSelect('tipoEncendido', tipoEncendidoData);
             populateSelect('tipoCorte1', tipoCorteData);
+            
             if (document.getElementById('imgCorte1')) {
                 document.getElementById('imgCorte1').addEventListener('change', (e) => handleImageUpload(e, 'corte1'));
             }
