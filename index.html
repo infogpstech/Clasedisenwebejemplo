@@ -2,258 +2,232 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Agregar Corte</title>
+<title>Registro de Cortes de Vehículos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
+    /* Estilos base con Tailwind */
     body {
-        font-family: Arial, sans-serif;
-        padding: 15px;
-        background: #f5f5f5;
+        font-family: 'Inter', sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+        padding: 1rem;
     }
 
-    /* Estilos para entradas de formulario */
-    label {
-        display: block;
-        margin-top: 10px;
-        font-weight: bold;
-        color: #333;
+    .container-wrapper {
+        display: flex;
+        justify-content: center;
     }
-    input[type="text"], input[type="number"], select, textarea {
+
+    .form-container {
+        max-width: 500px;
         width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        box-sizing: border-box; /* Importante para que el padding no afecte el width total */
-    }
-    textarea {
-        resize: vertical;
-        min-height: 80px;
     }
 
     .step {
         display: none;
         background: white;
-        padding: 20px;
-        margin-bottom: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transition: opacity 0.3s ease-in-out;
     }
 
     .step.active {
         display: block;
+        opacity: 1;
     }
 
+    input[type="text"], input[type="number"], select, textarea {
+        @apply w-full p-3 mt-1 mb-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500;
+    }
+    
     .btn {
-        background: #007bff; /* Azul primario */
-        color: white;
-        border: none;
-        padding: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 16px;
-        margin-top: 15px;
-        transition: background 0.3s;
-    }
-
-    .btn:hover {
-        background: #0056b3;
+        @apply bg-blue-600 text-white p-3 rounded-lg cursor-pointer w-full font-semibold mt-4 transition duration-200 hover:bg-blue-700 disabled:opacity-50;
     }
 
     .btn-secondary {
-        background: #6c757d; /* Gris secundario */
-    }
-    .btn-secondary:hover {
-        background: #5a6268;
+        @apply bg-gray-500 hover:bg-gray-600 mt-2;
     }
 
-    .loading {
-        display: none;
-        font-size: 18px;
-        margin-top: 20px;
-        text-align: center;
-        color: #007bff;
-        font-weight: bold;
+    .opcion-card {
+        @apply bg-gray-50 p-4 rounded-lg my-3 border-2 border-gray-200 cursor-pointer transition duration-200 hover:border-blue-500 hover:shadow-md;
     }
-
-    .image-preview {
-        width: 100%;
-        max-width: 300px;
-        height: auto;
-        margin: 10px 0;
-        display: none;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-    }
-    
-    .opcion {
-        background: #e9ecef;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 10px 0;
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-        font-weight: 500;
-        color: #333;
-    }
-    .opcion:hover {
-        background: #dee2e6;
-        border-color: #007bff;
-    }
-
-    .opcion-info {
-        font-size: 0.9em;
-        color: #6c757d;
-        margin-top: 5px;
-    }
-
 </style>
 </head>
 
 <body>
 
-<h2>Ingreso de Información de Cortes</h2>
+<div class="container-wrapper">
+    <div class="form-container">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registro de Cortes de Vehículos</h1>
 
-<div id="loading" class="loading">⏳ Procesando, por favor espera...</div>
-<div id="messageBox" style="display:none; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-weight: bold;"></div>
+        <!-- Mensajes de Alerta y Loading -->
+        <div id="loading" class="text-center py-4 hidden">
+            <svg class="animate-spin h-6 w-6 mr-3 inline-block text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-blue-600 font-medium">Procesando...</span>
+        </div>
+        <div id="messageBox" class="p-4 rounded-lg mb-4 text-sm font-medium hidden" role="alert"></div>
+
+        <!-- PASO 1: BÚSQUEDA Y FILTRO -->
+        <div id="step1" class="step active">
+            <h3 class="text-xl font-semibold mb-4 text-gray-700">1. Buscar Modelo Existente</h3>
+
+            <label for="colaborador">Colaborador</label>
+            <input type="text" id="colaborador" required>
+
+            <label for="marca">Marca</label>
+            <input type="text" id="marca" required>
+
+            <label for="modelo">Modelo</label>
+            <input type="text" id="modelo" required>
+
+            <label for="anio">Año</label>
+            <input type="number" id="anio" min="1900" max="2100" required>
+            
+            <button class="btn" onclick="buscarModelo()">Buscar Modelo</button>
+        </div>
 
 
-<!-- PASO 1: DATOS BÁSICOS -->
-<div id="step1" class="step active">
-    <h3>1. Datos del Modelo</h3>
+        <!-- PASO 2: SELECCIÓN DE ACCIÓN (Modelo Encontrado) -->
+        <div id="step2" class="step">
+            <h3 class="text-xl font-semibold mb-2 text-gray-700">2. Modelo <span id="modeloInfo"></span></h3>
+            <p id="infoExistente" class="font-medium text-lg text-green-700 mb-4"></p>
 
-    <label for="colaborador">Colaborador</label>
-    <input type="text" id="colaborador" required>
+            <h4 class="font-semibold text-gray-700 mb-3">Selecciona la acción a realizar:</h4>
 
-    <label for="categoria">Categoría</label>
-    <select id="categoria"></select>
+            <div id="opciones"></div>
 
-    <label for="marca">Marca</label>
-    <input type="text" id="marca" required>
+            <button class="btn btn-secondary" onclick="mostrarPaso(1)">Regresar a Búsqueda</button>
+        </div>
 
-    <label for="modelo">Modelo</label>
-    <input type="text" id="modelo" required>
 
-    <label for="anio">Año</label>
-    <input type="number" id="anio" min="1900" max="2100" required>
+        <!-- PASO 3: FORMULARIO DINÁMICO (Nuevo o Actualización) -->
+        <div id="step3" class="step">
+            <h3 id="tituloStep3" class="text-xl font-semibold mb-4 text-gray-700"></h3>
 
-    <label for="imagenVehiculo">Imagen del vehículo (Opcional)</label>
-    <input type="file" id="imagenVehiculo" accept="image/*">
-    <img id="previewVehiculo" class="image-preview" alt="Vista previa del vehículo">
+            <!-- Contenido específico generado por JS -->
+            <div id="contenidoDinamico"></div>
 
-    <button class="btn" onclick="validarModelo()">Buscar Modelo</button>
+            <!-- Campos Comunes -->
+            <h4 class="font-bold text-gray-600 mt-6 mb-2 border-t pt-4">Información Adicional (Opcional)</h4>
+            
+            <label for="comoDesarmarPlasticos">Cómo desarmar plásticos</label>
+            <textarea id="comoDesarmarPlasticos" rows="3"></textarea>
+
+            <label for="notaImportante">Nota Importante</label>
+            <textarea id="notaImportante" rows="3"></textarea>
+            
+            <label for="colaboradorFinal">Colaborador (Confirmar)</label>
+            <input type="text" id="colaboradorFinal" required>
+            
+            <button class="btn" onclick="enviar()">Enviar y Guardar</button>
+            <button class="btn btn-secondary" onclick="volverPaso(2)">Regresar</button>
+        </div>
+    </div>
 </div>
-
-
-<!-- PASO 2: SELECCIÓN DE ACCIÓN -->
-<div id="step2" class="step">
-    <h3>2. Modelo Encontrado</h3>
-    <p id="infoExistente" style="font-weight: bold;"></p>
-
-    <h4>¿Qué deseas agregar o actualizar?</h4>
-
-    <div id="opciones"></div>
-
-    <button class="btn-secondary" onclick="volverPaso1()">Regresar</button>
-</div>
-
-
-<!-- PASO 3: FORMULARIO DINÁMICO -->
-<div id="step3" class="step">
-    <h3 id="tituloStep3"></h3>
-
-    <div id="contenidoStep3"></div>
-    
-    <!-- Campos Comunes -->
-    <label for="comoDesarmarPlasticos">Cómo desarmar plásticos (Opcional)</label>
-    <textarea id="comoDesarmarPlasticos"></textarea>
-
-    <label for="notaImportante">Nota Importante (Opcional)</label>
-    <textarea id="notaImportante"></textarea>
-    
-    <label for="colaboradorFinal">Colaborador (Confirmar)</label>
-    <input type="text" id="colaboradorFinal" required>
-    
-    <button class="btn" onclick="enviar()">Enviar</button>
-    <button class="btn-secondary" onclick="volverPaso2()">Regresar</button>
-</div>
-
 
 
 <script>
-// *** URL ACTUALIZADA CON EL VALOR PROPORCIONADO POR EL USUARIO ***
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyyxA2MYxgZqLXip-qTtD_q3LuHn9HlRFRnmMKeOJX5JRKsamzrr0MfEl0Z8ysHYtyHaQ/exec";
+// =============================================================
+// CONFIGURACIÓN Y ESTADO GLOBAL
+// =============================================================
 
-// Estados globales
-let imagenVehiculoBase64 = "";
-let imagenCorteBase64 = "";
-let imagenAperturaBase64 = "";
-let imagenCablesBase64 = "";
+// *** IMPORTANTE: REEMPLAZA ESTA URL CON LA DE TU NUEVO DESPLIEGUE ***
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby4PAwt88OVfUt0hN4EFaw996VXxasCWS5zau0HwVaBuBarOyXX84yxKx5i7yqk_5pb/exec";
 
-let datosEncontrados = null; // Almacena la respuesta de buscarModelo
-let validaciones = null;     // Almacena los arrays de validación
+let validaciones = {}; // Almacena {CATEGORIAS: [], TIPO_ENCENDIDO: [], TIPO_CORTE: []}
+let datosEncontrados = null; // Almacena { existe: true, rowIndex: 5, ... } o { existe: false }
 let accionSeleccionada = "";
+let base64Data = {}; // Almacena temporalmente los datos Base64 de las imágenes
 
 
-// ------------------------------------
-// Manejo de UI (Mensajes y Pasos)
-// ------------------------------------
+// =============================================================
+// UTILIDADES (UI y Archivos)
+// =============================================================
 
-function showMessage(text, isError = false) {
+function mostrarAlerta(text, type = 'info') {
     const box = document.getElementById("messageBox");
     box.innerText = text;
-    box.style.backgroundColor = isError ? '#f8d7da' : '#d4edda';
-    box.style.color = isError ? '#721c24' : '#155724';
-    box.style.border = `1px solid ${isError ? '#f5c6cb' : '#c3e6cb'}`;
-    box.style.display = 'block';
-    setTimeout(() => { box.style.display = 'none'; }, 5000);
+    box.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
+    if (type === 'error') {
+        box.classList.add('bg-red-100', 'text-red-700', 'border', 'border-red-400');
+    } else if (type === 'success') {
+        box.classList.add('bg-green-100', 'text-green-700', 'border', 'border-green-400');
+    } else {
+        box.classList.add('bg-yellow-100', 'text-yellow-700', 'border', 'border-yellow-400');
+    }
+    box.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => { box.classList.add('hidden'); }, 8000);
 }
 
 function setLoading(isLoading) {
-    document.getElementById("loading").style.display = isLoading ? "block" : "none";
+    document.getElementById("loading").classList.toggle("hidden", !isLoading);
+    document.querySelectorAll(".step.active .btn").forEach(btn => btn.disabled = isLoading);
 }
 
-function mostrarPaso(n){
+function mostrarPaso(n) {
     document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
     document.getElementById("step" + n).classList.add("active");
-    // Sincronizar colaborador
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // Sincronizar colaborador al ir al paso final
     if (n === 3) {
         document.getElementById("colaboradorFinal").value = document.getElementById("colaborador").value;
+        document.getElementById("colaboradorFinal").disabled = true; // No permitir cambiarlo aquí
     }
 }
 
-function volverPaso1(){
-    mostrarPaso(1);
+/** Lee un archivo y lo almacena como Base64 con metadatos. */
+function readFileAsBase64(fileInput, key) {
+    const file = fileInput.files[0];
+    if (!file) {
+        base64Data[key] = null;
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        base64Data[key] = {
+            base64: e.target.result, // Cadena data:image/...;base64,...
+            name: file.name
+        };
+        const previewId = `preview${key}`;
+        const preview = document.getElementById(previewId);
+        if (preview) {
+            preview.src = e.target.result;
+            preview.classList.remove("hidden");
+        }
+    };
+    reader.readAsDataURL(file);
 }
 
-function volverPaso2(){
-    mostrarPaso(2);
-}
-
-
-// ------------------------------------
-// Inicialización y Carga de Datos
-// ------------------------------------
+// =============================================================
+// INICIALIZACIÓN (Carga de Validaciones)
+// =============================================================
 
 window.onload = async () => {
-    // 1. Cargar datos de validación
     try {
         setLoading(true);
-        let res = await fetch(WEB_APP_URL + "?action=getValidationData");
-        validaciones = await res.json();
+        const res = await fetch(WEB_APP_URL + "?action=getValidationData");
+        const data = await res.json();
         setLoading(false);
 
-        if (validaciones.error) {
-            showMessage("Error al cargar datos de validación: " + validaciones.error, true);
+        if (data.error) {
+            mostrarAlerta("Error al cargar datos de validación: " + data.error, true);
             return;
         }
 
-        // 2. Llenar el select de Categorías
-        const catSelect = document.getElementById("categoria");
-        validaciones.categorias.forEach(c => {
-            let op = document.createElement("option");
+        validaciones = data;
+
+        // Llenar el select de Categorías en el Paso 1
+        const catSelect = document.getElementById("categoriaPaso1");
+        validaciones.CATEGORIAS.forEach(c => {
+            const op = document.createElement("option");
             op.value = c;
             op.innerText = c;
             catSelect.appendChild(op);
@@ -261,411 +235,304 @@ window.onload = async () => {
 
     } catch (e) {
         setLoading(false);
-        showMessage("Error al inicializar la aplicación. Verifica la conexión con Apps Script.", true);
+        mostrarAlerta("Error de red o Apps Script al inicializar. Revisa tu URL y despliegue.", 'error');
+        console.error("Error de fetch inicial:", e);
     }
 };
 
 
-// ------------------------------------
-// Manejo de Archivos (Base64)
-// ------------------------------------
+// =============================================================
+// PASO 1: BÚSQUEDA (doGet?action=buscarModelo)
+// =============================================================
 
-function readFileAsBase64(fileInput, callback) {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e){
-        callback(e.target.result, file.name);
-    };
-    reader.readAsDataURL(file);
-}
-
-// Previsualización Imagen Vehículo
-document.getElementById("imagenVehiculo").addEventListener("change", function(){
-    readFileAsBase64(this, (base64, name) => {
-        imagenVehiculoBase64 = base64;
-        document.getElementById("previewVehiculo").src = base64;
-        document.getElementById("previewVehiculo").style.display = "block";
-    });
-});
-
-
-// ------------------------------------
-// PASO 1: Validación y Búsqueda
-// ------------------------------------
-
-async function validarModelo(){
+async function buscarModelo() {
     const marca = document.getElementById("marca").value.trim();
     const modelo = document.getElementById("modelo").value.trim();
     const anio = document.getElementById("anio").value.trim();
     const colaborador = document.getElementById("colaborador").value.trim();
 
     if (!marca || !modelo || !anio || !colaborador) {
-        showMessage("Por favor, completa Marca, Modelo, Año y Colaborador.", false);
+        mostrarAlerta("Por favor, completa Marca, Modelo, Año y Colaborador.", 'error');
         return;
     }
-    
-    // Asegurar que el año es un número
-    const anioNum = Number(anio);
-    if (isNaN(anioNum) || anioNum < 1900 || anioNum > 2100) {
-        showMessage("El año debe ser un número válido.", true);
-        return;
-    }
-
 
     setLoading(true);
     try {
-        const url = `${WEB_APP_URL}?action=buscarModelo&marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&anio=${anioNum}`;
-        let res = await fetch(url);
+        const url = `${WEB_APP_URL}?action=buscarModelo&marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&anio=${anio}`;
+        const res = await fetch(url);
         datosEncontrados = await res.json();
         setLoading(false);
-        
+
         if (datosEncontrados.error) {
-            showMessage("Error en la búsqueda: " + datosEncontrados.error, true);
+            mostrarAlerta("Error en la búsqueda: " + datosEncontrados.error, 'error');
             return;
         }
 
-        if (datosEncontrados.existe === false){
-            // Modelo no encontrado: Registrar modelo nuevo
+        document.getElementById("modeloInfo").innerText = `${marca} ${modelo} (${anio})`;
+
+        if (datosEncontrados.existe === false) {
+            // Modelo NO encontrado: ir directamente a crear nuevo
             accionSeleccionada = "nuevoModelo";
-            mostrarPaso(3);
-            generarFormularioModeloNuevo();
+            generarFormulario('nuevoModelo');
         } else {
             // Modelo encontrado: Mostrar opciones de actualización
-            document.getElementById("infoExistente").innerText = `Modelo: ${marca} ${modelo} (${anioNum}). Fila #${datosEncontrados.rowIndex}.`;
-            mostrarPaso(2);
+            document.getElementById("infoExistente").innerText = 
+                `Modelo encontrado en la fila #${datosEncontrados.rowIndex}. Selecciona lo que deseas agregar/actualizar.`;
             mostrarOpcionesExistentes(datosEncontrados);
+            mostrarPaso(2);
         }
 
     } catch (e) {
         setLoading(false);
-        showMessage("Error de comunicación con Apps Script durante la búsqueda.", true);
+        mostrarAlerta("Error de comunicación durante la búsqueda.", 'error');
+        console.error("Error de fetch:", e);
     }
 }
 
 
-// ------------------------------------
-// PASO 2: Opciones de Actualización
-// ------------------------------------
+// =============================================================
+// PASO 2: OPCIONES (Modelo Existente)
+// =============================================================
 
-function mostrarOpcionesExistentes(info){
+function mostrarOpcionesExistentes(info) {
     const opciones = document.getElementById("opciones");
     opciones.innerHTML = "";
-    
+
     let html = '';
 
     // Opción para Cortes
-    if (!info.tieneCorte2 || !info.tieneCorte3){
-        let mensaje = "";
-        if (!info.tieneCorte2) mensaje = " (Corte 2 disponible)";
-        else if (!info.tieneCorte3) mensaje = " (Corte 3 disponible)";
+    let cortesDisp = [];
+    if (!info.tieneCorte2) cortesDisp.push("Corte 2");
+    if (!info.tieneCorte3) cortesDisp.push("Corte 3");
 
-        html += `<div class="opcion" onclick="seleccionarAccion('corteNuevo')">
-                    Agregar Corte Nuevo ${mensaje}
-                    <div class="opcion-info">${info.tieneCorte1 ? 'Ya tiene Corte 1.' : 'ERROR: No tiene Corte 1'}</div>
+    if (cortesDisp.length > 0) {
+        html += `<div class="opcion-card" onclick="generarFormulario('corteNuevo')">
+                    <span class="font-bold text-lg">➕ Agregar Corte Nuevo</span>
+                    <div class="text-gray-500 text-sm">Disponibles: ${cortesDisp.join(" y ")}</div>
+                 </div>`;
+    } else {
+        html += `<div class="opcion-card opacity-50 cursor-not-allowed">
+                    <span class="font-bold text-lg">✔️ Cortes Completos</span>
+                    <div class="text-gray-500 text-sm">Ya tiene 3 cortes registrados.</div>
                  </div>`;
     }
 
-    // Opción para Apertura
-    if (!info.tieneApertura){
-        html += `<div class="opcion" onclick="seleccionarAccion('apertura')">
-                    Agregar Apertura
-                 </div>`;
-    }
-
-    // Opción para Cables
-    if (!info.tieneCables){
-        html += `<div class="opcion" onclick="seleccionarAccion('cables')">
-                    Agregar Cables de Alimentación
-                 </div>`;
-    }
-    
-    // Opción para Imagen de Vehículo
-    html += `<div class="opcion" onclick="seleccionarAccion('imagenVehiculoUpdate')">
-                Actualizar Imagen del Vehículo
+    // Apertura
+    const aperturaStatus = info.tieneApertura ? 'Actualizar Apertura' : 'Agregar Apertura';
+    html += `<div class="opcion-card" onclick="generarFormulario('apertura')">
+                <span class="font-bold text-lg">🔑 ${aperturaStatus}</span>
+                <div class="text-gray-500 text-sm">${info.tieneApertura ? 'Sobrescribe la descripción/imagen existente.' : 'Agrega el punto de apertura.'}</div>
              </div>`;
-             
+
+    // Cables
+    const cablesStatus = info.tieneCables ? 'Actualizar Cables' : 'Agregar Cables de Alimentación';
+    html += `<div class="opcion-card" onclick="generarFormulario('cables')">
+                <span class="font-bold text-lg">🔋 ${cablesStatus}</span>
+                <div class="text-gray-500 text-sm">${info.tieneCables ? 'Sobrescribe la descripción/imagen existente.' : 'Agrega la descripción de cables.'}</div>
+             </div>`;
+
+    // Imagen Vehículo
+    html += `<div class="opcion-card" onclick="generarFormulario('imagenVehiculoUpdate')">
+                <span class="font-bold text-lg">📷 Actualizar Imagen del Vehículo</span>
+                <div class="text-gray-500 text-sm">Subir una nueva imagen para la columna 'Imagen del vehiculo'.</div>
+             </div>`;
+
     opciones.innerHTML = html;
 }
 
-function seleccionarAccion(accion){
+function generarFormulario(accion) {
     accionSeleccionada = accion;
-    mostrarPaso(3);
-    
-    switch(accion) {
+    document.getElementById("contenidoDinamico").innerHTML = ""; // Limpiar
+    base64Data = {}; // Limpiar datos de imagen
+
+    // Generar campos de formulario
+    const generarSelectHtml = (id, values, label, isRequired = true) => {
+        const requiredAttr = isRequired ? 'required' : '';
+        const options = values.map(v => `<option value="${v}">${v}</option>`).join('');
+        return `
+            <label for="${id}">${label}</label>
+            <select id="${id}" ${requiredAttr}>
+                <option value="" disabled selected>Seleccione...</option>
+                ${options}
+            </select>
+        `;
+    };
+
+    const generarInputFile = (id, label, base64Key, isRequired = true) => {
+        const requiredAttr = isRequired ? 'required' : '';
+        const handler = `onchange="readFileAsBase64(this, '${base64Key}')"`;
+        const previewId = `preview${base64Key}`;
+        return `
+            <label for="${id}">${label}</label>
+            <input type="file" id="${id}" accept="image/*" ${requiredAttr} ${handler}>
+            <img id="${previewId}" class="w-full max-h-48 object-contain mt-2 rounded-lg hidden border border-gray-300" alt="Vista previa de imagen">
+        `;
+    };
+
+    let html = '';
+    let title = '';
+
+    switch (accion) {
         case 'nuevoModelo':
-            generarFormularioModeloNuevo();
+            title = "3. Registrar Modelo Nuevo";
+            // Para nuevo modelo se necesita la Categoría y el primer corte (Corte 1)
+            html = `
+                ${generarSelectHtml("categoriaNueva", validaciones.CATEGORIAS, "Categoría del Vehículo")}
+                <h4 class="font-bold text-gray-600 mt-4">Detalles de Encendido y Corte 1</h4>
+                ${generarSelectHtml("tipoEncendido", validaciones.TIPO_ENCENDIDO, "Tipo de Encendido")}
+                ${generarInputFile('imgVehiculo', 'Imagen del Vehículo (Opcional)', 'imagenVehiculo', false)}
+
+                ${generarSelectHtml("tipoCorte1", validaciones.TIPO_CORTE, "Tipo de Corte 1")}
+                <label for="descCorte1">Descripción del Corte 1</label>
+                <textarea id="descCorte1" required rows="3"></textarea>
+                ${generarInputFile('imgCorte1', 'Imagen del Corte 1', 'imagenCorte1')}
+            `;
             break;
+
         case 'corteNuevo':
-            generarFormularioCorte();
+            title = "3. Agregar Corte Adicional (2 o 3)";
+            html = `
+                ${generarSelectHtml("tipoCorte", validaciones.TIPO_CORTE, "Tipo de Corte (2 ó 3)")}
+                <label for="descripcionCorte">Descripción del Corte</label>
+                <textarea id="descripcionCorte" required rows="3"></textarea>
+                ${generarInputFile('imgCorte', 'Imagen del Corte', 'imagenCorte')}
+            `;
             break;
+
         case 'apertura':
-            generarFormularioApertura();
+            title = "3. Agregar/Actualizar Apertura";
+            html = `
+                <label for="descApertura">Descripción de la Apertura</label>
+                <textarea id="descApertura" required rows="3"></textarea>
+                ${generarInputFile('imgApertura', 'Imagen de la Apertura', 'imagenApertura')}
+            `;
             break;
+
         case 'cables':
-            generarFormularioCables();
+            title = "3. Agregar/Actualizar Cables de Alimentación";
+            html = `
+                <label for="descCables">Descripción de Cables de Alimentación</label>
+                <textarea id="descCables" required rows="3"></textarea>
+                ${generarInputFile('imgCables', 'Imagen de los Cables', 'imagenCables')}
+            `;
             break;
+
         case 'imagenVehiculoUpdate':
-            generarFormularioImagenVehiculo();
+            title = "3. Actualizar Imagen del Vehículo";
+            html = `
+                ${generarInputFile('imgVehiculoUpdate', 'Selecciona la nueva imagen del vehículo', 'imagenVehiculo')}
+            `;
             break;
     }
-}
 
-
-// ------------------------------------
-// PASO 3: Generación de Formularios Dinámicos
-// ------------------------------------
-
-function generarSelectHtml(id, values, label, isRequired = true) {
-    let required = isRequired ? 'required' : '';
-    let options = values.map(v => `<option value="${v}">${v}</option>`).join('');
-    return `
-        <label for="${id}">${label}</label>
-        <select id="${id}" ${required}>
-            ${options}
-        </select>
-    `;
-}
-
-// Handler para cargar imagen en un formulario dinámico
-function setupImageHandler(inputId, base64VarName) {
-    const input = document.getElementById(inputId);
-    input.addEventListener("change", function() {
-        readFileAsBase64(this, (base64, name) => {
-            // Asigna la base64 a la variable global correspondiente
-            eval(`${base64VarName} = base64`); 
-            
-            const previewId = `preview${inputId}`;
-            let preview = document.getElementById(previewId);
-            if (!preview) {
-                // Si la previsualización no existe, la crea
-                preview = document.createElement('img');
-                preview.id = previewId;
-                preview.className = 'image-preview';
-                input.parentNode.insertBefore(preview, input.nextSibling);
-            }
-            preview.src = base64;
-            preview.style.display = "block";
-            preview.alt = `Vista previa de ${name}`;
-            preview.dataset.filename = name; // Guardar nombre original
-        });
-    });
-}
-
-function getBase64Data(inputId, base64VarName) {
-    const input = document.getElementById(inputId);
-    const preview = document.getElementById(`preview${inputId}`);
+    document.getElementById("tituloStep3").innerText = title;
+    document.getElementById("contenidoDinamico").innerHTML = html;
     
-    if (eval(base64VarName)) {
-         return { 
-            base64: eval(base64VarName), 
-            name: preview ? preview.dataset.filename : input.files[0]?.name || 'imagen.png' 
-        };
+    // El botón Regresar debe llevar al Paso 2 si estamos actualizando
+    const btnRegresar = document.querySelector("#step3 .btn-secondary");
+    if (datosEncontrados && datosEncontrados.existe) {
+        btnRegresar.setAttribute('onclick', 'mostrarPaso(2)');
+    } else {
+        // Si es modelo nuevo, regresa al Paso 1
+        btnRegresar.setAttribute('onclick', 'mostrarPaso(1)');
     }
-    return null;
+    
+    mostrarPaso(3);
 }
 
+// =============================================================
+// ENVÍO DE DATOS (doPost)
+// =============================================================
 
-// Formulario para registrar un modelo totalmente nuevo
-function generarFormularioModeloNuevo(){
-    document.getElementById("tituloStep3").innerText = "3. Registrar Modelo Nuevo";
-    
-    const tipoEncendidoSelect = generarSelectHtml("tipoEncendido", validaciones.tipoEncendido, "Tipo de encendido");
-    const tipoCorteSelect = generarSelectHtml("tipoCorte1", validaciones.tipoCorte, "Tipo de corte 1");
-    
-    document.getElementById("contenidoStep3").innerHTML = `
-        ${tipoEncendidoSelect}
-
-        <h4>Corte Inicial (Corte 1)</h4>
-        ${tipoCorteSelect}
-
-        <label for="descCorte1">Descripción corte 1</label>
-        <textarea id="descCorte1" required></textarea>
-
-        <label for="imgCorte1">Imagen del corte 1</label>
-        <input type="file" id="imgCorte1" accept="image/*" required>
-    `;
-    
-    // Adjuntar handlers de imagen
-    setupImageHandler('imgCorte1', 'imagenCorteBase64');
-}
-
-
-// Formulario para agregar un corte adicional
-function generarFormularioCorte(){
-    document.getElementById("tituloStep3").innerText = "3. Agregar Corte Adicional";
-
-    const tipoCorteSelect = generarSelectHtml("tipoCorte", validaciones.tipoCorte, "Tipo de corte");
-
-    document.getElementById("contenidoStep3").innerHTML = `
-        ${tipoCorteSelect}
-
-        <label for="descripcionCorte">Descripción</label>
-        <textarea id="descripcionCorte" required></textarea>
-
-        <label for="imgCorte">Imagen del corte</label>
-        <input type="file" id="imgCorte" accept="image/*" required>
-    `;
-    
-    // Adjuntar handlers de imagen
-    setupImageHandler('imgCorte', 'imagenCorteBase64');
-}
-
-// Formulario para agregar apertura
-function generarFormularioApertura(){
-    document.getElementById("tituloStep3").innerText = "3. Agregar Apertura";
-
-    document.getElementById("contenidoStep3").innerHTML = `
-        <label for="descApertura">Descripción apertura</label>
-        <textarea id="descApertura" required></textarea>
-
-        <label for="imgApertura">Imagen apertura</label>
-        <input type="file" id="imgApertura" accept="image/*" required>
-    `;
-    
-    // Adjuntar handlers de imagen
-    setupImageHandler('imgApertura', 'imagenAperturaBase64');
-}
-
-// Formulario para agregar cables
-function generarFormularioCables(){
-    document.getElementById("tituloStep3").innerText = "3. Agregar Cables de Alimentación";
-
-    document.getElementById("contenidoStep3").innerHTML = `
-        <label for="descCables">Descripción cables</label>
-        <textarea id="descCables" required></textarea>
-
-        <label for="imgCables">Imagen cables</label>
-        <input type="file" id="imgCables" accept="image/*" required>
-    `;
-    
-    // Adjuntar handlers de imagen
-    setupImageHandler('imgCables', 'imagenCablesBase64');
-}
-
-// Formulario para actualizar imagen del vehículo
-function generarFormularioImagenVehiculo(){
-    document.getElementById("tituloStep3").innerText = "3. Actualizar Imagen del Vehículo";
-
-    document.getElementById("contenidoStep3").innerHTML = `
-        <label for="imgVehiculoUpdate">Selecciona la nueva imagen del vehículo</label>
-        <input type="file" id="imgVehiculoUpdate" accept="image/*" required>
-        <img id="previewimgVehiculoUpdate" class="image-preview" alt="Nueva imagen del vehículo">
-    `;
-    
-    // Adjuntar handlers de imagen
-    setupImageHandler('imgVehiculoUpdate', 'imagenVehiculoBase64');
-}
-
-
-// ------------------------------------
-// PASO 3: Enviar Formulario
-// ------------------------------------
-
-async function enviar(){
+async function enviar() {
     const colaborador = document.getElementById("colaboradorFinal").value.trim();
-    const categoria = document.getElementById("categoria").value;
-    const marca = document.getElementById("marca").value.trim();
-    const modelo = document.getElementById("modelo").value.trim();
-    const anio = Number(document.getElementById("anio").value);
-    const plasticos = document.getElementById("comoDesarmarPlasticos").value.trim();
-    const nota = document.getElementById("notaImportante").value.trim();
-    
     if (!colaborador) {
-        showMessage("El campo Colaborador (Confirmar) es obligatorio.", true);
+        mostrarAlerta("El campo Colaborador (Confirmar) es obligatorio.", 'error');
         return;
     }
 
     const payload = {
         colaborador,
-        categoria,
-        marca,
-        modelo,
-        anio,
-        comoDesarmarPlasticos: plasticos,
-        notaImportante: nota,
+        marca: document.getElementById("marca").value,
+        modelo: document.getElementById("modelo").value,
+        anio: Number(document.getElementById("anio").value),
+        comoDesarmarPlasticos: document.getElementById("comoDesarmarPlasticos").value.trim(),
+        notaImportante: document.getElementById("notaImportante").value.trim(),
         accion: accionSeleccionada,
+        // Usar el rowIndex solo si el modelo ya existe
+        rowIndex: datosEncontrados && datosEncontrados.existe ? datosEncontrados.rowIndex : null
     };
-    
-    // Si estamos actualizando una fila existente, incluimos el rowIndex
-    if (datosEncontrados && datosEncontrados.existe) {
-        payload.rowIndex = datosEncontrados.rowIndex;
-    }
 
-    // Lógica para adjuntar datos específicos según la acción
     let valid = true;
     
-    switch(accionSeleccionada) {
+    switch (accionSeleccionada) {
         case 'nuevoModelo':
-            const tipoEncendido = document.getElementById("tipoEncendido").value;
+            const catNueva = document.getElementById("categoriaNueva").value;
+            const tipoEnc = document.getElementById("tipoEncendido").value;
             const tipoCorte1 = document.getElementById("tipoCorte1").value;
             const descCorte1 = document.getElementById("descCorte1").value.trim();
-            const imgCorte1Data = getBase64Data('imgCorte1', 'imagenCorteBase64');
 
-            if (!tipoEncendido || !tipoCorte1 || !descCorte1 || !imgCorte1Data) { valid = false; break; }
-            
-            payload.tipoEncendido = tipoEncendido;
-            payload.imagenVehiculo = getBase64Data('imagenVehiculo', 'imagenVehiculoBase64'); // Opcional, pero se envía si existe
+            if (!catNueva || !tipoEnc || !tipoCorte1 || !descCorte1 || !base64Data.imagenCorte1) { valid = false; break; }
+
+            payload.categoria = catNueva;
+            payload.tipoEncendido = tipoEnc;
+            payload.imagenVehiculo = base64Data.imagenVehiculo; // Puede ser null (Opcional)
             payload.corte1 = { 
                 tipoCorte: tipoCorte1, 
                 descripcion: descCorte1, 
-                imagen: imgCorte1Data 
+                imagen: base64Data.imagenCorte1 
             };
             break;
 
         case 'corteNuevo':
             const tipoCorte = document.getElementById("tipoCorte").value;
             const descripcionCorte = document.getElementById("descripcionCorte").value.trim();
-            const imgCorteData = getBase64Data('imgCorte', 'imagenCorteBase64');
 
-            if (!tipoCorte || !descripcionCorte || !imgCorteData) { valid = false; break; }
+            if (!tipoCorte || !descripcionCorte || !base64Data.imagenCorte) { valid = false; break; }
             
             payload.corte = { 
                 tipoCorte: tipoCorte, 
                 descripcion: descripcionCorte, 
-                imagen: imgCorteData 
+                imagen: base64Data.imagenCorte 
             };
+            payload.categoria = document.getElementById("categoriaPaso1").value; // Necesario para la estructura de carpetas
             break;
 
         case 'apertura':
             const descApertura = document.getElementById("descApertura").value.trim();
-            const imgAperturaData = getBase64Data('imgApertura', 'imagenAperturaBase64');
 
-            if (!descApertura || !imgAperturaData) { valid = false; break; }
+            if (!descApertura || !base64Data.imagenApertura) { valid = false; break; }
             
             payload.apertura = { 
                 descripcion: descApertura, 
-                imagen: imgAperturaData 
+                imagen: base64Data.imagenApertura 
             };
+            payload.categoria = document.getElementById("categoriaPaso1").value;
             break;
 
         case 'cables':
             const descCables = document.getElementById("descCables").value.trim();
-            const imgCablesData = getBase64Data('imgCables', 'imagenCablesBase64');
 
-            if (!descCables || !imgCablesData) { valid = false; break; }
+            if (!descCables || !base64Data.imagenCables) { valid = false; break; }
             
             payload.cables = { 
                 descripcion: descCables, 
-                imagen: imgCablesData 
+                imagen: base64Data.imagenCables 
             };
+            payload.categoria = document.getElementById("categoriaPaso1").value;
             break;
 
         case 'imagenVehiculoUpdate':
-            const imgVehiculoUpdateData = getBase64Data('imgVehiculoUpdate', 'imagenVehiculoBase64');
-            
-            if (!imgVehiculoUpdateData) { valid = false; break; }
-            
-            payload.imagenVehiculo = imgVehiculoUpdateData;
+            if (!base64Data.imagenVehiculo) { valid = false; break; }
+            payload.imagenVehiculo = base64Data.imagenVehiculo;
+            payload.categoria = document.getElementById("categoriaPaso1").value;
             break;
     }
 
     if (!valid) {
-        showMessage("Por favor, completa todos los campos requeridos y sube la imagen.", true);
+        mostrarAlerta("Por favor, completa todos los campos requeridos (incluyendo las imágenes).", 'error');
         return;
     }
-
 
     setLoading(true);
     try {
@@ -678,19 +545,18 @@ async function enviar(){
         setLoading(false);
 
         if (jsonResponse.success) {
-            showMessage(jsonResponse.message || "Guardado correctamente.");
-            // Recargar la página después de un guardado exitoso
-            setTimeout(() => { location.reload(); }, 1500); 
+            mostrarAlerta("✅ ¡Guardado Correctamente! Recargando...", 'success');
+            setTimeout(() => { location.reload(); }, 2000); 
         } else {
-            showMessage(jsonResponse.error || "Error desconocido al guardar.", true);
+            throw new Error(jsonResponse.error || "Error desconocido al guardar en Apps Script.");
         }
 
     } catch (e) {
         setLoading(false);
-        showMessage("Error de comunicación con Apps Script durante el envío de datos.", true);
+        mostrarAlerta("❌ Error de envío: " + e.message, 'error');
+        console.error("Error en función enviar:", e);
     }
 }
-
 </script>
 
 </body>
