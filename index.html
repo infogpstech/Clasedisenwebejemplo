@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Agregar Corte de Vehículo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
     body {
         font-family: 'Inter', sans-serif;
@@ -205,7 +206,8 @@
 
 <script>
 // **IMPORTANTE**: Reemplaza esta URL con el endpoint de tu Web App de Google Apps Script.
-const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHWviOzHjb5qsKCHBhscXzoyH4iM5S2jRNJl_NbaOsw5E4nQdwUQKw307LZewYd5wX/exec';
+// Asegúrate de que esta URL esté correctamente actualizada.
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyHWviOzHjb5qsKCHBhscXzoyH4iM5S2jRNJl_NbaOsw5E4nQdwUQKw307LZewYd5wX/exec'; 
 
 let datosExistentes = null;
 let listasValidacion = {
@@ -254,8 +256,13 @@ function manejarFileChange(inputId, previewId) {
 
     const reader = new FileReader();
     reader.onload = function(e){
+        // Solo guardar la data base64 limpia, el Apps Script maneja la detección de mime
+        const base64Content = e.target.result;
+        // La expresión regular es robusta para eliminar el prefijo
+        const base64Data = base64Content.replace(/^data:image\/[a-zA-Z0-9.+-]+;base64,/, ""); 
+        
         fileData[inputId] = {
-            base64: e.target.result.split(',')[1], // Eliminar el prefijo 'data:image/...;base64,'
+            base64: base64Data, 
             name: file.name
         };
         preview.src = e.target.result;
@@ -291,7 +298,7 @@ window.onload = async () => {
 
     } catch (error) {
         loading.style.display = "none";
-        mostrarAlerta("Error al cargar las listas de validación: " + error.message, 'error');
+        mostrarAlerta("Error al cargar las listas de validación. Asegúrate que la WEB_APP_URL es correcta y está desplegada. Detalle: " + error.message, 'error');
         console.error("Error de carga inicial:", error);
     }
 };
@@ -316,7 +323,7 @@ async function validarModelo() {
     }
     
     // Si no se ha cargado una imagen del vehículo
-    if (!fileData.imagenVehiculo) {
+    if (!fileData.imagenVehiculo && document.getElementById("step1").classList.contains("active")) {
         mostrarAlerta("La Imagen del vehículo es obligatoria para el registro/actualización.", 'error');
         return;
     }
@@ -332,13 +339,14 @@ async function validarModelo() {
         anio: anio 
     });
     
+    // Usamos el método GET para la búsqueda. Esto no debería dar problemas de CORS.
     const url = `${WEB_APP_URL}?${params.toString()}`;
 
     try {
         const response = await fetch(url);
         
         if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
+            throw new Error(`Error HTTP: ${response.status} - Respuesta: ${await response.text()}`);
         }
         
         const data = await response.json();
@@ -359,7 +367,7 @@ async function validarModelo() {
         }
     } catch(error) {
         loading.style.display = "none";
-        mostrarAlerta("Error al validar el modelo: " + error.message, 'error');
+        mostrarAlerta("Error al validar el modelo. Verifica tu URL de despliegue. Detalle: " + error.message, 'error');
         console.error("Error de validación de modelo:", error);
     }
 }
@@ -386,7 +394,6 @@ function mostrarOpcionesExistentes(info) {
     }
 
     // Imagen Vehículo
-    // La imagen del vehículo se carga en el Paso 1, así que esta opción siempre debe estar disponible para actualizar, pero no se muestra si ya la tiene.
     if (!info.tieneImagenVehiculo) {
         opcionesDiv.appendChild(crearOpcion("Actualizar Imagen del Vehículo", 'imagenVehiculoUpdate'));
     }
@@ -436,6 +443,27 @@ function generarInputFile(id, label, previewId, required = true) {
     `;
 }
 
+function generarFormularioModeloNuevo() {
+    const contenido = document.getElementById("contenidoStep3");
+    const tipoEncendidoSelect = generarSelect('tipoEncendido', 'Tipo de encendido (Validación)', listasValidacion.tipoEncendido);
+    const tipoCorteSelect = generarSelect('tipoCorte', 'Tipo de corte (Validación)', listasValidacion.tipoCorte);
+    
+    // Para el nuevo modelo, la imagen del vehículo ya se capturó en el Paso 1.
+    contenido.innerHTML = `
+        ${tipoEncendidoSelect}
+        <label for="comoDesarmarPlasticos">Cómo desarmar los plásticos (Opcional)</label>
+        <textarea id="comoDesarmarPlasticos" rows="3"></textarea>
+        <hr style="margin: 20px 0;">
+        <h4>Corte Inicial (Corte 1)</h4>
+        ${tipoCorteSelect}
+        <label for="descCorte1">Descripción del corte</label>
+        <textarea id="descCorte1" rows="3" required></textarea>
+        ${generarInputFile('imgCorte1', 'Imagen del Corte 1', 'previewCorte1')}
+    `;
+    document.getElementById("tituloStep3").innerText = "3. Registrar Modelo Nuevo";
+}
+
+
 function generarFormularioDinamico(accion) {
     const contenido = document.getElementById("contenidoStep3");
     let html = "";
@@ -443,26 +471,8 @@ function generarFormularioDinamico(accion) {
 
     // Opciones para los selects de validación
     const tipoCorteSelect = generarSelect('tipoCorte', 'Tipo de corte (Validación)', listasValidacion.tipoCorte);
-    const tipoEncendidoSelect = generarSelect('tipoEncendido', 'Tipo de encendido (Validación)', listasValidacion.tipoEncendido);
-
 
     switch (accion) {
-        case 'nuevoModelo':
-            titulo = "3. Registrar Modelo Nuevo";
-            // Para el nuevo modelo, la imagen del vehículo ya se capturó en el Paso 1.
-            html = `
-                ${tipoEncendidoSelect}
-                <label for="comoDesarmarPlasticos">Cómo desarmar los plásticos (Opcional)</label>
-                <textarea id="comoDesarmarPlasticos" rows="3"></textarea>
-                <hr style="margin: 20px 0;">
-                <h4>Corte Inicial (Corte 1)</h4>
-                ${tipoCorteSelect}
-                <label for="descCorte1">Descripción del corte</label>
-                <textarea id="descCorte1" rows="3" required></textarea>
-                ${generarInputFile('imgCorte1', 'Imagen del Corte 1', 'previewCorte1')}
-            `;
-            break;
-
         case 'corteNuevo':
             titulo = "3. Agregar Corte Adicional";
             html = `
@@ -513,7 +523,7 @@ function generarFormularioDinamico(accion) {
                 <p>La imagen anterior se reemplazará.</p>
                 ${generarInputFile('imagenVehiculoUpdateFile', 'Nueva Imagen del Vehículo', 'previewVehiculoUpdate')}
             `;
-            // Borrar imagen del Paso 1 para que no se envíe en este caso, solo se envíe la del nuevo input.
+            // Asegurarse de que la imagen del Paso 1 no se envíe si solo estamos actualizando la imagen del vehículo.
             delete fileData.imagenVehiculo; 
             break;
 
@@ -658,8 +668,9 @@ async function enviar() {
         // Ejecutar el fetch a doPost
         const res = await fetch(WEB_APP_URL, {
             method: "POST",
-            // IMPORTANTE: Apps Script requiere este encabezado para JSON
-            headers: { 'Content-Type': 'application/json' }, 
+            // *** CORRECCIÓN CRÍTICA PARA CORS ***
+            // Se elimina el encabezado Content-Type para que el navegador envíe 
+            // la solicitud como "simple" y evite el preflight de CORS.
             body: JSON.stringify(finalPayload)
         });
 
@@ -676,7 +687,12 @@ async function enviar() {
 
     } catch (e) {
         loading.style.display = "none";
-        mostrarAlerta("❌ Error de envío: " + e.message, 'error');
+        // Si el error es TypeError: Failed to fetch, es probablemente que el CORS aún está bloqueando.
+        if (e.message.includes("Failed to fetch")) {
+            mostrarAlerta("❌ Error de Conexión. Posiblemente un bloqueo de CORS. Revisa la consola para más detalles. Asegúrate de que el despliegue del Apps Script esté configurado para 'Cualquier persona' (Anyone).", 'error');
+        } else {
+            mostrarAlerta("❌ Error de envío: " + e.message, 'error');
+        }
         console.error("Error en función enviar:", e);
     }
 }
