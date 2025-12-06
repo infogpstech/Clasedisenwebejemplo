@@ -142,7 +142,7 @@
 <body>
 
 <div class="container">
-    <h1 class="header-title">Registro de Cortes de Vehículo.1</h1>
+    <h1 class="header-title">Registro de Cortes de Vehículo</h1>
 
     <!-- Paso 1: Información Base (Colaborador, Vehículo, Imagen Vehículo) -->
     <div id="step1" class="step active">
@@ -235,6 +235,7 @@
 
 <script>
     // ** CRÍTICO: URL de Despliegue **
+    // ¡URL ACTUALIZADO CON EL PROPORCIONADO POR EL USUARIO!
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxdI-mL9DQf12lH_uiJqGrp2ql6zZJq3Fg-Lo15raTW9ov80DWajGZUK-2ycjbroUD_rQ/exec';
 
     // Variables globales para almacenar los datos de validación cargados desde Apps Script
@@ -300,8 +301,8 @@
 
             // Llenar los SELECT con los datos correctos
             populateSelect('categoria', categoriasData);
-            populateSelect('tipoEncendido', tipoEncendidoData); // CORREGIDO: Ahora usa data del script
-            populateSelect('tipoCorte1', tipoCorteData);        // CORREGIDO: Ahora usa data del script
+            populateSelect('tipoEncendido', tipoEncendidoData); 
+            populateSelect('tipoCorte1', tipoCorteData);        
 
         } catch (error) {
             console.error("Error al cargar datos de validación:", error);
@@ -506,7 +507,7 @@
 
                     <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('plasticos', 'Desarmado de Plásticos (S)')">Actualizar Desarmado Plásticos</button>
                     <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('imagenVehiculoUpdate', 'Imagen Vehículo (C)')">Actualizar Imagen Vehículo</button>
-                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('nota', 'Nota Importante (V)')">Actualizar Nota Importante</button>
+                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('nota', 'Nota Importante (W)')">Actualizar Nota Importante</button>
 
                     <div id="updateForm" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 15px; display: none;">
                         <h4 id="updateFormTitle"></h4>
