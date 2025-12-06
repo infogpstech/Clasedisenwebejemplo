@@ -142,26 +142,30 @@
 <body>
 
 <div class="container">
-    <h1 class="header-title">Registro de Cortes de Vehículo</h1>
+    <h1 class="header-title">Registro de Cortes de Vehículo.1</h1>
 
-    <!-- Paso 1: Información Base -->
+    <!-- Paso 1: Información Base (Colaborador, Vehículo, Imagen Vehículo) -->
     <div id="step1" class="step active">
-        <label for="colaborador">Colaborador</label>
+        <label for="colaborador">Colaborador (Columna T)</label>
         <input type="text" id="colaborador" placeholder="Tu Nombre">
 
-        <label for="categoria">Categoría</label>
+        <label for="categoria">Categoría (Columna D)</label>
         <select id="categoria">
             <!-- Opciones cargadas por JS -->
         </select>
 
-        <label for="marca">Marca</label>
+        <label for="marca">Marca (Columna D)</label>
         <input type="text" id="marca" placeholder="Ej: Toyota">
 
-        <label for="modelo">Modelo</label>
+        <label for="modelo">Modelo (Columna D)</label>
         <input type="text" id="modelo" placeholder="Ej: Hilux">
 
-        <label for="año">Año</label>
+        <label for="año">Año (Columna G)</label>
         <input type="number" id="año" placeholder="Ej: 2023">
+        
+        <label>Imagen del Vehículo (Columna C)</label>
+        <input type="file" id="imgVehiculo" accept="image/*">
+        <img id="previewVehiculo" class="image-preview" style="display: none;">
 
         <div class="btn-group">
             <button class="btn" onclick="buscarModelo()">Buscar y Siguiente</button>
@@ -169,35 +173,48 @@
         <p class="loading" id="loadingBusqueda">Buscando modelo...</p>
     </div>
 
-    <!-- Paso 2: Datos Adicionales / Flujo -->
+    <!-- Paso 2: Detalles del Primer Corte (Encendido, Corte 1) -->
     <div id="step2" class="step">
         <h2 id="accionTitle" style="text-align: center;"></h2>
         <div id="contenidoStep2">
-            <!-- Contenido dinámico (Encendido, Plásticos, Imagen Vehículo) -->
-            <label for="tipoEncendido">Tipo de Encendido</label>
+            <!-- Contenido dinámico para actualizaciones o fijo para nuevo modelo -->
+            <h3 style="margin-top: 0;">Información del Corte 1</h3>
+            
+            <label for="tipoEncendido">Tipo de Encendido (Columna F)</label>
             <select id="tipoEncendido">
                 <!-- Opciones cargadas por JS -->
             </select>
             
-            <label>Cómo Desarmar Plásticos</label>
-            <textarea id="comoDesarmarPlasticos"></textarea>
+            <label for="tipoCorte1">Tipo de Corte 1 (Columna H)</label>
+            <select id="tipoCorte1">
+                <!-- Opciones cargadas por JS y es el desplegable que faltaba! -->
+            </select>
 
-            <label>Imagen del Vehículo</label>
-            <input type="file" id="imgVehiculo" accept="image/*">
-            <img id="previewVehiculo" class="image-preview" style="display: none;">
+            <label>Descripción Corte 1 (Columna I)</label>
+            <textarea id="descCorte1"></textarea>
+
+            <label>Imagen Corte 1 (Columna J)</label>
+            <input type="file" id="imgCorte1" accept="image/*">
+            <img id="previewCorte1" class="image-preview" style="display: none;">
         </div>
 
         <div class="btn-group">
             <button class="btn btn-secondary" onclick="mostrarPaso(1)">Atrás</button>
-            <button class="btn" onclick="mostrarPaso(3)">Siguiente</button>
+            <button class="btn" onclick="mostrarPaso(3)">Siguiente (Opcionales)</button>
         </div>
     </div>
 
-    <!-- Paso 3: Cortes / Apertura / Cables -->
+    <!-- Paso 3: Opcionales (Plásticos, Corte 2/3, Apertura, Cables, Notas) -->
     <div id="step3" class="step">
-        <h2 style="text-align: center;">Detalle de la Información</h2>
+        <h2 style="text-align: center;">Detalle de la Información Opcional</h2>
         <div id="contenidoStep3">
-            <!-- Contenido dinámico (Corte 1, Corte 2, Apertura, Cables, etc.) -->
+            <!-- Contenido dinámico (Como Desarmar Plásticos, Corte 2/3, Apertura, Cables, etc.) -->
+            <label>Cómo Desarmar Plásticos (Columna S)</label>
+            <textarea id="comoDesarmarPlasticos"></textarea>
+            
+            <p style="margin-top: 25px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 15px;">Otras Secciones Opcionales</p>
+            <!-- El resto de formularios dinámicos se carga aquí si es un modelo existente -->
+            
         </div>
 
         <div class="btn-group">
@@ -217,7 +234,7 @@
 </div>
 
 <script>
-    // ** CRÍTICO: Nueva URL de Despliegue **
+    // ** CRÍTICO: URL de Despliegue **
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzk45LuYuhAEnm2Wr8gbe3CdcT9rTYP0BLbEnDx-Hx716lSj8HLesbPJuWLpC_C5n7f/exec';
 
     let categoriasData = [];
@@ -225,6 +242,7 @@
     let tipoCorteData = [];
     let accionSeleccionada = 'nuevoModelo'; // 'nuevoModelo' | 'corteNuevo' | 'apertura' | 'cables' | 'imagenVehiculoUpdate' | 'plasticos' | 'nota'
     let modeloExistenteRowIndex = null;
+    let resultBusqueda = {}; // Guarda el resultado de la búsqueda
     
     // Variables de estado para imágenes en base64
     let imagenVehiculoBase64 = null;
@@ -276,6 +294,7 @@
 
             populateSelect('categoria', categoriasData);
             populateSelect('tipoEncendido', tipoEncendidoData);
+            populateSelect('tipoCorte1', tipoCorteData); // <--- CORRECCIÓN CLAVE: Llenar el desplegable
 
         } catch (error) {
             console.error("Error al cargar datos de validación:", error);
@@ -303,11 +322,18 @@
         const marca = document.getElementById("marca").value.trim();
         const modelo = document.getElementById("modelo").value.trim();
         const anio = document.getElementById("año").value;
+        const colaborador = document.getElementById("colaborador").value.trim();
         
-        if (!marca || !modelo || !anio) {
-            showMessage("Por favor, complete Marca, Modelo y Año para buscar.");
+        if (!colaborador || !marca || !modelo || !anio) {
+            showMessage("Por favor, complete Colaborador, Marca, Modelo y Año para buscar.");
             return;
         }
+        
+        if (document.getElementById("imgVehiculo").files.length === 0) {
+            showMessage("Por favor, adjunte la Imagen del Vehículo (Paso 1).");
+            return;
+        }
+
 
         showLoading('loadingBusqueda', true);
 
@@ -320,6 +346,7 @@
             }
             
             const result = await res.json();
+            resultBusqueda = result; // Guardar el resultado para usar en configurarModoActualizacion
 
             if (result.existe) {
                 // Modelo encontrado, se procede a la actualización
@@ -328,8 +355,8 @@
             } else {
                 // Modelo no encontrado, se procede a nuevo registro
                 accionSeleccionada = 'nuevoModelo';
-                document.getElementById('accionTitle').innerText = 'Nuevo Registro';
-                configurarContenidoPaso3('corte1');
+                document.getElementById('accionTitle').innerText = 'Nuevo Registro - Detalle Corte 1';
+                configurarContenidoPaso3('corte1'); // Muestra los campos de plásticos/opcionales
                 mostrarPaso(2);
             }
             
@@ -368,8 +395,8 @@
             configurarContenidoPaso3(opcion);
         } else {
              // Si todo está completo, se ofrecen otras actualizaciones
-             opcion = 'nota'; // O 'plasticos', 'imagenVehiculoUpdate'
-             title = 'Actualización General (Nota/Plásticos)';
+             opcion = 'nota'; 
+             title = 'Actualización General';
              configurarContenidoPaso3('fullUpdate');
              // Forzar a Step 3 directamente, saltando Step 2
              mostrarPaso(3);
@@ -379,12 +406,12 @@
         accionSeleccionada = opcion;
         document.getElementById('accionTitle').innerText = title;
         
-        // Para actualizaciones, solo se muestra el formulario de actualización necesario.
+        // Para actualizaciones específicas, el Paso 2 es solo informativo
         document.getElementById("contenidoStep2").innerHTML = `
-            <p style="color: #007bff; font-weight: bold; text-align: center;">Modelo encontrado. Pasando a completar la información faltante.</p>
+            <p style="color: #007bff; font-weight: bold; text-align: center;">Modelo encontrado. La siguiente sección le permitirá agregar la información faltante.</p>
         `;
         
-        // Saltamos a paso 3, ya que el paso 2 no es relevante si solo es una acción específica.
+        // Saltamos a paso 3, ya que el paso 2 ya no contiene los campos iniciales de vehículo.
         mostrarPaso(3);
     }
     
@@ -392,29 +419,33 @@
         const contenido = document.getElementById("contenidoStep3");
         let html = '';
         let btnText = 'Guardar y Terminar';
+        
+        // Si es 'nuevoModelo', el contenido de Step 3 incluye 'Desarmar Plásticos'
+        if (tipo === 'corte1') {
+            html += `
+                <label>Cómo Desarmar Plásticos (Columna S)</label>
+                <textarea id="comoDesarmarPlasticos"></textarea>
+                <hr style="margin: 20px 0;">
+                <p style="font-weight: bold;">Otros campos de actualización estarán disponibles después del primer registro.</p>
+            `;
+            accionSeleccionada = 'nuevoModelo';
+        }
+
 
         switch(tipo) {
-            case 'corte1':
-                // Flujo de Nuevo Modelo: Debe llenar Step 2 y Corte 1 en Step 3
-                accionSeleccionada = 'nuevoModelo';
-                html = `
-                    <h3>Corte 1 (Información Principal)</h3>
-                    <label for="tipoCorte1">Tipo de Corte</label>
-                    <select id="tipoCorte1"></select>
-
-                    <label>Descripción Corte 1</label>
-                    <textarea id="descCorte1"></textarea>
-
-                    <label>Imagen Corte 1</label>
-                    <input type="file" id="imgCorte1" accept="image/*">
-                    <img id="previewCorte1" class="image-preview" style="display: none;">
-                `;
-                populateSelect('tipoCorte1', tipoCorteData);
-                break;
-                
             case 'corteNuevo':
+                const nextCorteNum = resultBusqueda.tieneCorte1 && resultBusqueda.tieneCorte2 && !resultBusqueda.tieneCorte3 ? 3 : 
+                                     (resultBusqueda.tieneCorte1 && !resultBusqueda.tieneCorte2 ? 2 : 1);
+                
+                // Si el modelo ya tiene 3 cortes, se avisa
+                if (nextCorteNum > 3 || (resultBusqueda.tieneCorte1 && resultBusqueda.tieneCorte2 && resultBusqueda.tieneCorte3)) {
+                     showMessage("Error: Ya existen 3 cortes (Corte 1, 2 y 3) para este vehículo. No se puede añadir un corte adicional.");
+                     // Vuelve al paso 1 y evita que se muestre el form
+                     mostrarPaso(1);
+                     return;
+                }
+                
                 accionSeleccionada = 'corteNuevo';
-                const nextCorteNum = modeloExistenteRowIndex ? (result.tieneCorte2 ? 3 : 2) : 1;
                 html = `
                     <h3>Corte Adicional (Corte ${nextCorteNum})</h3>
                     <label for="tipoCorte">Tipo de Corte</label>
@@ -427,6 +458,8 @@
                     <input type="file" id="imgCorte" accept="image/*">
                     <img id="previewCorte" class="image-preview" style="display: none;">
                 `;
+                // Se agrega el formulario al final del contenido actual
+                contenido.innerHTML = contenido.innerHTML + html; 
                 populateSelect('tipoCorte', tipoCorteData);
                 break;
 
@@ -441,6 +474,7 @@
                     <input type="file" id="imgApertura" accept="image/*">
                     <img id="previewApertura" class="image-preview" style="display: none;">
                 `;
+                contenido.innerHTML = html;
                 break;
 
             case 'cables':
@@ -454,15 +488,16 @@
                     <input type="file" id="imgCables" accept="image/*">
                     <img id="previewCables" class="image-preview" style="display: none;">
                 `;
+                contenido.innerHTML = html;
                 break;
                 
             case 'fullUpdate':
                 html = `
                     <p style="font-weight: bold;">El modelo parece estar completo. Seleccione lo que desea actualizar:</p>
 
-                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('imagenVehiculoUpdate', 'Imagen Vehículo')">Actualizar Imagen Vehículo</button>
-                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('plasticos', 'Desarmado de Plásticos')">Actualizar Desarmado Plásticos</button>
-                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('nota', 'Nota Importante')">Actualizar Nota Importante</button>
+                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('plasticos', 'Desarmado de Plásticos (S)')">Actualizar Desarmado Plásticos</button>
+                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('imagenVehiculoUpdate', 'Imagen Vehículo (C)')">Actualizar Imagen Vehículo</button>
+                    <button class="btn btn-secondary" style="margin-bottom: 10px;" onclick="configurarActualizacionForm('nota', 'Nota Importante (V)')">Actualizar Nota Importante</button>
 
                     <div id="updateForm" style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 15px; display: none;">
                         <h4 id="updateFormTitle"></h4>
@@ -471,13 +506,13 @@
                     </div>
                 `;
                 btnText = 'Finalizar';
+                contenido.innerHTML = html;
                 break;
         }
         
-        contenido.innerHTML = html;
         document.getElementById('btnEnviar').textContent = btnText;
         
-        // Adjuntar listeners de archivos solo si hay inputs de tipo file
+        // Adjuntar listeners de archivos solo si hay inputs de tipo file en el DOM
         if (document.getElementById('imgCorte1')) {
             document.getElementById('imgCorte1').addEventListener('change', (e) => handleImageUpload(e, 'corte1'));
         }
@@ -490,7 +525,7 @@
         if (document.getElementById('imgCables')) {
             document.getElementById('imgCables').addEventListener('change', (e) => handleImageUpload(e, 'cables'));
         }
-        // Listener para imagen de vehículo (si existe en Step 2)
+        // Listener para imagen de vehículo (si existe en Step 1)
         if (document.getElementById('imgVehiculo')) {
             document.getElementById('imgVehiculo').addEventListener('change', (e) => handleImageUpload(e, 'vehiculo'));
         }
@@ -607,9 +642,10 @@
                     showMessage("Faltan campos obligatorios para el Nuevo Modelo (Categoría/Encendido).");
                     return;
                 }
-
+                
+                // Imágenes obligatorias para Nuevo Modelo
                 if (document.getElementById("imgVehiculo").files.length === 0 || document.getElementById("imgCorte1").files.length === 0) {
-                    showMessage("Debe adjuntar la imagen del vehículo y la imagen del Corte 1.");
+                    showMessage("Debe adjuntar la imagen del vehículo (Paso 1) y la imagen del Corte 1 (Paso 2).");
                     return;
                 }
                 
@@ -751,6 +787,41 @@
     function mostrarPaso(n){
         document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
         document.getElementById(`step${n}`).classList.add("active");
+        
+        // Si vamos al paso 2, reconfiguramos el contenido por si venimos de buscarModelo
+        if (n === 2 && accionSeleccionada === 'nuevoModelo') {
+            // Asegura que los desplegables se llenen si volvemos del paso 3 o inicio
+            populateSelect('tipoEncendido', tipoEncendidoData);
+            populateSelect('tipoCorte1', tipoCorteData);
+            
+            document.getElementById("contenidoStep2").innerHTML = `
+                <h3 style="margin-top: 0;">Información del Corte 1</h3>
+                
+                <label for="tipoEncendido">Tipo de Encendido (Columna F)</label>
+                <select id="tipoEncendido"></select>
+                
+                <label for="tipoCorte1">Tipo de Corte 1 (Columna H)</label>
+                <select id="tipoCorte1"></select>
+
+                <label>Descripción Corte 1 (Columna I)</label>
+                <textarea id="descCorte1"></textarea>
+
+                <label>Imagen Corte 1 (Columna J)</label>
+                <input type="file" id="imgCorte1" accept="image/*">
+                <img id="previewCorte1" class="image-preview" style="display: none;">
+            `;
+            // Re-adjuntar listeners y llenar desplegables
+            populateSelect('tipoEncendido', tipoEncendidoData);
+            populateSelect('tipoCorte1', tipoCorteData);
+            if (document.getElementById('imgCorte1')) {
+                document.getElementById('imgCorte1').addEventListener('change', (e) => handleImageUpload(e, 'corte1'));
+            }
+        }
+        
+        // Si vamos al paso 3, reconfiguramos los opcionales si es nuevo modelo
+        if (n === 3 && accionSeleccionada === 'nuevoModelo') {
+            configurarContenidoPaso3('corte1');
+        }
     }
 
     // --- Inicialización ---
