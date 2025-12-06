@@ -1,295 +1,535 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agregar Corte - GPSpedia</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GPSpedia — Agregar / Actualizar Corte (Multi-paso)</title>
 <style>
-/* --- ESTILOS GLOBAL Y HEADER/FOOTER --- */
-html { height: 100%; }
-body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f4f4f4; display:flex; flex-direction:column; min-height:100%; }
-h1,h2,h3,h4 { margin:10px 0; }
-.container { padding:20px; max-width:1240px; margin:0 auto; width:100%; box-sizing:border-box; flex:1 0 auto; }
-.backBtn { margin-bottom:15px; cursor:pointer; color:#007bff; display:inline-flex; align-items:center; font-weight:bold; padding:5px 10px; border-radius:5px; transition:background 0.2s; }
-.backBtn:hover { background:#e9f7ff; }
+:root{--accent:#007bff;--accent-dark:#0056b3}
+*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f4f4;color:#222}
+.container{max-width:900px;margin:18px auto;padding:16px}
+.header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.app-logo{width:84px;height:auto;border-radius:8px}
+.title{font-size:1.6rem;margin:0}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,0.06)}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.col{flex:1;min-width:150px}
+label{display:block;font-weight:700;margin-top:10px}
+input,select,textarea,button{width:100%;padding:10px;border-radius:8px;border:1px solid #ccc;font-size:0.95rem}
+textarea{min-height:90px;resize:vertical}
+button{background:var(--accent);color:#fff;border:none;cursor:pointer}
+button.alt{background:#f0f0f0;color:#222;border:1px solid #ddd}
+.small{padding:8px;font-size:0.9rem;border-radius:8px}
+.step-indicator{display:flex;gap:8px;margin-bottom:12px}
+.step-pill{padding:6px 10px;border-radius:999px;background:#eee;font-weight:700;color:#444}
+.hidden{display:none}
 
-/* --- HEADER --- */
-.header-container { display:flex; align-items:center; justify-content:flex-start; margin-bottom:20px; }
-.app-logo { max-width:96px; height:auto; border-radius:8px; margin-right:15px; }
-h1.app-title { text-align:left; margin:0; font-size:2.2em; color:#333; }
+/* modal */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:9999}
+.modal{background:#fff;border-radius:12px;padding:16px;max-width:740px;width:92%;max-height:86vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,0.25)}
+.modal img{max-width:220px;border-radius:8px;margin-top:8px}
 
-/* --- FORMULARIO --- */
-form { background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2); max-width:600px; margin:auto; }
-label { display:block; margin-top:10px; font-weight:bold; }
-input, select, textarea, button { width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
-button { background:#007bff; color:white; border:none; cursor:pointer; margin-top:15px; }
-button:hover { background:#0056b3; }
-textarea { resize: vertical; }
+/* previews */
+.preview{display:block;margin-top:8px;max-width:260px;border-radius:8px}
+.preview-sm{max-width:120px}
 
-/* Cortes dinámicos */
-.corte { margin-bottom:10px; border:1px solid #ddd; padding:10px; border-radius:5px; background:#f9f9f9; }
-.corte img { max-width:200px; margin-top:5px; display:block; }
+/* cortes */
+.corte{background:#fbfbfb;padding:10px;border-radius:8px;border:1px solid #eee;margin-top:10px}
 
-/* Modal */
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
-.modal-content { background:#fff; padding:20px; border-radius:10px; max-width:500px; width:90%; max-height:90vh; overflow-y:auto; }
-.modal-content img { max-width:100%; margin-top:10px; border-radius:5px; }
+/* loading */
+.loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.75);z-index:10000;display:none}
+.spinner{width:64px;height:64px;border-radius:50%;border:8px solid rgba(0,0,0,0.08);border-top-color:var(--accent);animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* FOOTER */
-.footer { text-align:center; padding:20px 0; margin-top:40px; background-color:#333; color:#fff; font-size:0.9em; }
-
-/* Responsive */
-@media (max-width:480px) {
-    h1.app-title { font-size:1.8em; }
-}
+/* responsive */
+@media (max-width:520px){ .row{flex-direction:column} .title{font-size:1.2rem} .preview{max-width:95%} }
 </style>
 </head>
-
 <body>
-<div class="header-container">
-      <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo GPSpedia" class="app-logo">
-      <h1 class="app-title">GPSpedia</h1>
-</div>
-
 <div class="container">
-<form id="formulario">
-  <label>Nombre del Colaborador</label>
-  <input type="text" id="colaborador" required>
-
-  <label>Categoría</label>
-  <select id="categoria" required></select>
-
-  <label>Marca</label>
-  <input type="text" id="marca" required>
-
-  <label>Modelo</label>
-  <input type="text" id="modelo" required>
-
-  <label>Año (generación)</label>
-  <input type="number" id="año" required>
-
-  <label>Imagen del Vehículo</label>
-  <input type="file" id="imagenVehiculo" accept="image/*">
-  <img id="previewVehiculo" style="max-width:200px; display:none; margin-top:5px;">
-
-  <label>Tipo de Encendido</label>
-  <select id="tipoEncendido" required></select>
-
-  <label>Cortes</label>
-  <div id="cortesContainer">
-    <div class="corte">
-      <select class="tipoCorte" required></select>
-      <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
-      <input type="file" class="imgCorte" accept="image/*">
-      <img class="previewCorte" style="max-width:200px; display:none; margin-top:5px;">
+  <div class="header">
+    <img class="app-logo" src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="GPSpedia">
+    <div>
+      <h1 class="title">GPSpedia — Agregar / Actualizar</h1>
+      <small>Formulario paso a paso — evita duplicados y sube imágenes a Drive</small>
     </div>
   </div>
-  <button type="button" id="addCorteBtn">Agregar otro corte</button>
 
-  <label>Apertura</label>
-  <textarea id="aperturaDesc" placeholder="Descripción apertura"></textarea>
-  <input type="file" id="aperturaImg" accept="image/*">
-  <img id="previewApertura" style="max-width:200px; display:none; margin-top:5px;">
+  <div class="card">
+    <div class="step-indicator">
+      <div class="step-pill">Paso 1 • Identificar</div>
+      <div class="step-pill">Paso 2 • Opciones</div>
+      <div class="step-pill">Paso 3 • Datos</div>
+    </div>
 
-  <label>Cables de alimentación</label>
-  <textarea id="cablesDesc" placeholder="Descripción cables"></textarea>
-  <input type="file" id="cablesImg" accept="image/*">
-  <img id="previewCables" style="max-width:200px; display:none; margin-top:5px;">
+    <!-- STEP 1 -->
+    <div id="step1">
+      <label>Nombre del colaborador</label>
+      <input id="colaborador" placeholder="Ej. Pablo Peña" required>
 
-  <label>Nota importante</label>
-  <textarea id="nota"></textarea>
+      <div class="row">
+        <div class="col">
+          <label>Categoría</label>
+          <select id="categoria"></select>
+        </div>
+        <div class="col">
+          <label>Tipo de encendido</label>
+          <select id="tipoEncendido"></select>
+        </div>
+      </div>
 
-  <label>Cómo desarmar los plásticos</label>
-  <textarea id="plasticos"></textarea>
+      <div class="row">
+        <div class="col">
+          <label>Marca</label>
+          <input id="marca" autocomplete="off" placeholder="Ej. Audi">
+        </div>
+        <div class="col">
+          <label>Modelo</label>
+          <input id="modelo" autocomplete="off" placeholder="Ej. A1">
+        </div>
+        <div class="col" style="min-width:120px">
+          <label>Año (ej. 2015)</label>
+          <input id="año" type="number" min="1900" max="2099" placeholder="2015">
+        </div>
+      </div>
 
-  <button type="submit">Enviar Corte</button>
-</form>
-</div>
+      <label>Imagen del vehículo (opcional)</label>
+      <input id="imagenVehiculo" type="file" accept="image/*">
+      <img id="previewVehiculo" class="preview" style="display:none">
 
-<!-- MODAL -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <h3>Corte existente encontrado</h3>
-    <div id="modalBody"></div>
-    <button id="confirmNoBtn">No, es diferente</button>
-    <button id="cancelBtn">Sí, es el mismo</button>
-    <button id="backIndexBtn">Volver al índice</button>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button id="btnStep1Next" class="small">Buscar / Siguiente</button>
+        <button id="btnReset" class="small alt">Limpiar</button>
+        <div id="inlineMsg" style="align-self:center;color:#666;margin-left:8px"></div>
+      </div>
+    </div>
+
+    <!-- STEP 2: opciones según coincidencia -->
+    <div id="step2" class="hidden" style="margin-top:14px">
+      <div id="foundCard" class="card" style="margin-bottom:12px"></div>
+
+      <div class="card">
+        <p><strong>¿Qué deseas hacer?</strong></p>
+        <div id="optionsBtns" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+        <div style="margin-top:12px">
+          <button id="btnCreateNew" class="small">Crear nueva fila / generación</button>
+          <button id="btnBackTo1" class="small alt">Volver</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: formulario parcial (según elección) -->
+    <div id="step3" class="hidden" style="margin-top:14px">
+      <div id="formTitle"><h3>Agregar información</h3></div>
+
+      <!-- Cortes -->
+      <div id="formCortes" class="card hidden">
+        <label>Agregar cortes (máx 3)</label>
+        <div id="cortesList">
+          <!-- primer corte por defecto -->
+          <div class="corte">
+            <label>Tipo de corte</label>
+            <select class="tipoCorte"></select>
+            <label>Descripción</label>
+            <textarea class="descCorte"></textarea>
+            <label>Imagen (opcional)</label>
+            <input type="file" class="imgCorte" accept="image/*">
+            <img class="preview cortePreview" style="display:none">
+            <div style="margin-top:8px"><button type="button" class="removeCorteBtn small alt" style="display:none">Eliminar</button></div>
+          </div>
+        </div>
+        <div style="margin-top:8px"><button id="addCorteBtn" class="small">Agregar otro corte</button></div>
+      </div>
+
+      <!-- Apertura -->
+      <div id="formApertura" class="card hidden" style="margin-top:10px">
+        <label>Apertura (si aplica)</label>
+        <label>Descripción</label>
+        <textarea id="aperturaDesc"></textarea>
+        <label>Imagen (opcional)</label>
+        <input id="aperturaImg" type="file" accept="image/*">
+        <img id="previewApertura" class="preview" style="display:none">
+      </div>
+
+      <!-- Cables -->
+      <div id="formCables" class="card hidden" style="margin-top:10px">
+        <label>Cables de alimentación (si aplica)</label>
+        <label>Descripción</label>
+        <textarea id="cablesDesc"></textarea>
+        <label>Imagen (opcional)</label>
+        <input id="cablesImg" type="file" accept="image/*">
+        <img id="previewCables" class="preview" style="display:none">
+      </div>
+
+      <!-- Nota y plasticos -->
+      <div id="formOther" class="card" style="margin-top:10px">
+        <label>Nota importante</label>
+        <textarea id="nota"></textarea>
+        <label>Cómo desarmar los plásticos</label>
+        <textarea id="plasticos"></textarea>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btnSubmit" class="small">Enviar</button>
+        <button id="btnBackTo2" class="small alt">Volver</button>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<footer class="footer">
-  Gpspedia 2025© todos los derechos reservados.
-</footer>
+<!-- modal genérico -->
+<div id="modalBackdrop" class="modal-backdrop hidden" style="display:none">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div id="modalBody"></div>
+    <div style="margin-top:12px" id="modalActions"></div>
+  </div>
+</div>
+
+<!-- loading -->
+<div id="loading" class="loading"><div><div class="spinner"></div><div style="margin-top:10px;font-weight:700;color:#333">Procesando…</div></div></div>
 
 <script>
+/* ---------- CONFIG ---------- */
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwOUIrN9LL8zvMEqSOadz-s8XLTl9YjCXs530pG8GLwUM6GcaIy2k807B3yAeKDBq2g/exec';
-let validaciones = {};
+const MAX_CORTES = 3;
 
-// --- Inicialización
-document.addEventListener('DOMContentLoaded', () => {
-  fetch(WEB_APP_URL)
-    .then(r => r.json())
-    .then(data => {
-      validaciones = data;
-      fillSelect('categoria', data.categorias);
-      fillSelectAll('.tipoCorte', data.tipoCorte);
-      fillSelect('tipoEncendido', data.encendido);
-    });
+/* ---------- DOM refs ---------- */
+const step1 = document.getElementById('step1');
+const step2 = document.getElementById('step2');
+const step3 = document.getElementById('step3');
+const inlineMsg = document.getElementById('inlineMsg');
+const foundCard = document.getElementById('foundCard');
+const optionsBtns = document.getElementById('optionsBtns');
 
-  // Previsualización Vehículo
-  document.getElementById('imagenVehiculo').addEventListener('change', e=>{
-    previewFile(e.target, 'previewVehiculo');
+const categoriaSel = document.getElementById('categoria');
+const tipoEncendidoSel = document.getElementById('tipoEncendido');
+
+/* ---------- init: load validation options ---------- */
+let serverValidation = { categorias: ['Carro','Camión','Moto','Maquinaria'], encendido: ['Llave','Botón'], tipoCorte: ['No recomendado','Ignición','Bomba de combustible','Señal a botón','Señal a ahogador'] };
+
+async function loadValidation(){
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const data = await res.json();
+    if(data.categorias) serverValidation.categorias = data.categorias;
+    if(data.encendido) serverValidation.encendido = data.encendido;
+    if(data.tipoCorte) serverValidation.tipoCorte = data.tipoCorte;
+  } catch(err){
+    console.warn('No se pudo cargar validaciones, se usan presets.', err);
+  }
+  // fill selects
+  fillSelect(categoriaSel, serverValidation.categorias);
+  fillSelect(tipoEncendidoSel, serverValidation.encendido);
+  fillAllTipoCorte();
+}
+loadValidation();
+
+function fillSelect(sel, arr){
+  sel.innerHTML = '';
+  arr.forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+}
+
+function fillAllTipoCorte(){
+  document.querySelectorAll('.tipoCorte').forEach(s => {
+    s.innerHTML = '';
+    serverValidation.tipoCorte.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; s.appendChild(o); });
   });
-  // Previsualización Apertura
-  document.getElementById('aperturaImg').addEventListener('change', e=>{
-    previewFile(e.target,'previewApertura');
+}
+
+/* ---------- previews ---------- */
+function setupPreview(inputId, imgId){
+  const inp = document.getElementById(inputId);
+  const img = document.getElementById(imgId);
+  if(!inp||!img) return;
+  inp.addEventListener('change', ()=> {
+    const f = inp.files[0];
+    if(!f){ img.style.display='none'; img.src=''; return; }
+    img.src = URL.createObjectURL(f); img.style.display='block';
   });
-  // Previsualización Cables
-  document.getElementById('cablesImg').addEventListener('change', e=>{
-    previewFile(e.target,'previewCables');
+}
+setupPreview('imagenVehiculo','previewVehiculo');
+setupPreview('aperturaImg','previewApertura');
+setupPreview('cablesImg','previewCables');
+
+/* cortes initial preview */
+document.querySelectorAll('.imgCorte').forEach(input=>{
+  const preview = input.parentElement.querySelector('.cortePreview');
+  if(!preview) return;
+  input.addEventListener('change', ()=> {
+    const f = input.files[0];
+    if(!f){ preview.style.display='none'; preview.src=''; return; }
+    preview.src = URL.createObjectURL(f); preview.style.display='block';
   });
 });
 
-// Funciones auxiliares
-function fillSelect(id, options) {
-  const select = document.getElementById(id);
-  select.innerHTML = '';
-  options.forEach(o => { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; select.appendChild(opt); });
-}
-function fillSelectAll(selector, options) {
-  document.querySelectorAll(selector).forEach(sel => {
-    sel.innerHTML = '';
-    options.forEach(o => { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; sel.appendChild(opt); });
+/* ---------- helpers ---------- */
+function showStep(n){ step1.classList.add('hidden'); step2.classList.add('hidden'); step3.classList.add('hidden'); if(n===1) step1.classList.remove('hidden'); if(n===2) step2.classList.remove('hidden'); if(n===3) step3.classList.remove('hidden'); }
+showStep(1);
+
+function showModal(html, actions){
+  const mb = document.getElementById('modalBody'); const ma = document.getElementById('modalActions');
+  mb.innerHTML = html; ma.innerHTML = '';
+  (actions||[]).forEach(act => {
+    const b = document.createElement('button'); b.type='button'; b.textContent = act.label; b.className='small'; if(act.kind==='alt'){ b.classList.add('alt'); b.style.background='#eee'; b.style.color='#111'; }
+    b.addEventListener('click', ()=> { act.onClick(); hideModal(); });
+    ma.appendChild(b);
   });
+  const close = document.createElement('button'); close.type='button'; close.textContent='Cerrar'; close.className='small alt'; close.addEventListener('click', hideModal);
+  ma.appendChild(close);
+  const mbg = document.getElementById('modalBackdrop'); mbg.style.display='flex'; mbg.classList.remove('hidden');
 }
-function previewFile(fileInput, previewId){
-  const file = fileInput.files[0];
-  const preview = document.getElementById(previewId);
-  if(file){
-    const reader = new FileReader();
-    reader.onload = () => { preview.src = reader.result; preview.style.display='block'; };
-    reader.readAsDataURL(file);
-  } else { preview.style.display='none'; }
-}
+function hideModal(){ const mbg = document.getElementById('modalBackdrop'); mbg.style.display='none'; mbg.classList.add('hidden'); }
 
-// --- Agregar Corte Dinámico
-document.getElementById('addCorteBtn').addEventListener('click', () => {
-  const container = document.getElementById('cortesContainer');
-  if(container.children.length >= 3) return alert('Solo se permiten hasta 3 cortes.');
-  const div = document.createElement('div');
-  div.className='corte';
-  div.innerHTML = `
-    <select class="tipoCorte" required></select>
-    <textarea class="descCorte" placeholder="Descripción del corte" required></textarea>
-    <input type="file" class="imgCorte" accept="image/*">
-    <img class="previewCorte" style="max-width:200px; display:none; margin-top:5px;">`;
-  container.appendChild(div);
-  fillSelectAll('.tipoCorte', validaciones.tipoCorte);
-
-  // Evento previsualización del nuevo corte
-  const inputFile = div.querySelector('.imgCorte');
-  const previewImg = div.querySelector('.previewCorte');
-  inputFile.addEventListener('change', e=>{ 
-    const file = e.target.files[0];
-    if(file){ const reader = new FileReader();
-      reader.onload=()=>previewImg.src=reader.result;
-      reader.readAsDataURL(file);
-      previewImg.style.display='block';
-    } else { previewImg.style.display='none'; }
+/* ---------- debounce duplicate check while typing ---------- */
+let debounceTimer = null;
+['marca','modelo','año'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', ()=> {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(()=> {
+      quickCheckExists();
+    }, 700);
   });
 });
 
-// --- Validación en tiempo real de Marca+Modelo+Año
-document.getElementById('marca').addEventListener('input', validarVehiculo);
-document.getElementById('modelo').addEventListener('input', validarVehiculo);
-document.getElementById('año').addEventListener('input', validarVehiculo);
-
-async function validarVehiculo(){
+async function quickCheckExists(){
   const marca = document.getElementById('marca').value.trim();
   const modelo = document.getElementById('modelo').value.trim();
   const año = document.getElementById('año').value.trim();
-  const tipoCorte = document.querySelector('.tipoCorte')?.value.trim() || '';
-
-  if(!marca || !modelo || !año || !tipoCorte) return;
-
-  const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}&tipoCorte=${encodeURIComponent(tipoCorte)}`);
-  const data = await res.json();
-
-  if(data.sameTypeExists) showModal(data.sameTypeRow);
+  if(!marca || !modelo || !año) { inlineMsg.textContent=''; return; }
+  try {
+    inlineMsg.textContent = 'Buscando registros...';
+    const res = await fetch(`${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}`);
+    const data = await res.json();
+    // server may return exists/sameTypeExists/etc. We handle both possibilities.
+    if(data.exists || data.cortes || data.sameTypeExists || data.rowIndex){
+      inlineMsg.textContent = 'Registro encontrado. Pulsa "Buscar / Siguiente" para ver detalles.';
+    } else {
+      inlineMsg.textContent = 'No se encontró registro.';
+    }
+  } catch(err){
+    inlineMsg.textContent = '';
+    console.warn('checkExists error', err);
+  }
 }
 
-// --- Form submit
-document.getElementById('formulario').addEventListener('submit', async e=>{
-  e.preventDefault();
+/* ---------- STEP 1 -> Next (fetch details) ---------- */
+document.getElementById('btnStep1Next').addEventListener('click', async ()=>{
+  const colaborador = document.getElementById('colaborador').value.trim();
+  const marca = document.getElementById('marca').value.trim();
+  const modelo = document.getElementById('modelo').value.trim();
+  const año = document.getElementById('año').value.trim();
+  const categoria = categoriaSel.value;
+  const tipoEnc = tipoEncendidoSel.value;
+
+  if(!colaborador){ alert('Ingresa tu nombre (colaborador).'); return; }
+  if(!marca || !modelo || !año){ alert('Marca, Modelo y Año son obligatorios.'); return; }
+
+  // show searching
+  inlineMsg.textContent = 'Consultando base de datos...';
+
+  try {
+    const q = `${WEB_APP_URL}?marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&año=${encodeURIComponent(año)}`;
+    const r = await fetch(q);
+    const data = await r.json();
+    inlineMsg.textContent = '';
+
+    // Interpret response — different backend versions may return different shapes.
+    // We'll try to detect:
+    // - If server returns exists:true OR cortes array -> treat as existing row
+    // - If not, treat as not found
+
+    const exists = !!(data.exists || data.rowIndex || data.cortes || data.imagenVehiculo || data.sameTypeExists);
+
+    if(!exists){
+      // No registro: show message and option to create new (step2 options)
+      foundCard.innerHTML = `<p>No se encontró registro para <strong>${marca} ${modelo} (${año})</strong>.</p>`;
+      buildOptions(false, {});
+      showStep(2);
+      return;
+    }
+
+    // If exists, show details in foundCard and options conditioned by hasApertura/hasCables
+    // Try to get values
+    const cortes = data.cortes || data.images || [];
+    const imagenVehiculo = data.imagenVehiculo || data.imagen || '';
+    const hasApertura = !!data.hasApertura;
+    const hasCables = !!data.hasCables;
+    const colaboradores = data.colaboradores || data.colaborador || '';
+
+    // Build HTML
+    let html = `<h3>Registro encontrado</h3><p><strong>${data.marca || marca} ${data.modelo || modelo}</strong> — ${data.añoGeneracion || ''}</p>`;
+    if(imagenVehiculo) html += `<div><img src="${imagenVehiculo}" class="preview" alt="Imagen modelo"></div>`;
+    if(cortes && cortes.length){
+      html += `<p><strong>Cortes existentes:</strong></p>`;
+      cortes.forEach(c => {
+        html += `<div style="margin-bottom:8px"><strong>${c.type||c.tipo||'Corte'}</strong><div>${c.desc||c.descripcion||''}</div>${c.url?`<img src="${c.url}" class="preview-sm">`:''}</div>`;
+      });
+    }
+    if(colaboradores) html += `<p><strong>Colaboradores:</strong> ${colaboradores}</p>`;
+
+    foundCard.innerHTML = html;
+    buildOptions(true, { hasApertura, hasCables, cortes });
+
+    showStep(2);
+
+  } catch(err){
+    inlineMsg.textContent = '';
+    console.error('Error buscando registro', err);
+    alert('Error consultando el servidor. Revisa la consola.');
+  }
+});
+
+/* ---------- construir botones de opciones ---------- */
+function buildOptions(exists, row){
+  optionsBtns.innerHTML = '';
+  // Always allow add corte
+  const btnCorte = makeButton('Agregar nuevo corte', ()=> openFormFor('corte'));
+  optionsBtns.appendChild(btnCorte);
+
+  if(!row.hasApertura){
+    const btnApertura = makeButton('Agregar apertura', ()=> openFormFor('apertura'));
+    optionsBtns.appendChild(btnApertura);
+  }
+
+  if(!row.hasCables){
+    const btnCables = makeButton('Agregar cables', ()=> openFormFor('cables'));
+    optionsBtns.appendChild(btnCables);
+  }
+
+  const btnAll = makeButton('Agregar toda la información / Crear registro', ()=> openFormFor('all'));
+  optionsBtns.appendChild(btnAll);
+}
+
+function makeButton(text, cb){
+  const b = document.createElement('button'); b.type='button'; b.className='small'; b.textContent = text; b.addEventListener('click', cb); return b;
+}
+
+/* ---------- open step3 with chosen mode ---------- */
+function openFormFor(mode){
+  // hide all specific forms
+  document.getElementById('formCortes').classList.add('hidden');
+  document.getElementById('formApertura').classList.add('hidden');
+  document.getElementById('formCables').classList.add('hidden');
+  // show correct section(s)
+  if(mode === 'corte'){ document.getElementById('formTitle').innerHTML = '<h3>Agregar Corte</h3>'; document.getElementById('formCortes').classList.remove('hidden'); }
+  else if(mode === 'apertura'){ document.getElementById('formTitle').innerHTML = '<h3>Agregar Apertura</h3>'; document.getElementById('formApertura').classList.remove('hidden'); }
+  else if(mode === 'cables'){ document.getElementById('formTitle').innerHTML = '<h3>Agregar Cables</h3>'; document.getElementById('formCables').classList.remove('hidden'); }
+  else { document.getElementById('formTitle').innerHTML = '<h3>Agregar / Crear registro completo</h3>'; document.getElementById('formCortes').classList.remove('hidden'); document.getElementById('formApertura').classList.remove('hidden'); document.getElementById('formCables').classList.remove('hidden'); }
+  // ensure tipoCorte options are set
+  fillAllTipoCorte();
+  showStep(3);
+}
+
+/* ---------- agregar / eliminar cortes dinámicamente ---------- */
+document.getElementById('addCorteBtn').addEventListener('click', ()=> {
+  const list = document.getElementById('cortesList');
+  if(list.children.length >= MAX_CORTES){ alert('Máximo ' + MAX_CORTES + ' cortes.'); return; }
+  const div = document.createElement('div'); div.className='corte';
+  div.innerHTML = `
+    <label>Tipo de corte</label><select class="tipoCorte"></select>
+    <label>Descripción</label><textarea class="descCorte"></textarea>
+    <label>Imagen (opcional)</label><input type="file" class="imgCorte" accept="image/*">
+    <img class="preview cortePreview" style="display:none">
+    <div style="margin-top:8px"><button type="button" class="removeCorteBtn small alt">Eliminar</button></div>
+  `;
+  list.appendChild(div);
+  fillAllTipoCorte();
+  // setup preview & remove
+  const inp = div.querySelector('.imgCorte'); const prev = div.querySelector('.cortePreview');
+  inp.addEventListener('change', ()=> { const f=inp.files[0]; if(!f){ prev.style.display='none'; prev.src=''; return; } prev.src=URL.createObjectURL(f); prev.style.display='block'; });
+  const btnR = div.querySelector('.removeCorteBtn'); btnR.addEventListener('click', ()=> div.remove());
+});
+
+/* ---------- Back buttons ---------- */
+document.getElementById('btnBackTo1').addEventListener('click', ()=> showStep(1));
+document.getElementById('btnBackTo2').addEventListener('click', ()=> showStep(2));
+document.getElementById('btnReset').addEventListener('click', ()=> {
+  document.getElementById('colaborador').value=''; document.getElementById('marca').value=''; document.getElementById('modelo').value=''; document.getElementById('año').value=''; document.getElementById('imagenVehiculo').value=''; document.getElementById('previewVehiculo').style.display='none'; inlineMsg.textContent='';
+});
+
+/* ---------- Submit final ---------- */
+document.getElementById('btnSubmit').addEventListener('click', async ()=>{
+  // basic validation
+  const colaborador = document.getElementById('colaborador').value.trim();
+  const marca = document.getElementById('marca').value.trim();
+  const modelo = document.getElementById('modelo').value.trim();
+  const año = document.getElementById('año').value.trim();
+  if(!colaborador || !marca || !modelo || !año){ alert('Completa identificación (colaborador, marca, modelo, año).'); return; }
+
+  // build cortes array
+  const cortes = [];
+  for(const node of document.querySelectorAll('#cortesList .corte')){
+    const tipo = node.querySelector('.tipoCorte')?.value?.trim() || '';
+    const desc = node.querySelector('.descCorte')?.value?.trim() || '';
+    const fnode = node.querySelector('.imgCorte');
+    const file = fnode?.files[0] || null;
+    const base64 = file ? await fileToDataURL(file) : null;
+    if(tipo || desc || base64) cortes.push({ tipo, descripcion: desc, base64, name: file?file.name:null });
+  }
+
+  // apertura
+  const aperturaFile = document.getElementById('aperturaImg')?.files[0] || null;
+  const apertura = { descripcion: document.getElementById('aperturaDesc')?.value?.trim() || '', base64: aperturaFile ? await fileToDataURL(aperturaFile) : null, name: aperturaFile?aperturaFile.name:null };
+
+  // cables
+  const cablesFile = document.getElementById('cablesImg')?.files[0] || null;
+  const cables = { descripcion: document.getElementById('cablesDesc')?.value?.trim() || '', base64: cablesFile ? await fileToDataURL(cablesFile) : null, name: cablesFile?cablesFile.name:null };
+
+  // imagen vehiculo
+  const vehFile = document.getElementById('imagenVehiculo')?.files[0] || null;
+  const imagenVehiculo = { base64: vehFile ? await fileToDataURL(vehFile) : null, name: vehFile?vehFile.name:null };
 
   const payload = {
-    colaborador: document.getElementById('colaborador').value.trim(),
-    categoria: document.getElementById('categoria').value,
-    marca: document.getElementById('marca').value.trim(),
-    modelo: document.getElementById('modelo').value.trim(),
-    año: document.getElementById('año').value.trim(),
-    tipoEncendido: document.getElementById('tipoEncendido').value,
-    cortes: await getCortesData(),
-    apertura: await getFileData('aperturaDesc','aperturaImg'),
-    cables: await getFileData('cablesDesc','cablesImg'),
-    nota: document.getElementById('nota').value.trim(),
-    plasticos: document.getElementById('plasticos').value.trim()
+    colaborador,
+    categoria: categoriaSel.value,
+    marca, modelo, año,
+    tipoEncendido: tipoEncendidoSel.value,
+    cortes,
+    apertura,
+    cables,
+    nota: document.getElementById('nota')?.value?.trim() || '',
+    plasticos: document.getElementById('plasticos')?.value?.trim() || '',
+    imagenVehiculo
   };
 
-  const postRes = await fetch(WEB_APP_URL,{method:'POST',body:JSON.stringify(payload)});
-  const postData = await postRes.json();
-  alert('Corte enviado exitosamente.');
-  window.location.reload();
-});
+  // show loader
+  document.getElementById('loading').style.display='flex';
 
-// --- Modal
-const modal = document.getElementById('modal');
-const modalBody = document.getElementById('modalBody');
-document.getElementById('cancelBtn').addEventListener('click', ()=> modal.style.display='none');
-document.getElementById('confirmNoBtn').addEventListener('click', ()=>{
-  modal.style.display='none';
-  alert('Continuar con el nuevo corte.');
-});
-document.getElementById('backIndexBtn').addEventListener('click', ()=> window.location.href='index.html');
-
-function showModal(row){
-  modalBody.innerHTML=`<p>Marca: ${row.marca}</p>
-                       <p>Modelo: ${row.modelo}</p>
-                       <p>Generación: ${row.añoGeneracion}</p>
-                       <p>Cortes existentes:</p>`;
-  row.images.forEach(img=>{
-    modalBody.innerHTML+=`<p>${img.type}: ${img.desc}</p><img src="${img.url}">`;
-  });
-  modal.style.display='flex';
-}
-
-// --- Helpers
-async function getCortesData(){
-  const cortes=[];
-  for(const node of document.querySelectorAll('.corte')){
-    const tipo=node.querySelector('.tipoCorte').value.trim();
-    const desc=node.querySelector('.descCorte').value.trim();
-    const imgNode=node.querySelector('.imgCorte');
-    const base64=imgNode.files[0]?await fileToBase64(imgNode.files[0]):null;
-    cortes.push({tipo,descripcion:desc,base64});
+  try {
+    const res = await fetch(WEB_APP_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    const j = await res.json();
+    document.getElementById('loading').style.display='none';
+    if(j && j.success){
+      showModal('<h3>Éxito</h3><p>Información agregada/actualizada correctamente.</p>', [{ label:'OK', onClick: ()=> location.reload() }]);
+    } else {
+      console.error('Respuesta inesperada', j);
+      showModal('<h3>Error</h3><p>No se pudo guardar la información. Revisa la consola.</p>', [{ label:'Cerrar', onClick: ()=> {} }]);
+    }
+  } catch(err){
+    document.getElementById('loading').style.display='none';
+    console.error(err);
+    showModal('<h3>Error</h3><p>Error al comunicarse con el servidor: '+(err.message||err)+'</p>', [{ label:'Cerrar', onClick: ()=> {} }]);
   }
-  return cortes;
-}
-async function getFileData(descId,fileId){
-  const desc=document.getElementById(descId)?.value.trim()||'';
-  const fileNode=document.getElementById(fileId);
-  const base64=fileNode.files[0]?await fileToBase64(fileNode.files[0]):null;
-  return {descripcion:desc,base64};
-}
-function fileToBase64(file){
+});
+
+/* ---------- utilities ---------- */
+function fileToDataURL(file){
   return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=()=>resolve(reader.result.split(',')[1]);
-    reader.onerror=error=>reject(error);
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result); // full dataURL
+    reader.onerror = err => reject(err);
     reader.readAsDataURL(file);
+  });
+}
+function fillAllTipoCorte(){
+  document.querySelectorAll('.tipoCorte').forEach(s => {
+    s.innerHTML = '';
+    (serverValidation.tipoCorte||[]).forEach(t => { const o=document.createElement('option'); o.value=t; o.textContent=t; s.appendChild(o);});
   });
 }
 </script>
 </body>
-          </html>
+</html>
