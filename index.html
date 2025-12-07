@@ -4,33 +4,141 @@
 <meta charset="UTF-8">
 <title>Registro de Cortes GPS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* Estilos Globales basados en Tailwind */
-html { height: 100%; }
+/* ------------------------------------------------------------- */
+/* ESTILOS PROPORCIONADOS POR EL USUARIO (BASE GPSpedia) */
+/* ------------------------------------------------------------- */
+/* Estilos Globales */
+html {
+    height: 100%;
+}
 body {
-    font-family: 'Inter', sans-serif;
-    margin: 0; padding: 20px;
-    background: #f0f4f8;
-    display: flex; flex-direction: column;
-    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+}
+h1,h2,h3,h4 {
+    margin: 10px 0;
 }
 .container {
-    max-width: 500px;
-    margin: 20px auto;
+    padding: 20px;
+    max-width: 1240px;
+    margin: 0 auto;
     width: 100%;
     box-sizing: border-box;
     flex: 1 0 auto;
 }
+.backBtn {
+    margin-bottom: 15px;
+    cursor: pointer;
+    color: #007bff;
+    display: inline-flex;
+    align-items: center;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+.backBtn:hover {
+    background: #e9f7ff;
+}
+
+/* --- ESTILOS DEL ENCABEZADO (Header) --- */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    padding: 10px 20px 0 20px; /* Ajuste para el padding del contenedor */
+    max-width: 1240px;
+    margin: 0 auto;
+}
+.app-logo {
+    max-width: 96px;
+    height: auto;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+h1.app-title {
+    text-align: left;
+    margin: 0;
+    font-size: 2.2em;
+    color: #333;
+}
+
+#install-button {
+    display: none; /* Oculto por defecto, JS lo mostrará */
+    position: fixed; /* Fijo en la pantalla */
+    top: 20px;     /* Distancia desde arriba */
+    right: 20px;    /* Distancia desde la derecha */
+    z-index: 1001;   /* Por encima de otros elementos */
+    padding: 10px 20px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+    background-color: #28a745; /* Verde para la acción de instalar */
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    white-space: nowrap;
+}
+
+#install-button:hover {
+    background-color: #218838;
+    transform: scale(1.05); /* Efecto de zoom ligero */
+}
+
+@media (max-width: 480px) {
+    h1.app-title {
+        font-size: 1.8em;
+    }
+    #install-button {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 0.9em;
+    }
+    .header-container {
+        padding: 10px;
+        justify-content: center;
+    }
+}
+
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    background-color: #333;
+    color: #fff;
+    font-size: 0.9em;
+    width: 100%; /* Asegura que ocupe todo el ancho */
+    box-sizing: border-box;
+}
+
+/* ------------------------------------------------------------- */
+/* ESTILOS ESPECÍFICOS DEL FORMULARIO (AJUSTADOS) */
+/* ------------------------------------------------------------- */
+
+/* Contenedor del formulario centrado en el área de contenido */
 .form-card {
     background: white;
     padding: 25px;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 500px; /* Limitar el ancho del formulario */
+    margin: 20px auto; /* Centrar la tarjeta dentro del .container */
+    width: 100%;
 }
+
 .step { display: none; }
 .step.active { display: block; }
 
+/* Estilos de inputs/labels */
 label {
     display: block; margin-top: 15px; margin-bottom: 5px;
     font-weight: bold; color: #333;
@@ -41,36 +149,61 @@ input[type="text"], input[type="number"], select, textarea {
     box-sizing: border-box; font-size: 1em;
     transition: border-color 0.3s;
 }
+input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+    outline: none;
+}
+
+/* Estilos de subida de archivos (Custom) */
 .custom-file-upload {
     display: block; width: 100%; padding: 10px; margin-bottom: 15px;
     border: 1px solid #007bff; border-radius: 6px; box-sizing: border-box;
     font-size: 1em; font-weight: 500; color: #007bff;
     background-color: #f0f8ff; cursor: pointer; text-align: center;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+.custom-file-upload:hover {
+    background-color: #e9f7ff;
+    border-color: #0056b3;
 }
 .input-file-hidden {
     width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1;
 }
+
+/* Estilos de botones */
 .btn {
     background: #007bff; color: white; border: none; padding: 12px;
     border-radius: 8px; cursor: pointer; width: 100%; font-size: 1em;
-    font-weight: bold; transition: background-color 0.3s; margin-top: 10px;
+    font-weight: bold; transition: background-color 0.3s, transform 0.2s; margin-top: 10px;
 }
-.btn:hover { background: #0056b3; }
+.btn:hover { 
+    background: #0056b3; 
+    transform: translateY(-1px);
+}
 .btn-secondary { background: #6c757d; }
 .btn-secondary:hover { background: #5a6268; }
+
+/* Indicador de carga */
 .loading {
     display: none; font-size: 1em; margin-top: 15px; text-align: center;
     color: #007bff; font-weight: bold;
 }
+
+/* Alertas flotantes (Toast) */
 .alerta {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
     padding: 15px 25px; border-radius: 8px; font-weight: 600;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); z-index: 1000; opacity: 0;
     transition: opacity 0.5s, transform 0.5s; text-align: center;
-    background-color: #d4edda; color: #155724;
+    min-width: 250px;
 }
 .alerta.show { opacity: 1; transform: translate(-50%, 0); }
-.alerta.error { background-color: #f8d7da; color: #721c24; }
+.alerta.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+.alerta.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.alerta.info { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+
+/* Previsualización de imágenes */
 .image-preview {
     max-width: 100%; height: auto; border-radius: 8px; margin-top: 5px; 
     margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); object-fit: contain;
@@ -79,17 +212,34 @@ input[type="text"], input[type="number"], select, textarea {
     padding: 10px; margin-bottom: 15px; background-color: #f0f8ff; 
     border: 1px solid #cce5ff; border-radius: 8px;
 }
-.backBtn {
-    margin-bottom: 15px; cursor: pointer; color: #007bff; 
-    display: inline-flex; align-items: center; font-weight: bold;
+.step-title-h2 {
+    font-size: 1.5em; 
+    margin-bottom: 20px; 
+    color: #333; 
+    text-align: center;
 }
+.dynamic-corte-title {
+    color:#007bff;
+    font-size: 1.2em;
+}
+.flex-row-btns {
+    display: flex; gap: 10px; margin-top: 20px;
+}
+
 </style>
 </head>
 <body>
 
+<!-- ENCABEZADO PROPORCIONADO POR EL USUARIO -->
+<div class="header-container">
+    <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
+    <h1 class="app-title">GPSpedia</h1>
+    <button id="install-button" style="display: none;">Instalar Aplicación</button>
+</div>
+
 <div class="container">
     <div class="form-card">
-        <h1 class="text-2xl font-bold mb-6 text-gray-800 text-center">Registro de Cortes GPS</h1>
+        <h2 class="step-title-h2">Registro de Cortes GPS</h2>
 
         <script>
         // -------------------------------------------------------------
@@ -150,6 +300,7 @@ input[type="text"], input[type="number"], select, textarea {
             const file = event.target.files[0];
             const preview = document.getElementById(previewId);
             const label = event.target.nextElementSibling;
+            const defaultText = label.getAttribute('data-default-text');
 
             if (file) {
                 label.textContent = `Archivo: ${file.name}`;
@@ -160,7 +311,7 @@ input[type="text"], input[type="number"], select, textarea {
                     imagesBase64[imageKey] = base64;
                 });
             } else {
-                label.textContent = label.getAttribute('data-default-text');
+                label.textContent = defaultText;
                 preview.src = '';
                 preview.style.display = 'none';
                 imagesBase64[imageKey] = null;
@@ -194,13 +345,32 @@ input[type="text"], input[type="number"], select, textarea {
             try {
                 const payload = { action: 'search', marca, modelo, año: Number(año) };
                 
-                const res = await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(payload)
-                });
+                // Implementación de Backoff Exponencial para Fetch
+                const maxRetries = 3;
+                let lastError = null;
+                let response;
 
-                const jsonRes = await res.json();
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        response = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }, 
+                            body: JSON.stringify(payload)
+                        });
+                        if (response.ok) break; 
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } catch (e) {
+                        lastError = e;
+                        if (i < maxRetries - 1) {
+                            const delay = Math.pow(2, i) * 1000; 
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                            throw lastError;
+                        }
+                    }
+                }
+                
+                const jsonRes = await response.json();
                 loading.style.display = "none";
 
                 if (!jsonRes.success) {
@@ -228,7 +398,7 @@ input[type="text"], input[type="number"], select, textarea {
 
             } catch (e) {
                 loading.style.display = "none";
-                mostrarAlerta("❌ Error en función buscarVehiculo: " + e.message, 'error');
+                mostrarAlerta("❌ Error al buscar vehículo: " + e.message, 'error');
                 console.error("Error en función buscarVehiculo:", e);
             }
         }
@@ -291,14 +461,32 @@ input[type="text"], input[type="number"], select, textarea {
             loading.innerText = "Enviando datos y subiendo imágenes a Drive...";
 
             try {
-                // Llama al Apps Script
-                const res = await fetch(APPS_SCRIPT_URL, {
-                    method: "POST",
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(finalPayload)
-                });
+                 // Implementación de Backoff Exponencial para Fetch
+                const maxRetries = 3;
+                let lastError = null;
+                let response;
 
-                const jsonRes = await res.json();
+                for (let i = 0; i < maxRetries; i++) {
+                    try {
+                        response = await fetch(APPS_SCRIPT_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' }, 
+                            body: JSON.stringify(finalPayload)
+                        });
+                        if (response.ok) break; 
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    } catch (e) {
+                        lastError = e;
+                        if (i < maxRetries - 1) {
+                            const delay = Math.pow(2, i) * 1000; 
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        } else {
+                            throw lastError;
+                        }
+                    }
+                }
+
+                const jsonRes = await response.json();
                 loading.style.display = "none";
 
                 if (jsonRes.success) {
@@ -350,7 +538,7 @@ input[type="text"], input[type="number"], select, textarea {
             titleEl.innerText = `Vehículo: ${common.marca} ${common.modelo} (${common.año})`;
 
             if (mode === 'full') {
-                corteContainer.innerHTML = '<p class="text-red-600 font-semibold text-center mt-8">🚨 El vehículo ya tiene el número máximo de cortes (3) registrados.</p>';
+                corteContainer.innerHTML = '<p class="text-red-600 font-semibold text-center mt-8" style="color:#dc3545; font-weight: bold; text-align: center; margin-top: 20px;">🚨 El vehículo ya tiene el número máximo de cortes (3) registrados.</p>';
                 nextBtn.style.display = 'none';
                 return;
             }
@@ -368,7 +556,7 @@ input[type="text"], input[type="number"], select, textarea {
             }
 
             const cortesExistentesDiv = document.getElementById('cortes-existentes-info');
-            cortesExistentesDiv.innerHTML = `<p class="font-bold mb-1">Cortes Existentes:</p>${infoExistente}`;
+            cortesExistentesDiv.innerHTML = `<p style="font-weight: bold; margin-bottom: 5px;">Cortes Existentes:</p>${infoExistente}`;
             cortesExistentesDiv.style.display = (infoExistente ? 'block' : 'none');
 
             // --- Generar el formulario para el nuevo corte (nextCorte) ---
@@ -378,7 +566,7 @@ input[type="text"], input[type="number"], select, textarea {
             const labelText = `Seleccionar Imagen Corte ${nextCorte} (${imgLetra})`;
             
             corteContainer.innerHTML = `
-                <h3 class="text-lg font-bold mt-4 mb-3 border-b pb-1" style="color:#007bff;">Registro Corte ${nextCorte}</h3>
+                <h3 class="dynamic-corte-title mt-4 mb-3" style="border-bottom: 1px solid #eee; padding-bottom: 5px; font-weight: bold;">Registro Corte ${nextCorte}</h3>
 
                 <!-- TIPO DE CORTE (${corteLetra}) -->
                 <label for="tipoCorte_${nextCorte}">Tipo de Corte ${nextCorte} (${corteLetra})</label>
@@ -428,7 +616,7 @@ input[type="text"], input[type="number"], select, textarea {
         <!-- CONTENIDO - PASO 1 (BÚSQUEDA Y COMUNES) -->
         <!-- ============================================================= -->
         <div id="step1" class="step active">
-            <h2 class="text-xl font-bold mb-4 text-gray-700">1. Datos de Identificación y Búsqueda</h2>
+            <h3 class="text-xl font-bold mb-4" style="font-size: 1.25em; font-weight: bold; margin-bottom: 15px;">1. Datos de Identificación y Búsqueda</h3>
 
             <!-- (T) Colaborador -->
             <label for="colaborador">Colaborador (T)</label>
@@ -455,7 +643,7 @@ input[type="text"], input[type="number"], select, textarea {
             <input type="number" id="año" placeholder="Ej: 2020" min="1900" max="2100" required>
             
             <!-- (C) Imagen Vehículo -->
-            <label for="imgVehiculo" class="text-sm text-gray-500">Imagen del Vehículo (C)</label>
+            <label for="imgVehiculo" style="font-weight: normal; color: #666;">Imagen del Vehículo (C)</label>
             <input type="file" id="imgVehiculo" class="input-file-hidden" accept="image/*">
             <label for="imgVehiculo" class="custom-file-upload" data-default-text="Seleccionar Imagen del Vehículo (C)">Seleccionar Imagen del Vehículo (C)</label>
             <img id="previewVehiculo" class="image-preview" style="display:none;" alt="Previsualización del vehículo">
@@ -472,7 +660,7 @@ input[type="text"], input[type="number"], select, textarea {
         <!-- ============================================================= -->
         <div id="step2" class="step">
             <div class="backBtn" onclick="volverPaso(1)">&#9664; Regresar</div>
-            <h2 id="step2-title" class="text-xl font-semibold mb-2 text-gray-700"></h2>
+            <h2 id="step2-title" class="text-xl font-semibold mb-2" style="font-size: 1.5em; margin-bottom: 10px;"></h2>
             
             <div id="cortes-existentes-info" class="cortes-existentes-info" style="display:none;">
                 <!-- Cortes Existentes se insertan aquí -->
@@ -482,7 +670,7 @@ input[type="text"], input[type="number"], select, textarea {
                 <!-- El formulario del Corte 1/2/3 se generará aquí por JavaScript -->
             </div>
 
-            <div class="flex gap-4 mt-6" style="display: flex; gap: 10px;">
+            <div class="flex-row-btns">
                 <button class="btn btn-secondary" style="width: 50%;" onclick="volverPaso(1)">Regresar</button>
                 <button id="btn-siguiente-step2" class="btn" style="width: 50%;" onclick="mostrarPaso(3)">Siguiente (Cables/Notas)</button>
             </div>
@@ -493,7 +681,7 @@ input[type="text"], input[type="number"], select, textarea {
         <!-- ============================================================= -->
         <div id="step3" class="step">
             <div class="backBtn" onclick="mostrarPaso(2, filaIndexExistente ? 'edit' : 'new')">&#9664; Regresar</div>
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">3. Detalles Adicionales</h2>
+            <h3 class="text-xl font-semibold mb-4" style="font-size: 1.25em; font-weight: bold; margin-bottom: 15px;">3. Detalles Adicionales</h3>
 
             <!-- (N) Apertura Desc. -->
             <label for="descApertura">Apertura (N)</label>
@@ -519,13 +707,18 @@ input[type="text"], input[type="number"], select, textarea {
             <label for="notaImportante">Nota Importante (P)</label>
             <textarea id="notaImportante" placeholder="Aspectos a tener en cuenta en la instalación de GPS en este vehículo."></textarea>
             
-            <div class="flex gap-4 mt-6" style="display: flex; gap: 10px;">
+            <div class="flex-row-btns">
                 <button class="btn btn-secondary" style="width: 50%;" onclick="mostrarPaso(2, filaIndexExistente ? 'edit' : 'new')">Regresar</button>
                 <button class="btn" style="width: 50%;" onclick="enviar()">Guardar Registro Completo</button>
             </div>
         </div>
     </div>
 </div>
+
+<!-- PIE DE PÁGINA PROPORCIONADO POR EL USUARIO -->
+<footer class="footer">
+    Gpspedia 2025© todos los derechos reservados.
+</footer>
 
 </body>
 </html>
