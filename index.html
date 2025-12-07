@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Registro de Cortes de Vehículos.1</title>
+<title>Registro y Actualización de Cortes de Vehículos</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -42,6 +42,10 @@
         @apply w-full p-3 mt-1 mb-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500;
     }
     
+    input[type="file"] {
+        @apply w-full p-3 mt-1 mb-3 border border-gray-300 rounded-lg bg-white;
+    }
+
     .btn {
         @apply bg-blue-600 text-white p-3 rounded-lg cursor-pointer w-full font-semibold mt-4 transition duration-200 hover:bg-blue-700 disabled:opacity-50;
     }
@@ -53,6 +57,13 @@
     .opcion-card {
         @apply bg-gray-50 p-4 rounded-lg my-3 border-2 border-gray-200 cursor-pointer transition duration-200 hover:border-blue-500 hover:shadow-md;
     }
+
+    .opcion-card.disabled {
+        @apply opacity-50 cursor-not-allowed hover:border-gray-200 hover:shadow-none;
+    }
+
+    /* Ocultar el selector de categoría en el Paso 1 */
+    #categoriaPaso1 { display: none; }
 </style>
 </head>
 
@@ -60,7 +71,7 @@
 
 <div class="container-wrapper">
     <div class="form-container">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registro de Cortes de Vehículos 1.</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registro de Cortes de Vehículos</h1>
 
         <!-- Mensajes de Alerta y Loading -->
         <div id="loading" class="text-center py-4 hidden">
@@ -68,7 +79,7 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <span class="text-blue-600 font-medium">Procesando...</span>
+            <span class="text-blue-600 font-medium">Conectando con Google...</span>
         </div>
         <div id="messageBox" class="p-4 rounded-lg mb-4 text-sm font-medium hidden" role="alert"></div>
 
@@ -85,23 +96,26 @@
             <label for="modelo">Modelo</label>
             <input type="text" id="modelo" required>
 
-            <label for="anio">Año</label>
+            <label for="anio">Año (Generación)</label>
             <input type="number" id="anio" min="1900" max="2100" required>
             
+            <!-- Select oculto para la categoría (se usa al volver de una búsqueda fallida) -->
+            <select id="categoriaPaso1"></select> 
+
             <button class="btn" onclick="buscarModelo()">Buscar Modelo</button>
         </div>
 
 
-        <!-- PASO 2: SELECCIÓN DE ACCIÓN (Modelo Encontrado) -->
+        <!-- PASO 2: SELECCIÓN DE ACCIÓN (Modelo Encontrado o Nuevo) -->
         <div id="step2" class="step">
-            <h3 class="text-xl font-semibold mb-2 text-gray-700">2. Modelo <span id="modeloInfo"></span></h3>
-            <p id="infoExistente" class="font-medium text-lg text-green-700 mb-4"></p>
+            <h3 class="text-xl font-semibold mb-2 text-gray-700">2. Opciones para <span id="modeloInfo" class="text-blue-600"></span></h3>
+            <p id="infoExistente" class="font-medium text-lg text-gray-700 mb-4"></p>
 
             <h4 class="font-semibold text-gray-700 mb-3">Selecciona la acción a realizar:</h4>
 
             <div id="opciones"></div>
 
-            <button class="btn btn-secondary" onclick="mostrarPaso(1)">Regresar a Búsqueda</button>
+            <button class="btn btn-secondary" onclick="volverPaso(1)">Regresar a Búsqueda</button>
         </div>
 
 
@@ -113,7 +127,7 @@
             <div id="contenidoDinamico"></div>
 
             <!-- Campos Comunes -->
-            <h4 class="font-bold text-gray-600 mt-6 mb-2 border-t pt-4">Información Adicional (Opcional)</h4>
+            <h4 class="font-bold text-gray-600 mt-6 mb-2 border-t pt-4">Información Adicional</h4>
             
             <label for="comoDesarmarPlasticos">Cómo desarmar plásticos</label>
             <textarea id="comoDesarmarPlasticos" rows="3"></textarea>
@@ -125,7 +139,8 @@
             <input type="text" id="colaboradorFinal" required>
             
             <button class="btn" onclick="enviar()">Enviar y Guardar</button>
-            <button class="btn btn-secondary" onclick="volverPaso(2)">Regresar</button>
+            <!-- El botón "Regresar" usará lógica dinámica para ir a Paso 1 o 2 -->
+            <button class="btn btn-secondary" id="btnRegresarPaso3" onclick="volverPaso(1)">Regresar</button> 
         </div>
     </div>
 </div>
@@ -137,12 +152,52 @@
 // =============================================================
 
 // *** IMPORTANTE: REEMPLAZA ESTA URL CON LA DE TU NUEVO DESPLIEGUE ***
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyY-UmZxct5BP9JbunSTGAOPOlHRpXFzyVCNnBLtEFT09ZOlpfSWStAn-Ni8sX4gfcZ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwFl2qZuP9-PHMn7kDO7L0L1Gt7d2jU2IetZsMndOCDFvMqmF05L52cbX9KtGRkSXVr/exec"; 
 
-let validaciones = {}; // Almacena {CATEGORIAS: [], TIPO_ENCENDIDO: [], TIPO_CORTE: []}
-let datosEncontrados = null; // Almacena { existe: true, rowIndex: 5, ... } o { existe: false }
+let validaciones = {}; 
+let datosEncontrados = null; // Almacena el resultado de la búsqueda
 let accionSeleccionada = "";
-let base64Data = {}; // Almacena temporalmente los datos Base64 de las imágenes
+let base64Data = {}; // Almacena los archivos Base64
+
+
+// =============================================================
+// UTILIDADES JSONP (SOLO PARA GET - EVITA CORS)
+// =============================================================
+
+/**
+ * Realiza una petición GET usando JSONP para evitar el error CORS.
+ * @param {string} url - La URL base de Apps Script.
+ * @param {Object} params - Objeto de parámetros de consulta.
+ * @returns {Promise<Object>} Promesa que resuelve con la data JSON.
+ */
+function fetchJsonp(url, params) {
+    return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+
+        window[callbackName] = (data) => {
+            document.body.removeChild(script);
+            delete window[callbackName];
+            resolve(data); 
+        };
+
+        const queryString = Object.keys(params)
+            .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
+            .join('&');
+            
+        const finalUrl = `${url}?${queryString}&callback=${callbackName}`;
+
+        const script = document.createElement('script');
+        script.src = finalUrl;
+        
+        script.onerror = () => {
+            document.body.removeChild(script);
+            delete window[callbackName];
+            reject(new Error("Error de red o URL JSONP incorrecta."));
+        };
+
+        document.body.appendChild(script);
+    });
+}
 
 
 // =============================================================
@@ -152,7 +207,7 @@ let base64Data = {}; // Almacena temporalmente los datos Base64 de las imágenes
 function mostrarAlerta(text, type = 'info') {
     const box = document.getElementById("messageBox");
     box.innerText = text;
-    box.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+    box.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700');
 
     if (type === 'error') {
         box.classList.add('bg-red-100', 'text-red-700', 'border', 'border-red-400');
@@ -165,9 +220,15 @@ function mostrarAlerta(text, type = 'info') {
     setTimeout(() => { box.classList.add('hidden'); }, 8000);
 }
 
-function setLoading(isLoading) {
-    document.getElementById("loading").classList.toggle("hidden", !isLoading);
-    document.querySelectorAll(".step.active .btn").forEach(btn => btn.disabled = isLoading);
+function setLoading(isLoading, message = "Conectando con Google...") {
+    const loadingEl = document.getElementById("loading");
+    loadingEl.querySelector('span').innerText = message;
+    loadingEl.classList.toggle("hidden", !isLoading);
+    // Desactivar botones en el paso activo
+    const activeStep = document.querySelector(".step.active");
+    if (activeStep) {
+        activeStep.querySelectorAll(".btn").forEach(btn => btn.disabled = isLoading);
+    }
 }
 
 function mostrarPaso(n) {
@@ -175,11 +236,18 @@ function mostrarPaso(n) {
     document.getElementById("step" + n).classList.add("active");
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // Sincronizar colaborador al ir al paso final
+    // Sincronizar colaborador y deshabilitar en el paso final
     if (n === 3) {
         document.getElementById("colaboradorFinal").value = document.getElementById("colaborador").value;
-        document.getElementById("colaboradorFinal").disabled = true; // No permitir cambiarlo aquí
+        document.getElementById("colaboradorFinal").disabled = true;
     }
+}
+
+function volverPaso(n) {
+    // Limpiar base64Data de imágenes específicas al volver
+    base64Data = {}; 
+    document.getElementById("contenidoDinamico").innerHTML = ""; // Limpiar contenido
+    mostrarPaso(n);
 }
 
 /** Lee un archivo y lo almacena como Base64 con metadatos. */
@@ -187,17 +255,18 @@ function readFileAsBase64(fileInput, key) {
     const file = fileInput.files[0];
     if (!file) {
         base64Data[key] = null;
+        const preview = document.getElementById(`preview${key}`);
+        if (preview) preview.classList.add("hidden");
         return;
     }
 
     const reader = new FileReader();
     reader.onload = function(e) {
         base64Data[key] = {
-            base64: e.target.result, // Cadena data:image/...;base64,...
+            base64: e.target.result,
             name: file.name
         };
-        const previewId = `preview${key}`;
-        const preview = document.getElementById(previewId);
+        const preview = document.getElementById(`preview${key}`);
         if (preview) {
             preview.src = e.target.result;
             preview.classList.remove("hidden");
@@ -207,25 +276,34 @@ function readFileAsBase64(fileInput, key) {
 }
 
 // =============================================================
-// INICIALIZACIÓN (Carga de Validaciones)
+// INICIALIZACIÓN (Carga de Validaciones con JSONP)
 // =============================================================
 
 window.onload = async () => {
+    if (WEB_APP_URL === "URL_DE_TU_APPS_SCRIPT_AQUI") {
+        mostrarAlerta("❌ ERROR: Por favor, reemplaza 'URL_DE_TU_APPS_SCRIPT_AQUI' en el código.", 'error');
+        return;
+    }
+
     try {
-        setLoading(true);
-        const res = await fetch(WEB_APP_URL + "?action=getValidationData");
-        const data = await res.json();
+        setLoading(true, "Cargando datos de validación...");
+        
+        // USO DE JSONP para GET: ¡Evitando CORS!
+        const data = await fetchJsonp(WEB_APP_URL, { action: 'getValidationData' });
+        
         setLoading(false);
 
         if (data.error) {
-            mostrarAlerta("Error al cargar datos de validación: " + data.error, true);
+            mostrarAlerta("Error al cargar validaciones: " + data.error, 'error');
             return;
         }
 
         validaciones = data;
 
-        // Llenar el select de Categorías en el Paso 1
+        // Llenar el select de Categorías
         const catSelect = document.getElementById("categoriaPaso1");
+        // Asegurar que el select tiene la opción vacía y luego las opciones de validación
+        catSelect.innerHTML = '<option value="" disabled selected>Seleccione la Categoría...</option>';
         validaciones.CATEGORIAS.forEach(c => {
             const op = document.createElement("option");
             op.value = c;
@@ -235,14 +313,14 @@ window.onload = async () => {
 
     } catch (e) {
         setLoading(false);
-        mostrarAlerta("Error de red o Apps Script al inicializar. Revisa tu URL y despliegue.", 'error');
-        console.error("Error de fetch inicial:", e);
+        mostrarAlerta("Error crítico: Falló la conexión inicial. Verifique la URL de Apps Script y la red.", 'error');
+        console.error("Error de conexión JSONP:", e);
     }
 };
 
 
 // =============================================================
-// PASO 1: BÚSQUEDA (doGet?action=buscarModelo)
+// PASO 1: BÚSQUEDA (doGet?action=buscarModelo) con JSONP
 // =============================================================
 
 async function buscarModelo() {
@@ -256,11 +334,18 @@ async function buscarModelo() {
         return;
     }
 
-    setLoading(true);
+    setLoading(true, "Buscando modelo y duplicados...");
     try {
-        const url = `${WEB_APP_URL}?action=buscarModelo&marca=${encodeURIComponent(marca)}&modelo=${encodeURIComponent(modelo)}&anio=${anio}`;
-        const res = await fetch(url);
-        datosEncontrados = await res.json();
+        const params = {
+            action: 'buscarModelo',
+            marca: marca,
+            modelo: modelo,
+            anio: anio
+        };
+        
+        // USO DE JSONP para GET: ¡Evitando CORS!
+        datosEncontrados = await fetchJsonp(WEB_APP_URL, params);
+        
         setLoading(false);
 
         if (datosEncontrados.error) {
@@ -271,21 +356,21 @@ async function buscarModelo() {
         document.getElementById("modeloInfo").innerText = `${marca} ${modelo} (${anio})`;
 
         if (datosEncontrados.existe === false) {
-            // Modelo NO encontrado: ir directamente a crear nuevo
+            // Modelo NO encontrado: ir a crear nuevo
             accionSeleccionada = "nuevoModelo";
             generarFormulario('nuevoModelo');
         } else {
             // Modelo encontrado: Mostrar opciones de actualización
             document.getElementById("infoExistente").innerText = 
-                `Modelo encontrado en la fila #${datosEncontrados.rowIndex}. Selecciona lo que deseas agregar/actualizar.`;
+                `✅ ¡Modelo encontrado en la fila #${datosEncontrados.rowIndex}! Selecciona lo que deseas agregar o actualizar.`;
             mostrarOpcionesExistentes(datosEncontrados);
             mostrarPaso(2);
         }
 
     } catch (e) {
         setLoading(false);
-        mostrarAlerta("Error de comunicación durante la búsqueda.", 'error');
-        console.error("Error de fetch:", e);
+        mostrarAlerta("Error de comunicación durante la búsqueda. Revise la consola para detalles de red.", 'error');
+        console.error("Error de conexión JSONP:", e);
     }
 }
 
@@ -299,42 +384,35 @@ function mostrarOpcionesExistentes(info) {
     opciones.innerHTML = "";
 
     let html = '';
+    const cortesDisp = [!info.tieneCorte2, !info.tieneCorte3];
+    const puedeAgregarCorte = cortesDisp.some(disp => disp);
 
     // Opción para Cortes
-    let cortesDisp = [];
-    if (!info.tieneCorte2) cortesDisp.push("Corte 2");
-    if (!info.tieneCorte3) cortesDisp.push("Corte 3");
-
-    if (cortesDisp.length > 0) {
-        html += `<div class="opcion-card" onclick="generarFormulario('corteNuevo')">
-                    <span class="font-bold text-lg">➕ Agregar Corte Nuevo</span>
-                    <div class="text-gray-500 text-sm">Disponibles: ${cortesDisp.join(" y ")}</div>
-                 </div>`;
-    } else {
-        html += `<div class="opcion-card opacity-50 cursor-not-allowed">
-                    <span class="font-bold text-lg">✔️ Cortes Completos</span>
-                    <div class="text-gray-500 text-sm">Ya tiene 3 cortes registrados.</div>
-                 </div>`;
-    }
+    const cortesClase = puedeAgregarCorte ? '' : 'disabled';
+    const cortesMsg = info.tieneCorte2 && info.tieneCorte3 ? 'Ya tiene 3 cortes registrados.' : `Slots libres: ${cortesDisp.filter(Boolean).length}`;
+    html += `<div class="opcion-card ${cortesClase}" onclick="${puedeAgregarCorte ? "generarFormulario('corteNuevo')" : ""}">
+                <span class="font-bold text-lg">➕ Agregar Corte Nuevo</span>
+                <div class="text-gray-500 text-sm">${cortesMsg}</div>
+             </div>`;
 
     // Apertura
     const aperturaStatus = info.tieneApertura ? 'Actualizar Apertura' : 'Agregar Apertura';
     html += `<div class="opcion-card" onclick="generarFormulario('apertura')">
                 <span class="font-bold text-lg">🔑 ${aperturaStatus}</span>
-                <div class="text-gray-500 text-sm">${info.tieneApertura ? 'Sobrescribe la descripción/imagen existente.' : 'Agrega el punto de apertura.'}</div>
+                <div class="text-gray-500 text-sm">${info.tieneApertura ? 'Sobrescribe la descripción/imagen existente.' : 'Agrega el punto de apertura faltante.'}</div>
              </div>`;
 
     // Cables
     const cablesStatus = info.tieneCables ? 'Actualizar Cables' : 'Agregar Cables de Alimentación';
     html += `<div class="opcion-card" onclick="generarFormulario('cables')">
                 <span class="font-bold text-lg">🔋 ${cablesStatus}</span>
-                <div class="text-gray-500 text-sm">${info.tieneCables ? 'Sobrescribe la descripción/imagen existente.' : 'Agrega la descripción de cables.'}</div>
+                <div class="text-gray-500 text-sm">${info.tieneCables ? 'Sobrescribe la descripción/imagen existente.' : 'Agrega la descripción de cables faltante.'}</div>
              </div>`;
 
     // Imagen Vehículo
     html += `<div class="opcion-card" onclick="generarFormulario('imagenVehiculoUpdate')">
                 <span class="font-bold text-lg">📷 Actualizar Imagen del Vehículo</span>
-                <div class="text-gray-500 text-sm">Subir una nueva imagen para la columna 'Imagen del vehiculo'.</div>
+                <div class="text-gray-500 text-sm">Actualizar la imagen principal del vehículo.</div>
              </div>`;
 
     opciones.innerHTML = html;
@@ -342,10 +420,10 @@ function mostrarOpcionesExistentes(info) {
 
 function generarFormulario(accion) {
     accionSeleccionada = accion;
-    document.getElementById("contenidoDinamico").innerHTML = ""; // Limpiar
-    base64Data = {}; // Limpiar datos de imagen
+    document.getElementById("contenidoDinamico").innerHTML = ""; 
+    base64Data = {}; 
 
-    // Generar campos de formulario
+    // Funciones Helper para generar HTML
     const generarSelectHtml = (id, values, label, isRequired = true) => {
         const requiredAttr = isRequired ? 'required' : '';
         const options = values.map(v => `<option value="${v}">${v}</option>`).join('');
@@ -363,7 +441,7 @@ function generarFormulario(accion) {
         const handler = `onchange="readFileAsBase64(this, '${base64Key}')"`;
         const previewId = `preview${base64Key}`;
         return `
-            <label for="${id}">${label}</label>
+            <label for="${id}">${label} ${isRequired ? '(Requerida)' : '(Opcional)'}</label>
             <input type="file" id="${id}" accept="image/*" ${requiredAttr} ${handler}>
             <img id="${previewId}" class="w-full max-h-48 object-contain mt-2 rounded-lg hidden border border-gray-300" alt="Vista previa de imagen">
         `;
@@ -377,26 +455,32 @@ function generarFormulario(accion) {
             title = "3. Registrar Modelo Nuevo";
             // Para nuevo modelo se necesita la Categoría y el primer corte (Corte 1)
             html = `
+                <h4 class="font-bold text-gray-600 mt-4">Detalles Base del Vehículo</h4>
+                <!-- Usamos el select que se llenó en window.onload -->
                 ${generarSelectHtml("categoriaNueva", validaciones.CATEGORIAS, "Categoría del Vehículo")}
-                <h4 class="font-bold text-gray-600 mt-4">Detalles de Encendido y Corte 1</h4>
                 ${generarSelectHtml("tipoEncendido", validaciones.TIPO_ENCENDIDO, "Tipo de Encendido")}
-                ${generarInputFile('imgVehiculo', 'Imagen del Vehículo (Opcional)', 'imagenVehiculo', false)}
+                ${generarInputFile('imgVehiculo', 'Imagen Principal del Vehículo', 'imagenVehiculo', false)}
 
+                <h4 class="font-bold text-gray-600 mt-6 border-t pt-4">Detalles del Corte 1 (Requerido)</h4>
                 ${generarSelectHtml("tipoCorte1", validaciones.TIPO_CORTE, "Tipo de Corte 1")}
-                <label for="descCorte1">Descripción del Corte 1</label>
+                <label for="descCorte1">Descripción del Corte 1 (Detalle de cables)</label>
                 <textarea id="descCorte1" required rows="3"></textarea>
                 ${generarInputFile('imgCorte1', 'Imagen del Corte 1', 'imagenCorte1')}
             `;
+            // Ajustar el botón Regresar al paso 1
+            document.getElementById("btnRegresarPaso3").setAttribute('onclick', 'volverPaso(1)');
             break;
 
         case 'corteNuevo':
             title = "3. Agregar Corte Adicional (2 o 3)";
             html = `
-                ${generarSelectHtml("tipoCorte", validaciones.TIPO_CORTE, "Tipo de Corte (2 ó 3)")}
+                ${generarSelectHtml("tipoCorte", validaciones.TIPO_CORTE, "Tipo de Corte (Ej: Ignición, Bomba)")}
                 <label for="descripcionCorte">Descripción del Corte</label>
                 <textarea id="descripcionCorte" required rows="3"></textarea>
                 ${generarInputFile('imgCorte', 'Imagen del Corte', 'imagenCorte')}
             `;
+            // Ajustar el botón Regresar al paso 2
+            document.getElementById("btnRegresarPaso3").setAttribute('onclick', 'volverPaso(2)');
             break;
 
         case 'apertura':
@@ -406,6 +490,7 @@ function generarFormulario(accion) {
                 <textarea id="descApertura" required rows="3"></textarea>
                 ${generarInputFile('imgApertura', 'Imagen de la Apertura', 'imagenApertura')}
             `;
+            document.getElementById("btnRegresarPaso3").setAttribute('onclick', 'volverPaso(2)');
             break;
 
         case 'cables':
@@ -415,6 +500,7 @@ function generarFormulario(accion) {
                 <textarea id="descCables" required rows="3"></textarea>
                 ${generarInputFile('imgCables', 'Imagen de los Cables', 'imagenCables')}
             `;
+            document.getElementById("btnRegresarPaso3").setAttribute('onclick', 'volverPaso(2)');
             break;
 
         case 'imagenVehiculoUpdate':
@@ -422,26 +508,17 @@ function generarFormulario(accion) {
             html = `
                 ${generarInputFile('imgVehiculoUpdate', 'Selecciona la nueva imagen del vehículo', 'imagenVehiculo')}
             `;
+            document.getElementById("btnRegresarPaso3").setAttribute('onclick', 'volverPaso(2)');
             break;
     }
 
     document.getElementById("tituloStep3").innerText = title;
     document.getElementById("contenidoDinamico").innerHTML = html;
-    
-    // El botón Regresar debe llevar al Paso 2 si estamos actualizando
-    const btnRegresar = document.querySelector("#step3 .btn-secondary");
-    if (datosEncontrados && datosEncontrados.existe) {
-        btnRegresar.setAttribute('onclick', 'mostrarPaso(2)');
-    } else {
-        // Si es modelo nuevo, regresa al Paso 1
-        btnRegresar.setAttribute('onclick', 'mostrarPaso(1)');
-    }
-    
     mostrarPaso(3);
 }
 
 // =============================================================
-// ENVÍO DE DATOS (doPost)
+// ENVÍO DE DATOS (doPost con fetch - REQUIERE CORS)
 // =============================================================
 
 async function enviar() {
@@ -451,20 +528,28 @@ async function enviar() {
         return;
     }
 
+    // El objeto payload base se construye con los datos de la Fase 1
     const payload = {
         colaborador,
         marca: document.getElementById("marca").value,
         modelo: document.getElementById("modelo").value,
         anio: Number(document.getElementById("anio").value),
+        
+        // Datos comunes del Paso 3
         comoDesarmarPlasticos: document.getElementById("comoDesarmarPlasticos").value.trim(),
         notaImportante: document.getElementById("notaImportante").value.trim(),
+        
+        // Datos de control de Apps Script
         accion: accionSeleccionada,
-        // Usar el rowIndex solo si el modelo ya existe
-        rowIndex: datosEncontrados && datosEncontrados.existe ? datosEncontrados.rowIndex : null
+        // rowIndex solo se envía si se está actualizando (modelo existente)
+        rowIndex: datosEncontrados && datosEncontrados.existe ? datosEncontrados.rowIndex : null,
+        // La categoría es del paso 1 si es nuevo, o se ignora si es update
+        categoria: document.getElementById("categoriaNueva") ? document.getElementById("categoriaNueva").value : null
     };
 
     let valid = true;
     
+    // Recolectar datos específicos y validar
     switch (accionSeleccionada) {
         case 'nuevoModelo':
             const catNueva = document.getElementById("categoriaNueva").value;
@@ -474,9 +559,9 @@ async function enviar() {
 
             if (!catNueva || !tipoEnc || !tipoCorte1 || !descCorte1 || !base64Data.imagenCorte1) { valid = false; break; }
 
-            payload.categoria = catNueva;
+            payload.categoria = catNueva; 
             payload.tipoEncendido = tipoEnc;
-            payload.imagenVehiculo = base64Data.imagenVehiculo; // Puede ser null (Opcional)
+            payload.imagenVehiculo = base64Data.imagenVehiculo; 
             payload.corte1 = { 
                 tipoCorte: tipoCorte1, 
                 descripcion: descCorte1, 
@@ -495,7 +580,6 @@ async function enviar() {
                 descripcion: descripcionCorte, 
                 imagen: base64Data.imagenCorte 
             };
-            payload.categoria = document.getElementById("categoriaPaso1").value; // Necesario para la estructura de carpetas
             break;
 
         case 'apertura':
@@ -507,7 +591,6 @@ async function enviar() {
                 descripcion: descApertura, 
                 imagen: base64Data.imagenApertura 
             };
-            payload.categoria = document.getElementById("categoriaPaso1").value;
             break;
 
         case 'cables':
@@ -519,23 +602,22 @@ async function enviar() {
                 descripcion: descCables, 
                 imagen: base64Data.imagenCables 
             };
-            payload.categoria = document.getElementById("categoriaPaso1").value;
             break;
 
         case 'imagenVehiculoUpdate':
             if (!base64Data.imagenVehiculo) { valid = false; break; }
             payload.imagenVehiculo = base64Data.imagenVehiculo;
-            payload.categoria = document.getElementById("categoriaPaso1").value;
             break;
     }
 
     if (!valid) {
-        mostrarAlerta("Por favor, completa todos los campos requeridos (incluyendo las imágenes).", 'error');
+        mostrarAlerta("Por favor, completa todos los campos requeridos y las imágenes obligatorias.", 'error');
         return;
     }
 
-    setLoading(true);
+    setLoading(true, "Guardando datos...");
     try {
+        // Para POST, usamos fetch. La función doPost en Apps Script debe manejar el CORS.
         const res = await fetch(WEB_APP_URL, {
             method: "POST",
             headers: { 'Content-Type': 'application/json' },
@@ -553,13 +635,12 @@ async function enviar() {
 
     } catch (e) {
         setLoading(false);
-        mostrarAlerta("❌ Error de envío: " + e.message, 'error');
-        console.error("Error en función enviar:", e);
+        // Si el error de CORS sigue apareciendo aquí, es un problema de la plataforma de Apps Script.
+        mostrarAlerta("❌ Error de envío de datos (POST). Si el problema persiste, la restricción CORS es muy estricta y App Script no puede superarla en este entorno.", 'error');
+        console.error("Error en función enviar (POST):", e);
     }
 }
 </script>
 
 </body>
 </html>
-
-
