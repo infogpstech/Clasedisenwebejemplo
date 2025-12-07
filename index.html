@@ -2,723 +2,852 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Registro de Cortes GPS</title>
+<title>Agregar Corte de Vehículo</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://apis.google.com/js/api.js"></script>
 <style>
-/* ------------------------------------------------------------- */
-/* ESTILOS PROPORCIONADOS POR EL USUARIO (BASE GPSpedia) */
-/* ------------------------------------------------------------- */
-/* Estilos Globales */
-html {
-    height: 100%;
-}
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f4f4f4;
-    display: flex;
-    flex-direction: column;
-    min-height: 100%;
-}
-h1,h2,h3,h4 {
-    margin: 10px 0;
-}
-.container {
-    padding: 20px;
-    max-width: 1240px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
-    flex: 1 0 auto;
-}
-.backBtn {
-    margin-bottom: 15px;
-    cursor: pointer;
-    color: #007bff;
-    display: inline-flex;
-    align-items: center;
-    font-weight: bold;
-    padding: 5px 10px;
-    border-radius: 5px;
-    transition: background 0.2s;
-}
-.backBtn:hover {
-    background: #e9f7ff;
-}
-
-/* --- ESTILOS DEL ENCABEZADO (Header) --- */
-.header-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-    padding: 10px 20px 0 20px; /* Ajuste para el padding del contenedor */
-    max-width: 1240px;
-    margin: 0 auto;
-}
-.app-logo {
-    max-width: 96px;
-    height: auto;
-    border-radius: 8px;
-    margin-right: 15px;
-}
-h1.app-title {
-    text-align: left;
-    margin: 0;
-    font-size: 2.2em;
-    color: #333;
-}
-
-#install-button {
-    display: none; /* Oculto por defecto, JS lo mostrará */
-    position: fixed; /* Fijo en la pantalla */
-    top: 20px;     /* Distancia desde arriba */
-    right: 20px;    /* Distancia desde la derecha */
-    z-index: 1001;   /* Por encima de otros elementos */
-    padding: 10px 20px;
-    font-size: 1em;
-    font-weight: bold;
-    color: #fff;
-    background-color: #28a745; /* Verde para la acción de instalar */
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s;
-    white-space: nowrap;
-}
-
-#install-button:hover {
-    background-color: #218838;
-    transform: scale(1.05); /* Efecto de zoom ligero */
-}
-
-@media (max-width: 480px) {
-    h1.app-title {
-        font-size: 1.8em;
+    /* ------------------------------------------- */
+    /* ESTILOS FIJOS (NO MODIFICABLES)             */
+    /* ------------------------------------------- */
+    body {
+        font-family: 'Inter', sans-serif;
+        padding: 20px;
+        background: #f0f4f8;
+        display: flex;
+        flex-direction: column; /* Cambiado a columna para el footer */
+        justify-content: flex-start;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
     }
-    #install-button {
-        top: 10px;
-        right: 10px;
-        padding: 8px 12px;
-        font-size: 0.9em;
+
+    .header, .footer {
+        width: 100%;
+        max-width: 500px;
+        padding: 15px 0;
+        text-align: center;
     }
-    .header-container {
-        padding: 10px;
+
+    .header {
+        display: flex;
+        align-items: center;
         justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        background: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        padding: 10px 20px;
     }
-}
 
-.footer {
-    text-align: center;
-    padding: 20px 0;
-    margin-top: 40px;
-    background-color: #333;
-    color: #fff;
-    font-size: 0.9em;
-    width: 100%; /* Asegura que ocupe todo el ancho */
-    box-sizing: border-box;
-}
+    .logo {
+        width: 40px;
+        height: 40px;
+        /* Placeholder de logo */
+        background: #007bff;
+        border-radius: 50%;
+        color: white;
+        line-height: 40px;
+        font-weight: bold;
+    }
 
-/* ------------------------------------------------------------- */
-/* ESTILOS ESPECÍFICOS DEL FORMULARIO (AJUSTADOS) */
-/* ------------------------------------------------------------- */
+    .header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #333;
+    }
+    
+    .container {
+        width: 100%;
+        max-width: 500px;
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
 
-/* Contenedor del formulario centrado en el área de contenido */
-.form-card {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    max-width: 500px; /* Limitar el ancho del formulario */
-    margin: 20px auto; /* Centrar la tarjeta dentro del .container */
-    width: 100%;
-}
+    .step {
+        display: none;
+    }
 
-.step { display: none; }
-.step.active { display: block; }
+    .step.active {
+        display: block;
+    }
 
-/* Estilos de inputs/labels */
-label {
-    display: block; margin-top: 15px; margin-bottom: 5px;
-    font-weight: bold; color: #333;
-}
-input[type="text"], input[type="number"], select, textarea {
-    width: 100%; padding: 10px; margin-bottom: 10px;
-    border: 1px solid #ccc; border-radius: 6px;
-    box-sizing: border-box; font-size: 1em;
-    transition: border-color 0.3s;
-}
-input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
-    outline: none;
-}
+    /* Estilos de Formulario */
+    label {
+        display: block;
+        margin-top: 15px;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #333;
+    }
 
-/* Estilos de subida de archivos (Custom) */
-.custom-file-upload {
-    display: block; width: 100%; padding: 10px; margin-bottom: 15px;
-    border: 1px solid #007bff; border-radius: 6px; box-sizing: border-box;
-    font-size: 1em; font-weight: 500; color: #007bff;
-    background-color: #f0f8ff; cursor: pointer; text-align: center;
-    transition: background-color 0.3s, border-color 0.3s;
-}
-.custom-file-upload:hover {
-    background-color: #e9f7ff;
-    border-color: #0056b3;
-}
-.input-file-hidden {
-    width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1;
-}
+    input[type="text"], input[type="number"], select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+        transition: border-color 0.3s;
+    }
 
-/* Estilos de botones */
-.btn {
-    background: #007bff; color: white; border: none; padding: 12px;
-    border-radius: 8px; cursor: pointer; width: 100%; font-size: 1em;
-    font-weight: bold; transition: background-color 0.3s, transform 0.2s; margin-top: 10px;
-}
-.btn:hover { 
-    background: #0056b3; 
-    transform: translateY(-1px);
-}
-.btn-secondary { background: #6c757d; }
-.btn-secondary:hover { background: #5a6268; }
+    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+        border-color: #007bff;
+        outline: none;
+    }
 
-/* Indicador de carga */
-.loading {
-    display: none; font-size: 1em; margin-top: 15px; text-align: center;
-    color: #007bff; font-weight: bold;
-}
+    .btn {
+        background: black;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 16px;
+        margin-top: 20px;
+        transition: background 0.3s;
+    }
+    
+    .btn:hover {
+        background: #333;
+    }
 
-/* Alertas flotantes (Toast) */
-.alerta {
-    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(20px);
-    padding: 15px 25px; border-radius: 8px; font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); z-index: 1000; opacity: 0;
-    transition: opacity 0.5s, transform 0.5s; text-align: center;
-    min-width: 250px;
-}
-.alerta.show { opacity: 1; transform: translate(-50%, 0); }
-.alerta.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-.alerta.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-.alerta.info { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
+    .btn-secondary {
+        background: #777;
+        margin-top: 10px;
+    }
 
-/* Previsualización de imágenes */
-.image-preview {
-    max-width: 100%; height: auto; border-radius: 8px; margin-top: 5px; 
-    margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); object-fit: contain;
-}
-.cortes-existentes-info {
-    padding: 10px; margin-bottom: 15px; background-color: #f0f8ff; 
-    border: 1px solid #cce5ff; border-radius: 8px;
-}
-.step-title-h2 {
-    font-size: 1.5em; 
-    margin-bottom: 20px; 
-    color: #333; 
-    text-align: center;
-}
-.dynamic-corte-title {
-    color:#007bff;
-    font-size: 1.2em;
-}
-.flex-row-btns {
-    display: flex; gap: 10px; margin-top: 20px;
-}
+    .btn-secondary:hover {
+        background: #999;
+    }
 
+    .loading {
+        display: none;
+        font-size: 18px;
+        margin-top: 10px;
+        text-align: center;
+        color: #007bff;
+    }
+
+    .image-preview {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-top: 10px;
+        border: 1px solid #ddd;
+    }
+
+    .alert {
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 6px;
+        text-align: center;
+        font-weight: bold;
+    }
+
+    .alert.success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .alert.error {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    /* Estilos para el paso 2 de selección */
+    .opcion-corte {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        font-weight: bold;
+    }
+    .opcion-corte:hover {
+        background: #f0f4f8;
+    }
+    .opcion-corte.selected {
+        border-color: #007bff;
+        background: #e6f2ff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+    
+    /* Responsive para móviles */
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+        .container {
+            padding: 15px;
+        }
+    }
 </style>
 </head>
 <body>
 
-<!-- ENCABEZADO PROPORCIONADO POR EL USUARIO -->
-<div class="header-container">
-    <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
-    <h1 class="app-title">GPSpedia</h1>
-    <button id="install-button" style="display: none;">Instalar Aplicación</button>
-</div>
+    <!-- HEADER (NO MODIFICAR) -->
+    <div class="header">
+        <div class="logo">G</div>
+        <h1>Agregar Corte</h1>
+    </div>
+    <!-- FIN HEADER -->
 
-<div class="container">
-    <div class="form-card">
-        <h2 class="step-title-h2">Registro de Cortes GPS</h2>
-
-        <script>
-        // -------------------------------------------------------------
-        // CONFIGURACIÓN - ¡REEMPLAZA ESTE VALOR!
-        // -------------------------------------------------------------
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzFxWvJG5pJMLX5Wi2Xw8fl-cjeidFIQbQ_fL7TeeHZVKmANCJgDP4U21KbhKm2LE74/exec'; 
+    <div class="container">
         
-        // Opciones de selección
-        const CATEGORIA_OPTIONS = ['Carro', 'Camión', 'Moto', 'Construcción/Otros'];
-        const TIPO_ENCENDIDO_OPTIONS = ['llave', 'boton'];
-        const TIPO_CORTE_OPTIONS = ['No recomendable', 'Ignicion', 'Bomba de combustible', 'Ahogador', 'Señal a botón', 'No aplica'];
+        <div id="alerta-container"></div>
+        <div class="loading" id="loading">Cargando...</div>
 
-        // Variables de estado
-        let filaIndexExistente = null; // Fila en Sheets (base 1)
-        let datosCorteExistente = {}; // Almacena los tipos de corte H, L, U
-        let nextCorte = 1;             // 1, 2, 3 o 4 (lleno)
-        
-        // Almacenamiento de Base64 de las imágenes
-        const imagesBase64 = {
-            vehiculo: null,
-            corte: null,
-            apertura: null,
-            cables: null
-        };
+        <!-- PASO 1: Ingreso de datos básicos y búsqueda -->
+        <div id="step1" class="step active">
+            <h2>Paso 1: Información del Vehículo</h2>
 
+            <label for="colaborador">Colaborador(es) *</label>
+            <input type="text" id="colaborador" required>
 
-        // Muestra una alerta flotante
-        function mostrarAlerta(mensaje, tipo = 'info') {
-            let alerta = document.getElementById('alerta');
-            if (!alerta) {
-                alerta = document.createElement('div');
-                alerta.id = 'alerta';
-                document.body.appendChild(alerta);
-            }
-            alerta.className = `alerta ${tipo}`;
-            alerta.innerHTML = mensaje;
+            <label for="categoria">Categoría *</label>
+            <select id="categoria" required>
+                <option value="">Seleccione...</option>
+                <option value="Carro">Carro</option>
+                <option value="Camión">Camión</option>
+                <option value="Moto">Moto</option>
+                <option value="Construcción">Construcción</option>
+            </select>
+
+            <label for="marca">Marca *</label>
+            <input type="text" id="marca" required>
+
+            <label for="modelo">Modelo *</label>
+            <input type="text" id="modelo" required>
+
+            <label for="año">Año / Generación *</label>
+            <input type="number" id="año" required min="1900" max="2100">
+
+            <label for="tipoEncendido">Tipo de Encendido *</label>
+            <select id="tipoEncendido" required>
+                <option value="">Seleccione...</option>
+                <option value="No recomendado">No recomendado</option>
+                <option value="Ignición">Ignición</option>
+                <option value="Bomba de combustible">Bomba de combustible</option>
+                <option value="Señal a botón">Señal a botón</option>
+                <option value="Señal a ahogador">Señal a ahogador</option>
+            </select>
+
+            <label>Imagen del Vehículo *</label>
+            <input type="file" id="imgVehiculo" accept="image/*" required onchange="previewImage('imgVehiculo', 'previewVehiculo')">
+            <img id="previewVehiculo" class="image-preview" style="display:none;">
+
+            <button class="btn" onclick="buscarVehiculo()">Buscar y Continuar</button>
+        </div>
+
+        <!-- PASO 2: Selección de acción -->
+        <div id="step2" class="step">
+            <h2>Paso 2: Acción a Realizar</h2>
+            <div id="mensajeAccion" style="margin-bottom: 20px;"></div>
+
+            <!-- Opciones generadas dinámicamente -->
+            <div class="opcion-corte" data-accion="corte1" onclick="seleccionarAccion('corte1')">Agregar Corte 1</div>
+            <div class="opcion-corte" data-accion="corte2" onclick="seleccionarAccion('corte2')">Agregar Corte 2</div>
+            <div class="opcion-corte" data-accion="corte3" onclick="seleccionarAccion('corte3')">Agregar Corte 3</div>
+            <div class="opcion-corte" data-accion="apertura" onclick="seleccionarAccion('apertura')">Agregar Apertura</div>
+            <div class="opcion-corte" data-accion="cables" onclick="seleccionarAccion('cables')">Agregar Cables de Alimentación</div>
+            <div class="opcion-corte" data-accion="nota" onclick="seleccionarAccion('nota')">Agregar Nota Importante / YouTube</div>
+            <div class="opcion-corte" data-accion="nuevoModelo" onclick="seleccionarAccion('nuevoModelo')">Crear Nueva Fila (Modelo/Generación Nueva)</div>
             
-            setTimeout(() => { alerta.classList.add('show'); }, 50);
-            setTimeout(() => { alerta.classList.remove('show'); }, 4000);
+            <button class="btn" id="btnContinuarPaso2" disabled onclick="mostrarPaso(3)">Continuar</button>
+            <button class="btn btn-secondary" onclick="mostrarPaso(1)">Regresar</button>
+        </div>
+
+        <!-- PASO 3: Formulario dinámico y envío -->
+        <div id="step3" class="step">
+            <h2>Paso 3: Detalle del Corte</h2>
+            <div id="tituloStep3" style="font-weight: bold; margin-bottom: 15px;"></div>
+            
+            <div id="contenidoStep3">
+                <!-- Contenido del formulario cargado por JS -->
+            </div>
+
+            <button class="btn" onclick="enviar()">Enviar y Guardar</button>
+            <button class="btn btn-secondary" onclick="volverPaso(2)">Regresar</button>
+        </div>
+
+    </div>
+
+    <!-- FOOTER (NO MODIFICAR) -->
+    <div class="footer">
+        GPSpedia 2025©
+    </div>
+    <!-- FIN FOOTER -->
+
+<script>
+    // =============================================================
+    // CONFIGURACIÓN OBLIGATORIA
+    // =============================================================
+    const SPREADSHEET_ID = "1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo";
+    const API_KEY = "AIzaSyCooAsC52X4ccENCT6p3qh_82ErBxP47Lg";
+    const DRIVE_FOLDER_ID = "1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2";
+    const SHEET_NAME = 'Cortes'; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEPLaI7cN7nM1hgTNU0MxyS1VPFxl0FF4Il4bn2fEOTw0jEh_yPTXHohxD-RxzSGo/exec"; // *** EL USUARIO DEBE REEMPLAZAR ESTO ***
+
+    const API_DISCOVERY_URL = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+
+    // Variables de estado
+    let gapiLoaded = false;
+    let datosExistentes = null; // Almacena los datos de la fila si existe
+    let filaExistenteIndex = null; // Almacena el índice (número de fila en Sheets, no índice de array)
+    let accionSeleccionada = null;
+
+    // =============================================================
+    // UTILIDADES
+    // =============================================================
+
+    function mostrarAlerta(mensaje, tipo = 'error') {
+        const container = document.getElementById('alerta-container');
+        container.innerHTML = `<div class="alert ${tipo}">${mensaje}</div>`;
+        // Ocultar la alerta después de 5 segundos
+        setTimeout(() => container.innerHTML = '', 5000);
+    }
+    
+    function previewImage(inputId, imgId) {
+        const input = document.getElementById(inputId);
+        const img = document.getElementById(imgId);
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+                img.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // =============================================================
+    // INICIALIZACIÓN DE LA API DE GOOGLE SHEETS
+    // =============================================================
+
+    function initGapi() {
+        gapi.client.init({
+            apiKey: API_KEY,
+            discoveryDocs: [API_DISCOVERY_URL],
+        }).then(() => {
+            gapiLoaded = true;
+            console.log("Google Sheets API cargada correctamente.");
+            // Opcional: mostrar un mensaje de listo
+        }, (error) => {
+            console.error("Error al cargar la API de Google Sheets:", error);
+            mostrarAlerta("Error al iniciar la API de Google Sheets. Verifica la API KEY.", 'error');
+        });
+    }
+
+    gapi.load('client', initGapi);
+
+    // =============================================================
+    // LÓGICA DE BÚSQUEDA (USANDO SHEETS API)
+    // =============================================================
+
+    async function obtenerDatosDelSpreadsheet() {
+        if (!gapiLoaded) {
+            mostrarAlerta("La API de Google Sheets no se ha cargado todavía.", 'error');
+            return null;
         }
 
-        // Convierte un archivo de input a Base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                if (!file) {
-                    resolve(null);
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result.split(',')[1]); 
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+        
+        try {
+            // Rango A:W para obtener todas las columnas necesarias, incluyendo el AID (A)
+            const response = await gapi.client.sheets.spreadsheets.values.get({
+                spreadsheetId: SPREADSHEET_ID,
+                range: `${SHEET_NAME}!A:W`,
             });
+            
+            loading.style.display = 'none';
+            // Ignorar la fila de cabecera (índice 0)
+            return response.result.values ? response.result.values.slice(1) : [];
+        } catch (error) {
+            loading.style.display = 'none';
+            console.error("Error al obtener datos del Spreadsheet:", error);
+            mostrarAlerta(`Error al leer Sheets: ${error.result.error.message}. ¿Es correcta la API Key?`, 'error');
+            return null;
         }
+    }
+    
+    // Función para buscar la coincidencia exacta (Marca + Modelo + Año)
+    function buscarCoincidencia(allData, marca, modelo, anio) {
+        // anio se convierte a string ya que los datos de Sheets son strings
+        const anioStr = anio.toString(); 
+
+        // El índice de fila + 2 = Fila en Spreadsheet (porque quitamos la cabecera y Sheets empieza en 1)
+        for (let i = 0; i < allData.length; i++) {
+            const row = allData[i];
+            
+            // Índices de columnas: D(Marca)=3, E(Modelo)=4, G(Año)=6
+            const marcaFila = row[3] ? row[3].toString().trim() : '';
+            const modeloFila = row[4] ? row[4].toString().trim() : '';
+            const anioFila = row[6] ? row[6].toString().trim() : '';
+
+            if (marcaFila.toLowerCase() === marca.toLowerCase() &&
+                modeloFila.toLowerCase() === modelo.toLowerCase() &&
+                anioFila === anioStr) {
+                
+                // Retorna los datos de la fila y el número de fila real en Sheets (i + 2)
+                return { data: row, sheetRowIndex: i + 2 };
+            }
+        }
+        return null; // No hay coincidencia
+    }
+
+    async function buscarVehiculo() {
+        const marca = document.getElementById('marca').value.trim();
+        const modelo = document.getElementById('modelo').value.trim();
+        const anio = document.getElementById('año').value;
+        const imgVehiculoInput = document.getElementById('imgVehiculo');
+
+        if (!marca || !modelo || !anio || !imgVehiculoInput.files[0]) {
+            mostrarAlerta("Por favor, rellene todos los campos obligatorios del Paso 1.", 'error');
+            return;
+        }
+
+        const data = await obtenerDatosDelSpreadsheet();
+        if (!data) return;
+
+        const match = buscarCoincidencia(data, marca, modelo, anio);
         
-        // Manejo genérico de input de archivo
-        function handleFileInput(event, imageKey, previewId) {
-            const file = event.target.files[0];
-            const preview = document.getElementById(previewId);
-            const label = event.target.nextElementSibling;
-            const defaultText = label.getAttribute('data-default-text');
-
-            if (file) {
-                label.textContent = `Archivo: ${file.name}`;
-                preview.src = URL.createObjectURL(file);
-                preview.style.display = 'block';
-                
-                fileToBase64(file).then(base64 => {
-                    imagesBase64[imageKey] = base64;
-                });
-            } else {
-                label.textContent = defaultText;
-                preview.src = '';
-                preview.style.display = 'none';
-                imagesBase64[imageKey] = null;
-            }
-        }
-
-        // Función para generar las opciones de un <select>
-        function generateOptions(options, defaultSelection = null) {
-            return options.map(opt => 
-                `<option value="${opt}" ${opt === defaultSelection ? 'selected' : ''}>${opt}</option>`
-            ).join('');
-        }
+        // Almacenar los datos de la coincidencia
+        datosExistentes = match ? match.data : null;
+        filaExistenteIndex = match ? match.sheetRowIndex : null;
         
-        // -------------------------------------------------------------
-        // LÓGICA DE BÚSQUEDA (Paso 1)
-        // -------------------------------------------------------------
-        async function buscarVehiculo() {
-            const loading = document.getElementById("loading");
-            const marca = document.getElementById("marca").value.trim();
-            const modelo = document.getElementById("modelo").value.trim();
-            const año = document.getElementById("año").value.trim();
-
-            if (!marca || !modelo || !año) {
-                mostrarAlerta("Por favor, ingrese Marca, Modelo y Año.", 'error');
-                return;
-            }
-
-            loading.style.display = "block";
-            loading.innerText = "Buscando vehículo existente...";
-
-            try {
-                const payload = { action: 'search', marca, modelo, año: Number(año) };
-                
-                // Implementación de Backoff Exponencial para Fetch
-                const maxRetries = 3;
-                let lastError = null;
-                let response;
-
-                for (let i = 0; i < maxRetries; i++) {
-                    try {
-                        response = await fetch(APPS_SCRIPT_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' }, 
-                            body: JSON.stringify(payload)
-                        });
-                        if (response.ok) break; 
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    } catch (e) {
-                        lastError = e;
-                        if (i < maxRetries - 1) {
-                            const delay = Math.pow(2, i) * 1000; 
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        } else {
-                            throw lastError;
-                        }
-                    }
-                }
-                
-                const jsonRes = await response.json();
-                loading.style.display = "none";
-
-                if (!jsonRes.success) {
-                    throw new Error(jsonRes.message || "Error desconocido en Apps Script.");
-                }
-                
-                filaIndexExistente = jsonRes.filaIndex || null;
-                datosCorteExistente = jsonRes.datosCortes || {};
-                
-                // Determinar el próximo corte a llenar
-                nextCorte = 1;
-                if (datosCorteExistente.corte1Tipo) { nextCorte = 2; }
-                if (datosCorteExistente.corte2Tipo) { nextCorte = 3; }
-                if (datosCorteExistente.corte3Tipo) { nextCorte = 4; } // 4 indica lleno
-
-                if (filaIndexExistente) {
-                    mostrarAlerta(`⚠️ Vehículo ya existe. Próximo corte: ${nextCorte > 3 ? 'Lleno' : nextCorte}`, nextCorte > 3 ? 'error' : 'info');
-                    mostrarPaso(2, nextCorte > 3 ? 'full' : 'edit'); 
-                } else {
-                    nextCorte = 1;
-                    mostrarAlerta("✅ Vehículo nuevo. Creando registro.", 'success');
-                    mostrarPaso(2, 'new');
-                }
-
-
-            } catch (e) {
-                loading.style.display = "none";
-                mostrarAlerta("❌ Error al buscar vehículo: " + e.message, 'error');
-                console.error("Error en función buscarVehiculo:", e);
-            }
+        const mensajeAccion = document.getElementById('mensajeAccion');
+        
+        if (match) {
+            mensajeAccion.innerHTML = `✅ **Coincidencia encontrada:** Ya existe un registro para ${marca} ${modelo} ${anio} (Fila ${filaExistenteIndex}).<br>Por favor, selecciona qué corte deseas agregar o actualizar.`;
+            document.querySelector('.opcion-corte[data-accion="nuevoModelo"]').style.display = 'none';
+        } else {
+            mensajeAccion.innerHTML = `⚠️ **No se encontró coincidencia** para ${marca} ${modelo} ${anio}.<br>Deberás seleccionar **Crear Nueva Fila (Modelo/Generación Nueva)**.`;
+            document.querySelector('.opcion-corte[data-accion="nuevoModelo"]').style.display = 'block';
+            seleccionarAccion('nuevoModelo'); // Fuerza la selección a Nuevo Modelo
+            document.getElementById('btnContinuarPaso2').disabled = false;
         }
 
-        // -------------------------------------------------------------
-        // LÓGICA DE ENVÍO (Paso 3)
-        // -------------------------------------------------------------
-        async function enviar() {
-            const loading = document.getElementById("loading");
-            
-            // 1. Recopilar datos base
-            const commonData = {
-                colaborador: document.getElementById("colaborador").value.trim(),
-                categoria: document.getElementById("categoria").value,
-                marca: document.getElementById("marca").value.trim(),
-                modelo: document.getElementById("modelo").value.trim(),
-                tipoEncendido: document.getElementById("tipoEncendido").value,
-                año: Number(document.getElementById("año").value),
-                notaImportante: document.getElementById("notaImportante").value.trim(),
-                
-                action: filaIndexExistente ? 'update' : 'create',
-                filaIndex: filaIndexExistente // Sólo se usa en 'update'
-            };
-            
-            // 2. Recopilar datos del corte dinámico (Paso 2)
-            const corteData = {
-                tipoCorte: document.getElementById(`tipoCorte_${nextCorte}`).value,
-                descripcion: document.getElementById(`descCorte_${nextCorte}`).value.trim(),
-                corteNumero: nextCorte,
-                // Imagen se pasa como objeto { base64: ... }
-                imagen: imagesBase64.corte ? { base64: imagesBase64.corte } : null
-            };
+        mostrarPaso(2);
+    }
+    
+    // =============================================================
+    // LÓGICA DE PASOS Y FORMULARIO DINÁMICO
+    // =============================================================
 
-            if (!corteData.descripcion) {
-                mostrarAlerta("La 'Descripción del Corte' es obligatoria.", 'error');
-                return;
-            }
+    function mostrarPaso(n) {
+        document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+        document.getElementById("step" + n).classList.add("active");
+        document.getElementById('alerta-container').innerHTML = '';
+        window.scrollTo(0, 0); // Regresar al inicio de la página
+    }
 
-            // 3. Recopilar datos de Apertura y Cables (Paso 3)
-            const aperturaData = {
-                descripcion: document.getElementById("descApertura").value.trim(),
-                imagenApertura: imagesBase64.apertura ? { base64: imagesBase64.apertura } : null
-            };
+    function volverPaso(n) {
+        mostrarPaso(n);
+        // Deseleccionar todas las acciones al regresar al paso 2
+        document.querySelectorAll('.opcion-corte').forEach(op => op.classList.remove('selected'));
+        document.getElementById('btnContinuarPaso2').disabled = true;
+        accionSeleccionada = null;
+    }
 
-            const cablesData = {
-                descripcion: document.getElementById("descCables").value.trim(),
-                imagenAlimentacion: imagesBase64.cables ? { base64: imagesBase64.cables } : null
-            };
-
-            // 4. Construir Payload Final (incluye todas las partes + imágenes en base64)
-            const finalPayload = {
-                ...commonData,
-                corte: corteData,
-                apertura: aperturaData,
-                cables: cablesData,
-                imagenVehiculo: imagesBase64.vehiculo ? { base64: imagesBase64.vehiculo } : null
-            };
-
-            loading.style.display = "block";
-            loading.innerText = "Enviando datos y subiendo imágenes a Drive...";
-
-            try {
-                 // Implementación de Backoff Exponencial para Fetch
-                const maxRetries = 3;
-                let lastError = null;
-                let response;
-
-                for (let i = 0; i < maxRetries; i++) {
-                    try {
-                        response = await fetch(APPS_SCRIPT_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' }, 
-                            body: JSON.stringify(finalPayload)
-                        });
-                        if (response.ok) break; 
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    } catch (e) {
-                        lastError = e;
-                        if (i < maxRetries - 1) {
-                            const delay = Math.pow(2, i) * 1000; 
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        } else {
-                            throw lastError;
-                        }
-                    }
-                }
-
-                const jsonRes = await response.json();
-                loading.style.display = "none";
-
-                if (jsonRes.success) {
-                    mostrarAlerta(`✅ ¡Registro ${finalPayload.action === 'create' ? 'creado' : 'actualizado'} correctamente! Recargando...`, 'success');
-                    setTimeout(() => { location.reload(); }, 2000);
-                } else {
-                    throw new Error(jsonRes.message || "Error desconocido al guardar en Apps Script.");
-                }
-
-            } catch (e) {
-                loading.style.display = "none";
-                mostrarAlerta("❌ Error de envío: " + e.message, 'error');
-                console.error("Error en función enviar:", e);
-            }
-        }
-
-
-        // -------------------------------------------------------------
-        // GESTIÓN DE PASOS Y CONTENIDO DINÁMICO
-        // -------------------------------------------------------------
-
-        function volverPaso(n) {
-            document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
-            document.getElementById("step" + n).classList.add("active");
-        }
-
-        function mostrarPaso(n, mode = 'new') {
-            document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
-            document.getElementById("step" + n).classList.add("active");
-
-            if (n === 2) {
-                prepararPaso2(mode);
-            }
-        }
-
-        function prepararPaso2(mode) {
-            const common = {
-                marca: document.getElementById("marca").value.trim(),
-                modelo: document.getElementById("modelo").value.trim(),
-                año: document.getElementById("año").value.trim()
-            };
-            const titleEl = document.getElementById('step2-title');
-            const corteContainer = document.getElementById('corte-dinamico-container');
-            const nextBtn = document.getElementById('btn-siguiente-step2');
-            
-            // Limpiar la variable de imagen del corte anterior
-            imagesBase64.corte = null; 
-
-            titleEl.innerText = `Vehículo: ${common.marca} ${common.modelo} (${common.año})`;
-
-            if (mode === 'full') {
-                corteContainer.innerHTML = '<p class="text-red-600 font-semibold text-center mt-8" style="color:#dc3545; font-weight: bold; text-align: center; margin-top: 20px;">🚨 El vehículo ya tiene el número máximo de cortes (3) registrados.</p>';
-                nextBtn.style.display = 'none';
-                return;
-            }
-            
-            // Mostrar los cortes existentes como referencia
-            let infoExistente = '';
-            if (datosCorteExistente.corte1Tipo) {
-                infoExistente += `<p class="text-sm">Corte 1 (H): ${datosCorteExistente.corte1Tipo}</p>`;
-            }
-            if (datosCorteExistente.corte2Tipo) {
-                infoExistente += `<p class="text-sm">Corte 2 (L): ${datosCorteExistente.corte2Tipo}</p>`;
-            }
-            if (datosCorteExistente.corte3Tipo) {
-                infoExistente += `<p class="text-sm">Corte 3 (U): ${datosCorteExistente.corte3Tipo}</p>`;
-            }
-
-            const cortesExistentesDiv = document.getElementById('cortes-existentes-info');
-            cortesExistentesDiv.innerHTML = `<p style="font-weight: bold; margin-bottom: 5px;">Cortes Existentes:</p>${infoExistente}`;
-            cortesExistentesDiv.style.display = (infoExistente ? 'block' : 'none');
-
-            // --- Generar el formulario para el nuevo corte (nextCorte) ---
-            const corteLetra = nextCorte === 1 ? 'H' : (nextCorte === 2 ? 'L' : 'U');
-            const descLetra = nextCorte === 1 ? 'I' : (nextCorte === 2 ? 'K' : 'V');
-            const imgLetra = nextCorte === 1 ? 'J' : (nextCorte === 2 ? 'M' : 'W');
-            const labelText = `Seleccionar Imagen Corte ${nextCorte} (${imgLetra})`;
-            
-            corteContainer.innerHTML = `
-                <h3 class="dynamic-corte-title mt-4 mb-3" style="border-bottom: 1px solid #eee; padding-bottom: 5px; font-weight: bold;">Registro Corte ${nextCorte}</h3>
-
-                <!-- TIPO DE CORTE (${corteLetra}) -->
-                <label for="tipoCorte_${nextCorte}">Tipo de Corte ${nextCorte} (${corteLetra})</label>
-                <select id="tipoCorte_${nextCorte}">
-                    ${generateOptions(TIPO_CORTE_OPTIONS, 'No recomendable')}
+    // Define qué campos de corte se van a llenar, qué columna de "Tipo de corte" deben validar,
+    // y qué columnas de la fila existente corresponden a la info (Descripción, Imagen).
+    const mapAcciones = {
+        'corte1': { tipoColIndex: 7, descColIndex: 8, imgColIndex: 9, tipoCorteInput: 'tipoCorte1', titulo: 'Agregar Corte 1' },
+        'corte2': { tipoColIndex: 11, descColIndex: 12, imgColIndex: 13, tipoCorteInput: 'tipoCorte2', titulo: 'Agregar Corte 2' },
+        'corte3': { tipoColIndex: 20, descColIndex: 21, imgColIndex: 22, tipoCorteInput: 'tipoCorte3', titulo: 'Agregar Corte 3' },
+        'apertura': { tipoColIndex: 13, descColIndex: 13, imgColIndex: 14, tipoCorteInput: 'apertura', titulo: 'Agregar Apertura' }, // Apertura es Col N(13) y su Imagen Col O(14)
+        'cables': { tipoColIndex: 16, descColIndex: 16, imgColIndex: 17, tipoCorteInput: 'cables', titulo: 'Agregar Cables de Alimentación' }, // Cables es Col Q(16) y su Imagen Col R(17)
+        'nota': { tipoColIndex: 15, descColIndex: 18, imgColIndex: -1, tipoCorteInput: 'nota', titulo: 'Agregar Nota Importante / YouTube' }, // Nota es Col P(15), YouTube es Col S(18)
+        'nuevoModelo': { titulo: 'Crear Nueva Fila de Vehículo', tipoColIndex: -1 }
+    };
+    
+    function generarContenidoStep3(accion) {
+        const contentDiv = document.getElementById('contenidoStep3');
+        const tituloDiv = document.getElementById('tituloStep3');
+        const map = mapAcciones[accion];
+        
+        tituloDiv.textContent = map.titulo;
+        contentDiv.innerHTML = '';
+        
+        if (accion === 'nuevoModelo') {
+            // El contenido de Nuevo Modelo se toma directamente de Paso 1 (excepto el corte)
+            contentDiv.innerHTML = `
+                <p>Se creará una nueva fila para el vehículo. A continuación, agrega el primer corte.</p>
+                <label for="tipoCorte1">Tipo de corte 1 *</label>
+                <select id="tipoCorte1" required>
+                    <option value="">Seleccione...</option>
+                    <option value="No recomendado">No recomendado</option>
+                    <option value="Ignición">Ignición</option>
+                    <option value="Bomba de combustible">Bomba de combustible</option>
+                    <option value="Señal a botón">Señal a botón</option>
+                    <option value="Señal a ahogador">Señal a ahogador</option>
                 </select>
 
-                <!-- DESCRIPCIÓN DEL CORTE (${descLetra}) -->
-                <label for="descCorte_${nextCorte}">Descripción del Corte ${nextCorte} (${descLetra})</label>
-                <textarea id="descCorte_${nextCorte}" placeholder="Color de cable y ubicación detallada." required></textarea>
+                <label for="descCorte1">Descripción corte 1 *</label>
+                <textarea id="descCorte1" required></textarea>
 
-                <!-- IMAGEN DEL CORTE (${imgLetra}) -->
-                <label for="imgCorte_${nextCorte}">${labelText}</label>
-                
-                <input type="file" id="imgCorte_${nextCorte}" class="input-file-hidden" accept="image/*">
-                <label for="imgCorte_${nextCorte}" class="custom-file-upload" data-default-text="${labelText}">${labelText}</label>
-                <img id="previewCorte_${nextCorte}" class="image-preview" style="display:none;" alt="Previsualización del corte ${nextCorte}">
+                <label for="imgCorte1">Imagen corte 1 *</label>
+                <input type="file" id="imgCorte1" accept="image/*" required onchange="previewImage('imgCorte1', 'previewCorte1')">
+                <img id="previewCorte1" class="image-preview" style="display:none;">
             `;
-            
-            // Añadir el listener de archivo para el corte dinámico
-            document.getElementById(`imgCorte_${nextCorte}`).addEventListener('change', (e) => {
-                handleFileInput(e, 'corte', `previewCorte_${nextCorte}`);
-            });
-
-            nextBtn.style.display = 'block';
+            return;
         }
 
+        // Lógica para actualizar fila existente
+        let html = '';
+        
+        if (accion.includes('corte')) {
+            html += `
+                <label for="${map.tipoCorteInput}">Tipo de ${map.titulo.split(' ')[1]} *</label>
+                <select id="${map.tipoCorteInput}" required>
+                    <option value="">Seleccione...</option>
+                    <option value="No recomendado">No recomendado</option>
+                    <option value="Ignición">Ignición</option>
+                    <option value="Bomba de combustible">Bomba de combustible</option>
+                    <option value="Señal a botón">Señal a botón</option>
+                    <option value="Señal a ahogador">Señal a ahogador</option>
+                </select>
 
-        // Configuración inicial de listeners y opciones
-        document.addEventListener('DOMContentLoaded', () => {
-             // Listeners de imágenes estáticas (se pasan por su key)
-             document.getElementById('imgVehiculo').addEventListener('change', (e) => handleFileInput(e, 'vehiculo', 'previewVehiculo'));
-             document.getElementById('imgApertura').addEventListener('change', (e) => handleFileInput(e, 'apertura', 'previewApertura'));
-             document.getElementById('imgCables').addEventListener('change', (e) => handleFileInput(e, 'cables', 'previewCables'));
-             
-             // Llenar opciones de selección estáticas
-             document.getElementById('categoria').innerHTML = generateOptions(CATEGORIA_OPTIONS, 'Carro');
-             document.getElementById('tipoEncendido').innerHTML = generateOptions(TIPO_ENCENDIDO_OPTIONS, 'llave');
-             
-             // Inicializar: mostrar el primer paso
-             mostrarPaso(1);
+                <label for="desc${map.titulo.split(' ')[1]}">Descripción ${map.titulo.split(' ')[1]} *</label>
+                <textarea id="desc${map.titulo.split(' ')[1]}" required></textarea>
+                
+                <label for="img${map.titulo.split(' ')[1]}">Imagen ${map.titulo.split(' ')[1]} *</label>
+                <input type="file" id="img${map.titulo.split(' ')[1]}" accept="image/*" required onchange="previewImage('img${map.titulo.split(' ')[1]}', 'preview${map.titulo.split(' ')[1]}')">
+                <img id="preview${map.titulo.split(' ')[1]}" class="image-preview" style="display:none;">
+            `;
+        } else if (accion === 'apertura') {
+             html += `
+                <label>Apertura *</label>
+                <textarea id="descApertura" required placeholder="Instrucciones para la apertura..."></textarea>
+                
+                <label>Imagen apertura *</label>
+                <input type="file" id="imgApertura" accept="image/*" required onchange="previewImage('imgApertura', 'previewApertura')">
+                <img id="previewApertura" class="image-preview" style="display:none;">
+            `;
+        } else if (accion === 'cables') {
+            html += `
+                <label>Cables de alimentación *</label>
+                <textarea id="descCables" required placeholder="Descripción de los cables..."></textarea>
+                
+                <label>Imagen cables alimentación *</label>
+                <input type="file" id="imgCables" accept="image/*" required onchange="previewImage('imgCables', 'previewCables')">
+                <img id="previewCables" class="image-preview" style="display:none;">
+            `;
+        } else if (accion === 'nota') {
+            html += `
+                <label>Nota importante *</label>
+                <textarea id="notaImportante" required placeholder="Información crucial para la instalación..."></textarea>
+                
+                <label>Cómo desarmar plásticos (YouTube embed URL)</label>
+                <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/embed/...">
+            `;
+        }
+        
+        contentDiv.innerHTML = html;
+    }
+
+    function seleccionarAccion(accion) {
+        // Deseleccionar todo
+        document.querySelectorAll('.opcion-corte').forEach(op => op.classList.remove('selected'));
+        
+        const selectedOption = document.querySelector(`.opcion-corte[data-accion="${accion}"]`);
+        selectedOption.classList.add('selected');
+        accionSeleccionada = accion;
+        
+        if (accion === 'nuevoModelo') {
+            // Ya se manejó la lógica en buscarVehiculo, solo habilitamos el botón
+            document.getElementById('btnContinuarPaso2').disabled = false;
+            generarContenidoStep3(accion);
+            return;
+        }
+        
+        document.getElementById('btnContinuarPaso2').disabled = false;
+        
+        // --- Lógica de Validación de Corte Existente ---
+        const map = mapAcciones[accion];
+        const tipoColIndex = map.tipoColIndex;
+
+        // Comprobamos si el campo de "Tipo de corte" ya está lleno en la fila existente
+        // Recordar que el índice en la matriz JS es el número de columna - 1
+        const valorExistente = datosExistentes[tipoColIndex]; 
+
+        if (valorExistente && valorExistente.trim() !== '') {
+            // Si el valor ya existe, el corte ya fue agregado. Pedimos confirmación al usuario
+            if (!confirm(`El campo "${map.titulo}" ya contiene un valor: "${valorExistente}". Si continúas, la fila se cancelará. ¿Deseas cancelar el formulario?`)) {
+                 // Si el usuario dice 'No', permitimos seguir (aunque la especificación dice CANCELAR)
+                 // La especificación dice: Si mismo corte → cancelar formulario.
+                 // Para ser fiel a la regla, deberíamos solo mostrar alerta y volver al paso 2.
+                mostrarAlerta(`⛔ El corte ${map.titulo} ya existe con el valor "${valorExistente}". Por favor, elige otra acción.`, 'error');
+                selectedOption.classList.remove('selected');
+                document.getElementById('btnContinuarPaso2').disabled = true;
+                accionSeleccionada = null;
+                return;
+            } else {
+                // Si el usuario confirma cancelar, volvemos a Paso 1 (o 2 con deselección)
+                mostrarPaso(1); 
+                return;
+            }
+        }
+        
+        // Si el corte no existe o es "nuevoModelo", preparamos el paso 3
+        generarContenidoStep3(accion);
+    }
+    
+    // =============================================================
+    // ENVÍO DE DATOS Y GESTIÓN DE IMÁGENES
+    // =============================================================
+
+    /**
+     * Convierte un archivo File a Base64.
+     * @param {File} file 
+     * @returns {Promise<string>} Base64 data (sin prefijo mime)
+     */
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]); // Solo base64 data
+            reader.onerror = error => reject(error);
         });
-        </script>
+    }
+
+    /**
+     * Sube una imagen individual a Drive a través de Apps Script.
+     * @param {File} file 
+     * @param {string} tipo Tipo de imagen (ej: vehiculo, corte1, apertura)
+     * @param {string} marca 
+     * @param {string} modelo 
+     * @param {number} anio 
+     * @returns {Promise<string>} URL pública de Drive
+     */
+    async function subirImagen(file, tipo, marca, modelo, anio) {
+        if (!file || !WEB_APP_URL || WEB_APP_URL.includes("YOUR_APPS_SCRIPT_DEPLOYMENT_URL")) {
+            throw new Error("No se ha configurado la URL del Apps Script o no se proporcionó el archivo.");
+        }
         
+        const base64 = await fileToBase64(file);
         
-        <!-- ============================================================= -->
-        <!-- CONTENIDO - PASO 1 (BÚSQUEDA Y COMUNES) -->
-        <!-- ============================================================= -->
-        <div id="step1" class="step active">
-            <h3 class="text-xl font-bold mb-4" style="font-size: 1.25em; font-weight: bold; margin-bottom: 15px;">1. Datos de Identificación y Búsqueda</h3>
+        const uploadPayload = {
+            base64: base64,
+            mimeType: file.type,
+            name: file.name,
+            tipo: tipo,
+            marca: marca,
+            modelo: modelo,
+            anio: anio
+        };
 
-            <!-- (T) Colaborador -->
-            <label for="colaborador">Colaborador (T)</label>
-            <input type="text" id="colaborador" placeholder="Tu nombre" required>
-            
-            <!-- (B) Categoría -->
-            <label for="categoria">Categoría (B)</label>
-            <select id="categoria"></select>
-            
-            <!-- (D) Marca -->
-            <label for="marca">Marca (D)</label>
-            <input type="text" id="marca" placeholder="Ej: Toyota" required>
-            
-            <!-- (E) Modelo -->
-            <label for="modelo">Modelo (E)</label>
-            <input type="text" id="modelo" placeholder="Ej: Corolla S" required>
-            
-            <!-- (F) Tipo de Encendido -->
-            <label for="tipoEncendido">Tipo de Encendido (F)</label>
-            <select id="tipoEncendido"></select>
-            
-            <!-- (G) Año/Generación -->
-            <label for="año">Año/Generación (G)</label>
-            <input type="number" id="año" placeholder="Ej: 2020" min="1900" max="2100" required>
-            
-            <!-- (C) Imagen Vehículo -->
-            <label for="imgVehiculo" style="font-weight: normal; color: #666;">Imagen del Vehículo (C)</label>
-            <input type="file" id="imgVehiculo" class="input-file-hidden" accept="image/*">
-            <label for="imgVehiculo" class="custom-file-upload" data-default-text="Seleccionar Imagen del Vehículo (C)">Seleccionar Imagen del Vehículo (C)</label>
-            <img id="previewVehiculo" class="image-preview" style="display:none;" alt="Previsualización del vehículo">
+        const response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(uploadPayload)
+        });
 
-            <button class="btn mt-6" onclick="buscarVehiculo()">
-                Continuar y Buscar Vehículo
-            </button>
-
-            <div id="loading" class="loading">Cargando...</div>
-        </div>
+        const jsonRes = await response.json();
         
-        <!-- ============================================================= -->
-        <!-- CONTENIDO - PASO 2 (CORTE DINÁMICO) -->
-        <!-- ============================================================= -->
-        <div id="step2" class="step">
-            <div class="backBtn" onclick="volverPaso(1)">&#9664; Regresar</div>
-            <h2 id="step2-title" class="text-xl font-semibold mb-2" style="font-size: 1.5em; margin-bottom: 10px;"></h2>
+        if (jsonRes.success) {
+            return jsonRes.url;
+        } else {
+            throw new Error(`Error al subir imagen (${tipo}): ${jsonRes.error || 'Desconocido'}`);
+        }
+    }
+    
+    /**
+     * Mapea los datos del formulario a un array para Sheets.
+     * Los valores se mapean a las columnas B a W (índices 1 a 22 en array).
+     * El índice 0 (Columna A - AID) no se toca, se deja vacío para que Sheets lo calcule.
+     */
+    function construirFilaNueva(urls) {
+        // Columna A (AID) queda vacía para que Sheets la calcule
+        const row = new Array(23).fill(''); 
+        
+        // Datos del paso 1
+        row[1] = document.getElementById('categoria').value; // B: Categoría
+        row[3] = document.getElementById('marca').value.trim(); // D: Marca
+        row[4] = document.getElementById('modelo').value.trim(); // E: Modelo
+        row[6] = document.getElementById('año').value; // G: Año / generación
+        row[5] = document.getElementById('tipoEncendido').value; // F: Tipo de encendido
+        
+        // Imágenes del paso 1
+        row[2] = urls.imagenVehiculo || ''; // C: Imagen del vehículo
+        
+        // Datos del Corte 1 (Acción Nuevo Modelo)
+        row[7] = document.getElementById('tipoCorte1').value; // H: Tipo de corte 1
+        row[8] = document.getElementById('descCorte1').value; // I: Descripción corte 1
+        row[9] = urls.corte1 || ''; // J: Imagen corte 1
+        row[19] = document.getElementById('colaborador').value.trim(); // T: Colaborador(es)
+        
+        return row;
+    }
+
+    /**
+     * Mapea los datos del formulario a un objeto de actualización para Sheets.
+     * Solo para la fila existente (índice 7 a 22).
+     */
+    function construirDatosActualizacion(accion, urls) {
+        const updateData = {}; // Usaremos un objeto para mapear al rango
+        const colaborador = document.getElementById('colaborador').value.trim();
+
+        const map = mapAcciones[accion];
+        
+        if (accion.includes('corte')) {
+            const tipoCorteInputId = map.tipoCorteInput; // ej: tipoCorte1
+            const descCorteId = `desc${map.titulo.split(' ')[1]}`; // ej: descCorte1
             
-            <div id="cortes-existentes-info" class="cortes-existentes-info" style="display:none;">
-                <!-- Cortes Existentes se insertan aquí -->
-            </div>
-
-            <div id="corte-dinamico-container">
-                <!-- El formulario del Corte 1/2/3 se generará aquí por JavaScript -->
-            </div>
-
-            <div class="flex-row-btns">
-                <button class="btn btn-secondary" style="width: 50%;" onclick="volverPaso(1)">Regresar</button>
-                <button id="btn-siguiente-step2" class="btn" style="width: 50%;" onclick="mostrarPaso(3)">Siguiente (Cables/Notas)</button>
-            </div>
-        </div>
-
-        <!-- ============================================================= -->
-        <!-- CONTENIDO - PASO 3 (APERTURA, CABLES, NOTA) -->
-        <!-- ============================================================= -->
-        <div id="step3" class="step">
-            <div class="backBtn" onclick="mostrarPaso(2, filaIndexExistente ? 'edit' : 'new')">&#9664; Regresar</div>
-            <h3 class="text-xl font-semibold mb-4" style="font-size: 1.25em; font-weight: bold; margin-bottom: 15px;">3. Detalles Adicionales</h3>
-
-            <!-- (N) Apertura Desc. -->
-            <label for="descApertura">Apertura (N)</label>
-            <textarea id="descApertura" placeholder="Descripción del cable de apertura."></textarea>
+            // H: Tipo de corte 1 (o L, o U)
+            updateData[`${String.fromCharCode(72 + map.tipoColIndex - 7)}`] = document.getElementById(tipoCorteInputId).value; 
+            // I: Descripción corte 1 (o M, o V)
+            updateData[`${String.fromCharCode(73 + map.tipoColIndex - 7)}`] = document.getElementById(descCorteId).value; 
+            // J: Imagen corte 1 (o M, o W)
+            updateData[`${String.fromCharCode(74 + map.tipoColIndex - 7)}`] = urls[accion] || ''; 
             
-            <!-- (O) Apertura Imagen -->
-            <label for="imgApertura">Imagen de la Apertura (O)</label>
-            <input type="file" id="imgApertura" class="input-file-hidden" accept="image/*">
-            <label for="imgApertura" class="custom-file-upload" data-default-text="Seleccionar Imagen de la Apertura (O)">Seleccionar Imagen de la Apertura (O)</label>
-            <img id="previewApertura" class="image-preview" style="display:none;" alt="Previsualización de apertura">
+            // Colaborador(es) T (índice 19)
+            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
 
-            <!-- (Q) Cables Alimentación Desc. -->
-            <label for="descCables">Cables de Alimentación (Q)</label>
-            <textarea id="descCables" placeholder="Descripción de los cables que alimentan el GPS."></textarea>
+        } else if (accion === 'apertura') {
+            // N: Apertura
+            updateData['N'] = document.getElementById('descApertura').value;
+            // O: Imagen apertura
+            updateData['O'] = urls.apertura || '';
+            // Colaborador(es) T
+            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
             
-            <!-- (R) Cables Alimentación Imagen -->
-            <label for="imgCables">Imagen de los cables de Alimentación (R)</label>
-            <input type="file" id="imgCables" class="input-file-hidden" accept="image/*">
-            <label for="imgCables" class="custom-file-upload" data-default-text="Seleccionar Imagen de Cables de Alimentación (R)">Seleccionar Imagen de Cables de Alimentación (R)</label>
-            <img id="previewCables" class="image-preview" style="display:none;" alt="Previsualización de cables de alimentación">
-
-            <!-- (P) Nota Importante -->
-            <label for="notaImportante">Nota Importante (P)</label>
-            <textarea id="notaImportante" placeholder="Aspectos a tener en cuenta en la instalación de GPS en este vehículo."></textarea>
+        } else if (accion === 'cables') {
+            // Q: Cables de alimentación
+            updateData['Q'] = document.getElementById('descCables').value;
+            // R: Imagen cables alimentación
+            updateData['R'] = urls.cables || '';
+            // Colaborador(es) T
+            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
             
-            <div class="flex-row-btns">
-                <button class="btn btn-secondary" style="width: 50%;" onclick="mostrarPaso(2, filaIndexExistente ? 'edit' : 'new')">Regresar</button>
-                <button class="btn" style="width: 50%;" onclick="enviar()">Guardar Registro Completo</button>
-            </div>
-        </div>
-    </div>
-</div>
+        } else if (accion === 'nota') {
+            // P: Nota importante
+            updateData['P'] = document.getElementById('notaImportante').value;
+            // S: Cómo desarmar plásticos (YouTube embed)
+            updateData['S'] = document.getElementById('youtubeUrl').value;
+            // Colaborador(es) T
+            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
+        }
 
-<!-- PIE DE PÁGINA PROPORCIONADO POR EL USUARIO -->
-<footer class="footer">
-    Gpspedia 2025© todos los derechos reservados.
-</footer>
+        // Convertir el objeto a un array de valores en el orden H-W.
+        const updateArray = new Array(16).fill(''); // H a W son 16 columnas
+        const columnKeys = ['H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W'];
+        
+        // Fusionar los datos existentes con los nuevos para la fila (H-W)
+        // Columna H es el índice 7 del array de la fila existente (datosExistentes)
+        for(let i = 0; i < columnKeys.length; i++) {
+            const col = columnKeys[i];
+            const existingValue = datosExistentes[i + 7] || ''; // Valor actual en Sheets
+            const newValue = updateData[col]; // Valor nuevo para esa columna
+            
+            if (col in updateData) {
+                updateArray[i] = updateData[col];
+            } else {
+                // Usar el valor existente si no se está actualizando
+                updateArray[i] = existingValue;
+            }
+        }
+        
+        return updateArray;
+    }
 
+
+    /**
+     * Lógica principal de envío: Coordina subida de imágenes y escritura en Sheets.
+     */
+    async function enviar() {
+        const loading = document.getElementById('loading');
+        loading.style.display = 'block';
+        document.getElementById('alerta-container').innerHTML = '';
+
+        const marca = document.getElementById('marca').value.trim();
+        const modelo = document.getElementById('modelo').value.trim();
+        const anio = Number(document.getElementById('año').value);
+        
+        let uploadedUrls = {};
+
+        try {
+            // 1. GESTIÓN DE SUBIDA DE IMÁGENES (APPS SCRIPT)
+            
+            // Siempre subimos la imagen del vehículo, ya sea nuevo registro o solo actualización de corte
+            const imgVehiculoFile = document.getElementById('imgVehiculo').files[0];
+            if (imgVehiculoFile) {
+                // Notar que la imagen del vehículo SÓLO se sube. La URL solo se usa si es nuevo registro.
+                // Si es un corte nuevo, ya existe la URL en la fila, pero la subimos igual por si es una actualización de la imagen del vehículo.
+                uploadedUrls.imagenVehiculo = await subirImagen(imgVehiculoFile, 'imagen_del_vehiculo', marca, modelo, anio);
+            }
+            
+            // Solo subimos las imágenes de corte/apertura/cables si la acción corresponde
+            if (accionSeleccionada === 'nuevoModelo' || accionSeleccionada === 'corte1') {
+                const imgCorte1File = document.getElementById('imgCorte1').files[0];
+                if (imgCorte1File) uploadedUrls.corte1 = await subirImagen(imgCorte1File, 'corte_1', marca, modelo, anio);
+            } else if (accionSeleccionada === 'corte2') {
+                const imgCorte2File = document.getElementById('imgCorte2').files[0];
+                if (imgCorte2File) uploadedUrls.corte2 = await subirImagen(imgCorte2File, 'corte_2', marca, modelo, anio);
+            } else if (accionSeleccionada === 'corte3') {
+                const imgCorte3File = document.getElementById('imgCorte3').files[0];
+                if (imgCorte3File) uploadedUrls.corte3 = await subirImagen(imgCorte3File, 'corte_3', marca, modelo, anio);
+            } else if (accionSeleccionada === 'apertura') {
+                const imgAperturaFile = document.getElementById('imgApertura').files[0];
+                if (imgAperturaFile) uploadedUrls.apertura = await subirImagen(imgAperturaFile, 'apertura', marca, modelo, anio);
+            } else if (accionSeleccionada === 'cables') {
+                const imgCablesFile = document.getElementById('imgCables').files[0];
+                if (imgCablesFile) uploadedUrls.cables = await subirImagen(imgCablesFile, 'cables_alimentacion', marca, modelo, anio);
+            }
+            
+            // 2. ESCRITURA EN GOOGLE SHEETS (SHEETS API)
+            let result;
+
+            if (accionSeleccionada === 'nuevoModelo') {
+                // CREAR NUEVA FILA (Solo si es nuevo Modelo/Generación)
+                const newRow = construirFilaNueva(uploadedUrls);
+                
+                result = await gapi.client.sheets.spreadsheets.values.append({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: `${SHEET_NAME}!A:W`, // Rango de escritura (Sheets encuentra la siguiente fila)
+                    valueInputOption: 'USER_ENTERED',
+                    insertDataOption: 'INSERT_ROWS',
+                    resource: {
+                        values: [newRow]
+                    }
+                });
+
+            } else {
+                // ACTUALIZAR FILA EXISTENTE (Solo para agregar un nuevo corte)
+                
+                // Mapear los datos de H a W
+                const updateArray = construirDatosActualizacion(accionSeleccionada, uploadedUrls); 
+                
+                // Determinar el rango de actualización (H a W) para la fila ya existente
+                const rangeToUpdate = `${SHEET_NAME}!H${filaExistenteIndex}:W${filaExistenteIndex}`;
+
+                result = await gapi.client.sheets.spreadsheets.values.update({
+                    spreadsheetId: SPREADSHEET_ID,
+                    range: rangeToUpdate,
+                    valueInputOption: 'USER_ENTERED',
+                    resource: {
+                        values: [updateArray]
+                    }
+                });
+            }
+
+            loading.style.display = 'none';
+            mostrarAlerta("✅ ¡Guardado Correctamente! Recargando...", 'success');
+            setTimeout(() => { location.reload(); }, 2000);
+
+        } catch (e) {
+            loading.style.display = 'none';
+            mostrarAlerta("❌ Error al guardar: " + e.message, 'error');
+            console.error("Error en función enviar:", e);
+        }
+    }
+</script>
 </body>
 </html>
