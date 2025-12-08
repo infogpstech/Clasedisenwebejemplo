@@ -1,853 +1,991 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Agregar Corte de Vehículo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://apis.google.com/js/api.js"></script>
-<style>
-    /* ------------------------------------------- */
-    /* ESTILOS FIJOS (NO MODIFICABLES)             */
-    /* ------------------------------------------- */
-    body {
-        font-family: 'Inter', sans-serif;
-        padding: 20px;
-        background: #f0f4f8;
-        display: flex;
-        flex-direction: column; /* Cambiado a columna para el footer */
-        justify-content: flex-start;
-        align-items: center;
-        min-height: 100vh;
-        margin: 0;
-    }
-
-    .header, .footer {
-        width: 100%;
-        max-width: 500px;
-        padding: 15px 0;
-        text-align: center;
-    }
-
-    .header {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        background: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        border-radius: 8px;
-        padding: 10px 20px;
-    }
-
-    .logo {
-        width: 40px;
-        height: 40px;
-        /* Placeholder de logo */
-        background: #007bff;
-        border-radius: 50%;
-        color: white;
-        line-height: 40px;
-        font-weight: bold;
-    }
-
-    .header h1 {
-        margin: 0;
-        font-size: 24px;
-        color: #333;
-    }
-    
-    .container {
-        width: 100%;
-        max-width: 500px;
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-    }
-
-    .step {
-        display: none;
-    }
-
-    .step.active {
-        display: block;
-    }
-
-    /* Estilos de Formulario */
-    label {
-        display: block;
-        margin-top: 15px;
-        margin-bottom: 5px;
-        font-weight: 600;
-        color: #333;
-    }
-
-    input[type="text"], input[type="number"], select, textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        box-sizing: border-box;
-        transition: border-color 0.3s;
-    }
-
-    input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
-        border-color: #007bff;
-        outline: none;
-    }
-
-    .btn {
-        background: black;
-        color: white;
-        border: none;
-        padding: 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-        font-size: 16px;
-        margin-top: 20px;
-        transition: background 0.3s;
-    }
-    
-    .btn:hover {
-        background: #333;
-    }
-
-    .btn-secondary {
-        background: #777;
-        margin-top: 10px;
-    }
-
-    .btn-secondary:hover {
-        background: #999;
-    }
-
-    .loading {
-        display: none;
-        font-size: 18px;
-        margin-top: 10px;
-        text-align: center;
-        color: #007bff;
-    }
-
-    .image-preview {
-        max-width: 100%;
-        height: auto;
-        border-radius: 8px;
-        margin-top: 10px;
-        border: 1px solid #ddd;
-    }
-
-    .alert {
-        padding: 10px;
-        margin-top: 10px;
-        border-radius: 6px;
-        text-align: center;
-        font-weight: bold;
-    }
-
-    .alert.success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .alert.error {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    /* Estilos para el paso 2 de selección */
-    .opcion-corte {
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-align: center;
-        font-weight: bold;
-    }
-    .opcion-corte:hover {
-        background: #f0f4f8;
-    }
-    .opcion-corte.selected {
-        border-color: #007bff;
-        background: #e6f2ff;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
-    
-    /* Responsive para móviles */
-    @media (max-width: 600px) {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPSpedia - Registro de Cortes</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* Estilos Globales */
+        html {
+            height: 100%;
+        }
         body {
-            padding: 10px;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+        h1,h2,h3,h4 {
+            margin: 10px 0;
         }
         .container {
-            padding: 15px;
+            padding: 20px;
+            max-width: 1240px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+            flex: 1 0 auto;
         }
-    }
-</style>
+        .backBtn {
+            margin-bottom: 15px;
+            cursor: pointer;
+            color: #007bff;
+            display: inline-flex;
+            align-items: center;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .backBtn:hover {
+            background: #e9f7ff;
+        }
+
+        /* --- ESTILOS DEL ENCABEZADO (Header) --- */
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+        }
+        .app-logo {
+            max-width: 96px;
+            height: auto;
+            border-radius: 8px;
+            margin-right: 15px;
+        }
+        h1.app-title {
+            text-align: left;
+            margin: 0;
+            font-size: 2.2em;
+            color: #333;
+        }
+
+        #install-button {
+            display: none; /* Oculto por defecto, JS lo mostrará */
+            position: fixed; /* Fijo en la pantalla */
+            top: 20px;      /* Distancia desde arriba */
+            right: 20px;    /* Distancia desde la derecha */
+            z-index: 1001;   /* Por encima de otros elementos */
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #fff;
+            background-color: #28a745; /* Verde para la acción de instalar */
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            white-space: nowrap;
+        }
+
+        #install-button:hover {
+            background-color: #218838;
+            transform: scale(1.05); /* Efecto de zoom ligero */
+        }
+
+        @media (max-width: 480px) {
+            h1.app-title {
+                font-size: 1.8em;
+            }
+            #install-button {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* --- ESTILOS DEL BUSCADOR --- */
+        .search-container {
+            margin-bottom: 30px;
+            padding: 10px 0;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .search-container input[type="text"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        /* --- Estilos del Formulario --- */
+        .form-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 25px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        input[type="text"], input[type="number"], select, textarea, input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-submit, .btn-primary, .btn-secondary {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn-submit {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .btn-submit:hover {
+            background-color: #0056b3;
+            transform: scale(1.02);
+        }
+        .btn-primary {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background-color: #218838;
+            transform: scale(1.02);
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            color: #fff;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: scale(1.02);
+        }
+
+        /* Estilos para la previsualización de imágenes */
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+        }
+        
+        /* Contenedores dinámicos de corte */
+        .cut-section {
+            border: 1px dashed #007bff66;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        /* Mensajes de estado */
+        #status-message {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            display: none;
+        }
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Modal para confirmación de vehículo existente */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            overflow: auto; 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto; 
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 500px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        /* --- Footer --- */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            margin-top: 40px;
+            background-color: #333;
+            color: #fff;
+            font-size: 0.9em;
+            flex-shrink: 0; /* Para evitar que se comprima */
+        }
+    </style>
 </head>
 <body>
 
-    <!-- HEADER (NO MODIFICAR) -->
-    <div class="header">
-        <div class="logo">G</div>
-        <h1>Agregar Corte</h1>
-    </div>
-    <!-- FIN HEADER -->
-
     <div class="container">
-        
-        <div id="alerta-container"></div>
-        <div class="loading" id="loading">Cargando...</div>
-
-        <!-- PASO 1: Ingreso de datos básicos y búsqueda -->
-        <div id="step1" class="step active">
-            <h2>Paso 1: Información del Vehículo</h2>
-
-            <label for="colaborador">Colaborador(es) *</label>
-            <input type="text" id="colaborador" required>
-
-            <label for="categoria">Categoría *</label>
-            <select id="categoria" required>
-                <option value="">Seleccione...</option>
-                <option value="Carro">Carro</option>
-                <option value="Camión">Camión</option>
-                <option value="Moto">Moto</option>
-                <option value="Construcción">Construcción</option>
-            </select>
-
-            <label for="marca">Marca *</label>
-            <input type="text" id="marca" required>
-
-            <label for="modelo">Modelo *</label>
-            <input type="text" id="modelo" required>
-
-            <label for="año">Año / Generación *</label>
-            <input type="number" id="año" required min="1900" max="2100">
-
-            <label for="tipoEncendido">Tipo de Encendido *</label>
-            <select id="tipoEncendido" required>
-                <option value="">Seleccione...</option>
-                <option value="No recomendado">No recomendado</option>
-                <option value="Ignición">Ignición</option>
-                <option value="Bomba de combustible">Bomba de combustible</option>
-                <option value="Señal a botón">Señal a botón</option>
-                <option value="Señal a ahogador">Señal a ahogador</option>
-            </select>
-
-            <label>Imagen del Vehículo *</label>
-            <input type="file" id="imgVehiculo" accept="image/*" required onchange="previewImage('imgVehiculo', 'previewVehiculo')">
-            <img id="previewVehiculo" class="image-preview" style="display:none;">
-
-            <button class="btn" onclick="buscarVehiculo()">Buscar y Continuar</button>
+        <!-- HEADER ESTÁNDAR -->
+        <div class="header-container">
+            <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
+            <h1 class="app-title">GPSpedia - Registro de Cortes</h1>
+            <button id="install-button" style="display: none;">Instalar Aplicación</button>
         </div>
 
-        <!-- PASO 2: Selección de acción -->
-        <div id="step2" class="step">
-            <h2>Paso 2: Acción a Realizar</h2>
-            <div id="mensajeAccion" style="margin-bottom: 20px;"></div>
+        <div id="status-message" class="status-info">Cargando formulario y validaciones...</div>
 
-            <!-- Opciones generadas dinámicamente -->
-            <div class="opcion-corte" data-accion="corte1" onclick="seleccionarAccion('corte1')">Agregar Corte 1</div>
-            <div class="opcion-corte" data-accion="corte2" onclick="seleccionarAccion('corte2')">Agregar Corte 2</div>
-            <div class="opcion-corte" data-accion="corte3" onclick="seleccionarAccion('corte3')">Agregar Corte 3</div>
-            <div class="opcion-corte" data-accion="apertura" onclick="seleccionarAccion('apertura')">Agregar Apertura</div>
-            <div class="opcion-corte" data-accion="cables" onclick="seleccionarAccion('cables')">Agregar Cables de Alimentación</div>
-            <div class="opcion-corte" data-accion="nota" onclick="seleccionarAccion('nota')">Agregar Nota Importante / YouTube</div>
-            <div class="opcion-corte" data-accion="nuevoModelo" onclick="seleccionarAccion('nuevoModelo')">Crear Nueva Fila (Modelo/Generación Nueva)</div>
-            
-            <button class="btn" id="btnContinuarPaso2" disabled onclick="mostrarPaso(3)">Continuar</button>
-            <button class="btn btn-secondary" onclick="mostrarPaso(1)">Regresar</button>
-        </div>
-
-        <!-- PASO 3: Formulario dinámico y envío -->
-        <div id="step3" class="step">
-            <h2>Paso 3: Detalle del Corte</h2>
-            <div id="tituloStep3" style="font-weight: bold; margin-bottom: 15px;"></div>
-            
-            <div id="contenidoStep3">
-                <!-- Contenido del formulario cargado por JS -->
+        <form id="vehicle-form" style="display: none;">
+            <!-- SECCIÓN 1: IDENTIFICACIÓN DEL VEHÍCULO -->
+            <div class="form-section">
+                <h2>1. Identificación del Vehículo</h2>
+                <div class="form-grid">
+                    <div>
+                        <label for="category">Categoría (B) <span style="color:red">*</span></label>
+                        <select id="category" name="category" required></select>
+                    </div>
+                    <div>
+                        <label for="make">Marca (D) <span style="color:red">*</span></label>
+                        <input type="text" id="make" name="make" required placeholder="Ej: Toyota">
+                    </div>
+                    <div>
+                        <label for="model">Modelo (E) <span style="color:red">*</span></label>
+                        <input type="text" id="model" name="model" required placeholder="Ej: Corolla S">
+                    </div>
+                    <div>
+                        <label for="year">Año / Generación (G) <span style="color:red">*</span></label>
+                        <input type="text" id="year" name="year" required placeholder="Ej: 2018 - 2022">
+                    </div>
+                    <div>
+                        <label for="ignitionType">Tipo de Encendido (F) <span style="color:red">*</span></label>
+                        <select id="ignitionType" name="ignitionType" required></select>
+                    </div>
+                    <div>
+                        <label for="vehicleImage">Imagen del Vehículo (C)</label>
+                        <input type="file" id="vehicleImage" name="vehicleImage" accept="image/*">
+                        <div class="image-preview-container" id="vehicle-image-preview"></div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="button" class="btn-primary" id="search-btn">Buscar Coincidencia (Marca + Modelo + Año)</button>
+                </div>
             </div>
 
-            <button class="btn" onclick="enviar()">Enviar y Guardar</button>
-            <button class="btn btn-secondary" onclick="volverPaso(2)">Regresar</button>
+            <!-- SECCIÓN 2: DATOS DEL CORTE (Estructura de Cortes Dinámica) -->
+            <div id="cuts-section" class="form-section" style="display:none;">
+                <h2>2. Cortes de Encendido y Combustible</h2>
+                <input type="hidden" id="rowIndex" name="rowIndex" value=""> <!-- Se llena si existe coincidencia -->
+                <input type="hidden" id="isUpdate" name="isUpdate" value="false">
+
+                <!-- Corte 1 (H, I, J) -->
+                <div class="cut-section" id="cut-1-container">
+                    <h3>Corte 1</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label for="cutType1">Tipo de Corte 1 (H)</label>
+                            <select id="cutType1" name="cutType1"></select>
+                        </div>
+                        <div>
+                            <label for="cutDescription1">Descripción del Corte 1 (I)</label>
+                            <textarea id="cutDescription1" name="cutDescription1" rows="3" placeholder="Color del cable, ubicación y tipo de señal."></textarea>
+                        </div>
+                        <div>
+                            <label for="cutImage1">Imagen del Corte 1 (J)</label>
+                            <input type="file" id="cutImage1" name="cutImage1" accept="image/*">
+                            <div class="image-preview-container" id="cut-1-image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- Corte 2 (L, K, M) -->
+                 <div class="cut-section" id="cut-2-container" style="margin-top: 20px;">
+                    <h3>Corte 2</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label for="cutType2">Tipo de Corte 2 (L)</label>
+                            <select id="cutType2" name="cutType2"></select>
+                        </div>
+                        <div>
+                            <label for="cutDescription2">Descripción del Corte 2 (K)</label>
+                            <textarea id="cutDescription2" name="cutDescription2" rows="3" placeholder="Descripción del segundo corte."></textarea>
+                        </div>
+                        <div>
+                            <label for="cutImage2">Imagen del Corte 2 (M)</label>
+                            <input type="file" id="cutImage2" name="cutImage2" accept="image/*">
+                            <div class="image-preview-container" id="cut-2-image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Corte 3 (U, V, W) -->
+                <div class="cut-section" id="cut-3-container" style="margin-top: 20px;">
+                    <h3>Corte 3</h3>
+                    <div class="form-grid">
+                        <div>
+                            <label for="cutType3">Tipo de Corte 3 (U)</label>
+                            <select id="cutType3" name="cutType3"></select>
+                        </div>
+                        <div>
+                            <label for="cutDescription3">Descripción del Corte 3 (V)</label>
+                            <textarea id="cutDescription3" name="cutDescription3" rows="3" placeholder="Descripción del tercer corte."></textarea>
+                        </div>
+                        <div>
+                            <label for="cutImage3">Imagen del Corte 3 (W)</label>
+                            <input type="file" id="cutImage3" name="cutImage3" accept="image/*">
+                            <div class="image-preview-container" id="cut-3-image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Apertura y Alimentación -->
+                <h2 style="margin-top: 40px;">3. Apertura y Alimentación</h2>
+                <div class="form-grid">
+                    <!-- Apertura (N, O) -->
+                    <div style="grid-column: span 1;">
+                        <h3>Apertura</h3>
+                        <label for="openingDescription">Apertura (N)</label>
+                        <textarea id="openingDescription" name="openingDescription" rows="3" placeholder="Descripción del cable de apertura (Pestillos/Bloqueos)."></textarea>
+
+                        <label for="openingImage">Imagen de la Apertura (O)</label>
+                        <input type="file" id="openingImage" name="openingImage" accept="image/*">
+                        <div class="image-preview-container" id="opening-image-preview"></div>
+                    </div>
+
+                    <!-- Cables de Alimentación (Q, R) -->
+                    <div style="grid-column: span 1;">
+                        <h3>Alimentación GPS</h3>
+                        <label for="powerCables">Cables de Alimentación (Q)</label>
+                        <textarea id="powerCables" name="powerCables" rows="3" placeholder="Descripción de los cables de alimentación del GPS (Positivo, Negativo, Ignición)."></textarea>
+
+                        <label for="powerImage">Imagen de los cables de alimentación (R)</label>
+                        <input type="file" id="powerImage" name="powerImage" accept="image/*">
+                        <div class="image-preview-container" id="power-image-preview"></div>
+                    </div>
+                </div>
+
+                <!-- Notas y Colaborador -->
+                <h2 style="margin-top: 40px;">4. Notas y Colaborador</h2>
+                <div class="form-grid">
+                    <div>
+                        <label for="importantNote">Nota Importante (P)</label>
+                        <textarea id="importantNote" name="importantNote" rows="3" placeholder="Anotaciones importantes para la instalación del GPS."></textarea>
+                    </div>
+                    <div>
+                        <label for="collaborator">Colaborador (T) <span style="color:red">*</span></label>
+                        <input type="text" id="collaborator" name="collaborator" required placeholder="Tu Nombre o ID de Técnico">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón de Envío -->
+            <div id="submit-section" style="text-align: center; margin-top: 30px; display:none;">
+                <button type="submit" class="btn-submit">Guardar Registro Completo</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal de Confirmación de Coincidencia -->
+    <div id="matchModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="document.getElementById('matchModal').style.display='none'">&times;</span>
+            <h2>¡Coincidencia Encontrada!</h2>
+            <p>Ya existe un registro para <strong id="matchVehicleInfo"></strong>.</p>
+            <p>Se encontraron los siguientes cortes existentes:</p>
+            <ul id="existingCutsList" style="text-align: left;"></ul>
+            <p>¿Deseas <strong>AGREGAR</strong> un nuevo corte/apertura/alimentación a este registro existente, o <strong>CANCELAR</strong> porque el corte ya está documentado?</p>
+            <div class="modal-buttons">
+                <button type="button" class="btn-primary" onclick="handleMatchAction(true)">Agregar a Registro Existente</button>
+                <button type="button" class="btn-secondary" onclick="handleMatchAction(false)">Cancelar / Ya Existe</button>
+            </div>
         </div>
-
     </div>
 
-    <!-- FOOTER (NO MODIFICAR) -->
-    <div class="footer">
-        GPSpedia 2025©
-    </div>
-    <!-- FIN FOOTER -->
 
-<script>
-    // =============================================================
-    // CONFIGURACIÓN OBLIGATORIA
-    // =============================================================
-    const SPREADSHEET_ID = "1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo";
-    const API_KEY = "AIzaSyCooAsC52X4ccENCT6p3qh_82ErBxP47Lg";
-    const DRIVE_FOLDER_ID = "1-8QqhS-wtEFFwyBG8CmnEOp5i8rxSM-2";
-    const SHEET_NAME = 'Cortes'; 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxEPLaI7cN7nM1hgTNU0MxyS1VPFxl0FF4Il4bn2fEOTw0jEh_yPTXHohxD-RxzSGo/exec"; // *** EL USUARIO DEBE REEMPLAZAR ESTO ***
+    <footer class="footer">
+        GPSpedia 2025© todos los derechos reservados.
+    </footer>
 
-    const API_DISCOVERY_URL = 'https://sheets.googleapis.com/$discovery/rest?version=v4';
+    <script>
+        // --- CONFIGURACIÓN GLOBAL ---
+        // ATENCIÓN: Se están utilizando las credenciales proporcionadas. 
+        // Si el error 400/403 persiste, es casi seguro que la hoja no está COMPARTIDA PÚBLICAMENTE.
+        const SPREADSHEET_ID = "1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo";
+        const API_KEY = "AIzaSyCooAsC52X4ccENCT6p3qh_82ErBxP47Lg";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmLfwa5l35omn_CdpS7AHOcLYTR9Q8-9PvjiXY0e9oTtne1BA7mDh1_4oujjmj0vGQ/exec"; // REEMPLAZAR con la URL de su App Script publicada
 
-    // Variables de estado
-    let gapiLoaded = false;
-    let datosExistentes = null; // Almacena los datos de la fila si existe
-    let filaExistenteIndex = null; // Almacena el índice (número de fila en Sheets, no índice de array)
-    let accionSeleccionada = null;
-
-    // =============================================================
-    // UTILIDADES
-    // =============================================================
-
-    function mostrarAlerta(mensaje, tipo = 'error') {
-        const container = document.getElementById('alerta-container');
-        container.innerHTML = `<div class="alert ${tipo}">${mensaje}</div>`;
-        // Ocultar la alerta después de 5 segundos
-        setTimeout(() => container.innerHTML = '', 5000);
-    }
-    
-    function previewImage(inputId, imgId) {
-        const input = document.getElementById(inputId);
-        const img = document.getElementById(imgId);
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                img.src = e.target.result;
-                img.style.display = 'block';
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    // =============================================================
-    // INICIALIZACIÓN DE LA API DE GOOGLE SHEETS
-    // =============================================================
-
-    function initGapi() {
-        gapi.client.init({
-            apiKey: API_KEY,
-            discoveryDocs: [API_DISCOVERY_URL],
-        }).then(() => {
-            gapiLoaded = true;
-            console.log("Google Sheets API cargada correctamente.");
-            // Opcional: mostrar un mensaje de listo
-        }, (error) => {
-            console.error("Error al cargar la API de Google Sheets:", error);
-            mostrarAlerta("Error al iniciar la API de Google Sheets. Verifica la API KEY.", 'error');
-        });
-    }
-
-    gapi.load('client', initGapi);
-
-    // =============================================================
-    // LÓGICA DE BÚSQUEDA (USANDO SHEETS API)
-    // =============================================================
-
-    async function obtenerDatosDelSpreadsheet() {
-        if (!gapiLoaded) {
-            mostrarAlerta("La API de Google Sheets no se ha cargado todavía.", 'error');
-            return null;
-        }
-
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
+        // Hoja donde están los datos de vehículos
+        const DATA_SHEET_NAME = "Hoja 1"; 
+        // Rango de la hoja de datos que leeremos para buscar coincidencias (Marca, Modelo, Año, Cortes 1, 2, 3).
+        // Columnas D (Marca, 4) a U (Tipo de corte 3, 21)
+        const VEHICLE_DATA_RANGE = `${DATA_SHEET_NAME}!D:U`; 
         
-        try {
-            // Rango A:W para obtener todas las columnas necesarias, incluyendo el AID (A)
-            const response = await gapi.client.sheets.spreadsheets.values.get({
-                spreadsheetId: SPREADSHEET_ID,
-                range: `${SHEET_NAME}!A:W`,
-            });
-            
-            loading.style.display = 'none';
-            // Ignorar la fila de cabecera (índice 0)
-            return response.result.values ? response.result.values.slice(1) : [];
-        } catch (error) {
-            loading.style.display = 'none';
-            console.error("Error al obtener datos del Spreadsheet:", error);
-            mostrarAlerta(`Error al leer Sheets: ${error.result.error.message}. ¿Es correcta la API Key?`, 'error');
-            return null;
-        }
-    }
-    
-    // Función para buscar la coincidencia exacta (Marca + Modelo + Año)
-    function buscarCoincidencia(allData, marca, modelo, anio) {
-        // anio se convierte a string ya que los datos de Sheets son strings
-        const anioStr = anio.toString(); 
+        // Hoja donde están las validaciones para los desplegables (asumo una hoja llamada 'Validaciones' para consistencia)
+        const VALIDATION_SHEET_RANGE = `Validaciones!A:Z`;
 
-        // El índice de fila + 2 = Fila en Spreadsheet (porque quitamos la cabecera y Sheets empieza en 1)
-        for (let i = 0; i < allData.length; i++) {
-            const row = allData[i];
-            
-            // Índices de columnas: D(Marca)=3, E(Modelo)=4, G(Año)=6
-            const marcaFila = row[3] ? row[3].toString().trim() : '';
-            const modeloFila = row[4] ? row[4].toString().trim() : '';
-            const anioFila = row[6] ? row[6].toString().trim() : '';
-
-            if (marcaFila.toLowerCase() === marca.toLowerCase() &&
-                modeloFila.toLowerCase() === modelo.toLowerCase() &&
-                anioFila === anioStr) {
-                
-                // Retorna los datos de la fila y el número de fila real en Sheets (i + 2)
-                return { data: row, sheetRowIndex: i + 2 };
-            }
-        }
-        return null; // No hay coincidencia
-    }
-
-    async function buscarVehiculo() {
-        const marca = document.getElementById('marca').value.trim();
-        const modelo = document.getElementById('modelo').value.trim();
-        const anio = document.getElementById('año').value;
-        const imgVehiculoInput = document.getElementById('imgVehiculo');
-
-        if (!marca || !modelo || !anio || !imgVehiculoInput.files[0]) {
-            mostrarAlerta("Por favor, rellene todos los campos obligatorios del Paso 1.", 'error');
-            return;
-        }
-
-        const data = await obtenerDatosDelSpreadsheet();
-        if (!data) return;
-
-        const match = buscarCoincidencia(data, marca, modelo, anio);
+        // Columnas a buscar para las validaciones (asumiendo que están en la hoja 'Validaciones' en la Columna A)
+        const VALIDATION_COLUMNS = {
+            category: 0, // B2:B
+            ignitionType: 1, // F2:F
+            cutType1: 2, // H2:H
+            cutType2: 2, // L2:L (usa la misma lista que H)
+            cutType3: 2, // U2:U (usa la misma lista que H)
+        };
         
-        // Almacenar los datos de la coincidencia
-        datosExistentes = match ? match.data : null;
-        filaExistenteIndex = match ? match.sheetRowIndex : null;
-        
-        const mensajeAccion = document.getElementById('mensajeAccion');
-        
-        if (match) {
-            mensajeAccion.innerHTML = `✅ **Coincidencia encontrada:** Ya existe un registro para ${marca} ${modelo} ${anio} (Fila ${filaExistenteIndex}).<br>Por favor, selecciona qué corte deseas agregar o actualizar.`;
-            document.querySelector('.opcion-corte[data-accion="nuevoModelo"]').style.display = 'none';
-        } else {
-            mensajeAccion.innerHTML = `⚠️ **No se encontró coincidencia** para ${marca} ${modelo} ${anio}.<br>Deberás seleccionar **Crear Nueva Fila (Modelo/Generación Nueva)**.`;
-            document.querySelector('.opcion-corte[data-accion="nuevoModelo"]').style.display = 'block';
-            seleccionarAccion('nuevoModelo'); // Fuerza la selección a Nuevo Modelo
-            document.getElementById('btnContinuarPaso2').disabled = false;
-        }
-
-        mostrarPaso(2);
-    }
-    
-    // =============================================================
-    // LÓGICA DE PASOS Y FORMULARIO DINÁMICO
-    // =============================================================
-
-    function mostrarPaso(n) {
-        document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
-        document.getElementById("step" + n).classList.add("active");
-        document.getElementById('alerta-container').innerHTML = '';
-        window.scrollTo(0, 0); // Regresar al inicio de la página
-    }
-
-    function volverPaso(n) {
-        mostrarPaso(n);
-        // Deseleccionar todas las acciones al regresar al paso 2
-        document.querySelectorAll('.opcion-corte').forEach(op => op.classList.remove('selected'));
-        document.getElementById('btnContinuarPaso2').disabled = true;
-        accionSeleccionada = null;
-    }
-
-    // Define qué campos de corte se van a llenar, qué columna de "Tipo de corte" deben validar,
-    // y qué columnas de la fila existente corresponden a la info (Descripción, Imagen).
-    const mapAcciones = {
-        'corte1': { tipoColIndex: 7, descColIndex: 8, imgColIndex: 9, tipoCorteInput: 'tipoCorte1', titulo: 'Agregar Corte 1' },
-        'corte2': { tipoColIndex: 11, descColIndex: 12, imgColIndex: 13, tipoCorteInput: 'tipoCorte2', titulo: 'Agregar Corte 2' },
-        'corte3': { tipoColIndex: 20, descColIndex: 21, imgColIndex: 22, tipoCorteInput: 'tipoCorte3', titulo: 'Agregar Corte 3' },
-        'apertura': { tipoColIndex: 13, descColIndex: 13, imgColIndex: 14, tipoCorteInput: 'apertura', titulo: 'Agregar Apertura' }, // Apertura es Col N(13) y su Imagen Col O(14)
-        'cables': { tipoColIndex: 16, descColIndex: 16, imgColIndex: 17, tipoCorteInput: 'cables', titulo: 'Agregar Cables de Alimentación' }, // Cables es Col Q(16) y su Imagen Col R(17)
-        'nota': { tipoColIndex: 15, descColIndex: 18, imgColIndex: -1, tipoCorteInput: 'nota', titulo: 'Agregar Nota Importante / YouTube' }, // Nota es Col P(15), YouTube es Col S(18)
-        'nuevoModelo': { titulo: 'Crear Nueva Fila de Vehículo', tipoColIndex: -1 }
-    };
-    
-    function generarContenidoStep3(accion) {
-        const contentDiv = document.getElementById('contenidoStep3');
-        const tituloDiv = document.getElementById('tituloStep3');
-        const map = mapAcciones[accion];
-        
-        tituloDiv.textContent = map.titulo;
-        contentDiv.innerHTML = '';
-        
-        if (accion === 'nuevoModelo') {
-            // El contenido de Nuevo Modelo se toma directamente de Paso 1 (excepto el corte)
-            contentDiv.innerHTML = `
-                <p>Se creará una nueva fila para el vehículo. A continuación, agrega el primer corte.</p>
-                <label for="tipoCorte1">Tipo de corte 1 *</label>
-                <select id="tipoCorte1" required>
-                    <option value="">Seleccione...</option>
-                    <option value="No recomendado">No recomendado</option>
-                    <option value="Ignición">Ignición</option>
-                    <option value="Bomba de combustible">Bomba de combustible</option>
-                    <option value="Señal a botón">Señal a botón</option>
-                    <option value="Señal a ahogador">Señal a ahogador</option>
-                </select>
-
-                <label for="descCorte1">Descripción corte 1 *</label>
-                <textarea id="descCorte1" required></textarea>
-
-                <label for="imgCorte1">Imagen corte 1 *</label>
-                <input type="file" id="imgCorte1" accept="image/*" required onchange="previewImage('imgCorte1', 'previewCorte1')">
-                <img id="previewCorte1" class="image-preview" style="display:none;">
-            `;
-            return;
-        }
-
-        // Lógica para actualizar fila existente
-        let html = '';
-        
-        if (accion.includes('corte')) {
-            html += `
-                <label for="${map.tipoCorteInput}">Tipo de ${map.titulo.split(' ')[1]} *</label>
-                <select id="${map.tipoCorteInput}" required>
-                    <option value="">Seleccione...</option>
-                    <option value="No recomendado">No recomendado</option>
-                    <option value="Ignición">Ignición</option>
-                    <option value="Bomba de combustible">Bomba de combustible</option>
-                    <option value="Señal a botón">Señal a botón</option>
-                    <option value="Señal a ahogador">Señal a ahogador</option>
-                </select>
-
-                <label for="desc${map.titulo.split(' ')[1]}">Descripción ${map.titulo.split(' ')[1]} *</label>
-                <textarea id="desc${map.titulo.split(' ')[1]}" required></textarea>
-                
-                <label for="img${map.titulo.split(' ')[1]}">Imagen ${map.titulo.split(' ')[1]} *</label>
-                <input type="file" id="img${map.titulo.split(' ')[1]}" accept="image/*" required onchange="previewImage('img${map.titulo.split(' ')[1]}', 'preview${map.titulo.split(' ')[1]}')">
-                <img id="preview${map.titulo.split(' ')[1]}" class="image-preview" style="display:none;">
-            `;
-        } else if (accion === 'apertura') {
-             html += `
-                <label>Apertura *</label>
-                <textarea id="descApertura" required placeholder="Instrucciones para la apertura..."></textarea>
-                
-                <label>Imagen apertura *</label>
-                <input type="file" id="imgApertura" accept="image/*" required onchange="previewImage('imgApertura', 'previewApertura')">
-                <img id="previewApertura" class="image-preview" style="display:none;">
-            `;
-        } else if (accion === 'cables') {
-            html += `
-                <label>Cables de alimentación *</label>
-                <textarea id="descCables" required placeholder="Descripción de los cables..."></textarea>
-                
-                <label>Imagen cables alimentación *</label>
-                <input type="file" id="imgCables" accept="image/*" required onchange="previewImage('imgCables', 'previewCables')">
-                <img id="previewCables" class="image-preview" style="display:none;">
-            `;
-        } else if (accion === 'nota') {
-            html += `
-                <label>Nota importante *</label>
-                <textarea id="notaImportante" required placeholder="Información crucial para la instalación..."></textarea>
-                
-                <label>Cómo desarmar plásticos (YouTube embed URL)</label>
-                <input type="text" id="youtubeUrl" placeholder="https://www.youtube.com/embed/...">
-            `;
-        }
-        
-        contentDiv.innerHTML = html;
-    }
-
-    function seleccionarAccion(accion) {
-        // Deseleccionar todo
-        document.querySelectorAll('.opcion-corte').forEach(op => op.classList.remove('selected'));
-        
-        const selectedOption = document.querySelector(`.opcion-corte[data-accion="${accion}"]`);
-        selectedOption.classList.add('selected');
-        accionSeleccionada = accion;
-        
-        if (accion === 'nuevoModelo') {
-            // Ya se manejó la lógica en buscarVehiculo, solo habilitamos el botón
-            document.getElementById('btnContinuarPaso2').disabled = false;
-            generarContenidoStep3(accion);
-            return;
-        }
-        
-        document.getElementById('btnContinuarPaso2').disabled = false;
-        
-        // --- Lógica de Validación de Corte Existente ---
-        const map = mapAcciones[accion];
-        const tipoColIndex = map.tipoColIndex;
-
-        // Comprobamos si el campo de "Tipo de corte" ya está lleno en la fila existente
-        // Recordar que el índice en la matriz JS es el número de columna - 1
-        const valorExistente = datosExistentes[tipoColIndex]; 
-
-        if (valorExistente && valorExistente.trim() !== '') {
-            // Si el valor ya existe, el corte ya fue agregado. Pedimos confirmación al usuario
-            if (!confirm(`El campo "${map.titulo}" ya contiene un valor: "${valorExistente}". Si continúas, la fila se cancelará. ¿Deseas cancelar el formulario?`)) {
-                 // Si el usuario dice 'No', permitimos seguir (aunque la especificación dice CANCELAR)
-                 // La especificación dice: Si mismo corte → cancelar formulario.
-                 // Para ser fiel a la regla, deberíamos solo mostrar alerta y volver al paso 2.
-                mostrarAlerta(`⛔ El corte ${map.titulo} ya existe con el valor "${valorExistente}". Por favor, elige otra acción.`, 'error');
-                selectedOption.classList.remove('selected');
-                document.getElementById('btnContinuarPaso2').disabled = true;
-                accionSeleccionada = null;
-                return;
-            } else {
-                // Si el usuario confirma cancelar, volvemos a Paso 1 (o 2 con deselección)
-                mostrarPaso(1); 
-                return;
-            }
-        }
-        
-        // Si el corte no existe o es "nuevoModelo", preparamos el paso 3
-        generarContenidoStep3(accion);
-    }
-    
-    // =============================================================
-    // ENVÍO DE DATOS Y GESTIÓN DE IMÁGENES
-    // =============================================================
-
-    /**
-     * Convierte un archivo File a Base64.
-     * @param {File} file 
-     * @returns {Promise<string>} Base64 data (sin prefijo mime)
-     */
-    function fileToBase64(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result.split(',')[1]); // Solo base64 data
-            reader.onerror = error => reject(error);
-        });
-    }
-
-    /**
-     * Sube una imagen individual a Drive a través de Apps Script.
-     * @param {File} file 
-     * @param {string} tipo Tipo de imagen (ej: vehiculo, corte1, apertura)
-     * @param {string} marca 
-     * @param {string} modelo 
-     * @param {number} anio 
-     * @returns {Promise<string>} URL pública de Drive
-     */
-    async function subirImagen(file, tipo, marca, modelo, anio) {
-        if (!file || !WEB_APP_URL || WEB_APP_URL.includes("YOUR_APPS_SCRIPT_DEPLOYMENT_URL")) {
-            throw new Error("No se ha configurado la URL del Apps Script o no se proporcionó el archivo.");
-        }
-        
-        const base64 = await fileToBase64(file);
-        
-        const uploadPayload = {
-            base64: base64,
-            mimeType: file.type,
-            name: file.name,
-            tipo: tipo,
-            marca: marca,
-            modelo: modelo,
-            anio: anio
+        // Mapeo de campos del formulario a columnas del Spreadsheet (1-based index)
+        // Solo para campos de texto/select que se envían directamente por la API Key.
+        // Las imágenes y el ID se manejan aparte.
+        const COLUMN_MAP = {
+            category: { index: 2, col: 'B' }, 
+            make: { index: 4, col: 'D' }, 
+            model: { index: 5, col: 'E' }, 
+            ignitionType: { index: 6, col: 'F' }, 
+            year: { index: 7, col: 'G' }, 
+            cutType1: { index: 8, col: 'H' }, 
+            cutDescription1: { index: 9, col: 'I' },
+            cutDescription2: { index: 11, col: 'K' },
+            cutType2: { index: 12, col: 'L' }, 
+            openingDescription: { index: 14, col: 'N' }, 
+            importantNote: { index: 16, col: 'P' }, 
+            powerCables: { index: 17, col: 'Q' }, 
+            collaborator: { index: 20, col: 'T' },
+            cutType3: { index: 21, col: 'U' }, 
+            cutDescription3: { index: 22, col: 'V' }
+            // C, J, M, O, R, W son imágenes (GAS Script)
         };
 
-        const response = await fetch(WEB_APP_URL, {
-            method: "POST",
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(uploadPayload)
+        // --- FUNCIONES DE UTILIDAD Y API ---
+
+        /**
+         * Muestra mensajes de estado al usuario.
+         * @param {string} message Mensaje a mostrar.
+         * @param {string} type Tipo de mensaje ('success', 'error', 'info').
+         */
+        function displayStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status-message');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-${type}`;
+            statusDiv.style.display = 'block';
+            if (type === 'success' || type === 'error') {
+                setTimeout(() => statusDiv.style.display = 'none', 10000);
+            }
+        }
+
+        /**
+         * Realiza una solicitud fetch con reintento y retroceso exponencial.
+         * Se ha modificado para capturar y mostrar errores 400/403 detallados.
+         * @param {string} url La URL del endpoint.
+         * @param {Object} options Opciones de la solicitud fetch.
+         * @param {number} retries Número actual de reintentos (interna).
+         * @returns {Promise<Response>} La respuesta de la solicitud.
+         */
+        async function fetchWithRetry(url, options, retries = 0) {
+            try {
+                const response = await fetch(url, options);
+                
+                if (!response.ok && response.status !== 404) {
+                    let errorMessage = `Error HTTP ${response.status}: Fallo en la API de Google Sheets.`;
+
+                    // Intentar leer el cuerpo del error de Google para obtener detalles
+                    try {
+                        // Clonamos la respuesta para poder leer el cuerpo JSON sin consumir el stream de respuesta original
+                        const errorJson = await response.clone().json(); 
+                        if (errorJson.error && errorJson.error.message) {
+                            errorMessage += ` Detalle: ${errorJson.error.message}`;
+                        }
+                    } catch (jsonError) {
+                        // Si no es JSON o falla al parsear, usamos el mensaje HTTP genérico
+                    }
+                    
+                    // Añadir la recomendación de solución para el error 400/403 (Permisos)
+                    if (response.status === 400 || response.status === 403) {
+                         errorMessage += ` -> Solución: Verifique que el SPREADSHEET_ID y API_KEY sean correctos y que la hoja esté COMPARTIDA PÚBLICAMENTE ("Cualquier persona con el enlace" en modo "Lector").`;
+                    }
+
+                    throw new Error(errorMessage);
+                }
+                return response;
+            } catch (error) {
+                if (retries < 5) { // 5 reintentos maximos
+                    const delay = Math.pow(2, retries) * 1000;
+                    console.error(`Error en fetch. Reintentando en ${delay / 1000}s...`, error);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchWithRetry(url, options, retries + 1);
+                } else {
+                    console.error("Fallo de fetch después de varios reintentos.", error);
+                    throw error;
+                }
+            }
+        }
+
+        /**
+         * Carga las listas desplegables desde la hoja de validaciones.
+         */
+        async function loadDropdowns() {
+            displayStatus('Cargando listas desplegables...');
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${VALIDATION_SHEET_RANGE}?key=${API_KEY}`;
+            
+            try {
+                const response = await fetchWithRetry(url);
+                if (!response.ok) throw new Error("Error al cargar validaciones.");
+
+                const data = await response.json();
+                const values = data.values;
+                if (!values) throw new Error("No se encontraron datos de validación.");
+
+                const headers = values[0]; // Asume que la primera fila son encabezados
+                const dropdowns = {
+                    category: [],
+                    ignitionType: [],
+                    cutType: []
+                };
+
+                // Asumo que 'category' está en la columna A, 'ignitionType' en la columna B, y 'cutType' en la columna C de la hoja 'Validaciones'
+                for (let i = 1; i < values.length; i++) { // Empezar desde la segunda fila
+                    const row = values[i];
+                    if (row[VALIDATION_COLUMNS.category]) dropdowns.category.push(row[VALIDATION_COLUMNS.category]);
+                    if (row[VALIDATION_COLUMNS.ignitionType]) dropdowns.ignitionType.push(row[VALIDATION_COLUMNS.ignitionType]);
+                    if (row[VALIDATION_COLUMNS.cutType1]) dropdowns.cutType.push(row[VALIDATION_COLUMNS.cutType1]);
+                }
+                
+                // Llenar SELECTs
+                fillSelect('category', dropdowns.category);
+                fillSelect('ignitionType', dropdowns.ignitionType);
+                fillSelect('cutType1', dropdowns.cutType);
+                fillSelect('cutType2', dropdowns.cutType);
+                fillSelect('cutType3', dropdowns.cutType);
+
+                document.getElementById('vehicle-form').style.display = 'block';
+                displayStatus('Formulario listo. Ingrese los datos y presione "Buscar Coincidencia".', 'info');
+
+            } catch (error) {
+                console.error("Fallo al cargar dropdowns:", error);
+                displayStatus(`Error crítico al cargar validaciones: ${error.message}`, 'error');
+            }
+        }
+
+        /**
+         * Rellena un elemento <select> con opciones.
+         */
+        function fillSelect(elementId, options) {
+            const select = document.getElementById(elementId);
+            select.innerHTML = '<option value="">Seleccione...</option>';
+            options = [...new Set(options)].filter(o => o); // Eliminar duplicados y vacíos
+            options.forEach(option => {
+                const opt = document.createElement('option');
+                opt.value = option;
+                opt.textContent = option;
+                select.appendChild(opt);
+            });
+        }
+        
+        /**
+         * Maneja la previsualización de archivos de imagen.
+         */
+        function setupImagePreviews() {
+            ['vehicleImage', 'cutImage1', 'cutImage2', 'cutImage3', 'openingImage', 'powerImage'].forEach(id => {
+                const input = document.getElementById(id);
+                const previewContainer = document.getElementById(id.replace('Image', '-image-preview').toLowerCase());
+                
+                input.addEventListener('change', (e) => {
+                    previewContainer.innerHTML = '';
+                    if (e.target.files && e.target.files.length > 0) {
+                        Array.from(e.target.files).forEach(file => {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                const img = document.createElement('img');
+                                img.src = event.target.result;
+                                img.className = 'image-preview';
+                                img.alt = 'Vista previa de la imagen';
+                                previewContainer.appendChild(img);
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                });
+            });
+        }
+
+        /**
+         * Busca la coincidencia de Marca + Modelo + Año en el Spreadsheet.
+         */
+        async function searchVehicle() {
+            const make = document.getElementById('make').value.trim();
+            const model = document.getElementById('model').value.trim();
+            const year = document.getElementById('year').value.trim();
+
+            if (!make || !model || !year) {
+                displayStatus("Por favor, complete Marca, Modelo y Año para realizar la búsqueda.", 'error');
+                return;
+            }
+
+            displayStatus('Buscando coincidencias...', 'info');
+            
+            // Usaremos un rango amplio para obtener toda la data (D:U)
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${VEHICLE_DATA_RANGE}?key=${API_KEY}`;
+
+            try {
+                const response = await fetchWithRetry(url);
+                if (!response.ok) throw new Error("Error al buscar datos de vehículos.");
+                
+                const data = await response.json();
+                const rows = data.values || [];
+                
+                // Buscar coincidencia (saltando el encabezado)
+                // Columna D (Marca): rows[i][0]
+                // Columna E (Modelo): rows[i][1]
+                // Columna G (Año): rows[i][3]
+                // El índice de fila real en la hoja es i + 2 (i=0 es la primera fila de datos, fila 2 de la hoja)
+                
+                let foundMatch = null;
+                let rowIndex = -1;
+
+                for (let i = 0; i < rows.length; i++) {
+                    const row = rows[i];
+                    // Si la fila tiene datos suficientes
+                    if (row.length >= 4) {
+                        const rowMake = (row[0] || '').toLowerCase();
+                        const rowModel = (row[1] || '').toLowerCase();
+                        const rowYear = (row[3] || '').toLowerCase();
+
+                        if (rowMake === make.toLowerCase() && 
+                            rowModel === model.toLowerCase() && 
+                            rowYear === year.toLowerCase()) {
+                            
+                            // Match encontrado: (D:Marca, E:Modelo, G:Año)
+                            foundMatch = row;
+                            rowIndex = i + 2; // Fila real en la hoja (1-based index)
+                            break; 
+                        }
+                    }
+                }
+
+                document.getElementById('cuts-section').style.display = 'block';
+                document.getElementById('submit-section').style.display = 'block';
+
+                if (foundMatch) {
+                    // Coincidencia encontrada: Mostrar modal de confirmación
+                    const cut1 = foundMatch[4] || 'N/A'; // Columna H (index 4 en el rango D:U)
+                    const cut2 = foundMatch[8] || 'N/A'; // Columna L (index 8 en el rango D:U)
+                    const cut3 = foundMatch[17] || 'N/A'; // Columna U (index 17 en el rango D:U)
+
+                    document.getElementById('matchVehicleInfo').textContent = `${make} ${model} ${year}`;
+                    
+                    const cutsList = document.getElementById('existingCutsList');
+                    cutsList.innerHTML = '';
+                    if (cut1 !== 'N/A' && cut1.trim() !== '') cutsList.innerHTML += `<li>Corte 1: ${cut1}</li>`;
+                    if (cut2 !== 'N/A' && cut2.trim() !== '') cutsList.innerHTML += `<li>Corte 2: ${cut2}</li>`;
+                    if (cut3 !== 'N/A' && cut3.trim() !== '') cutsList.innerHTML += `<li>Corte 3: ${cut3}</li>`;
+                    if (cutsList.innerHTML === '') cutsList.innerHTML = '<li>No se han registrado cortes aún.</li>';
+
+                    document.getElementById('rowIndex').value = rowIndex; // Fila a actualizar
+                    document.getElementById('isUpdate').value = 'true';
+                    
+                    document.getElementById('matchModal').style.display = 'block';
+                    displayStatus(`Coincidencia encontrada en la fila ${rowIndex}. Confirme la acción.`, 'info');
+                } else {
+                    // No hay coincidencia: Nuevo registro
+                    document.getElementById('rowIndex').value = ''; // Se usará append en el envío
+                    document.getElementById('isUpdate').value = 'false';
+                    document.getElementById('cutDescription1').value = '';
+                    document.getElementById('cutDescription2').value = '';
+                    document.getElementById('cutDescription3').value = '';
+
+                    displayStatus("No se encontró coincidencia exacta. Se creará un NUEVO registro al enviar el formulario.", 'info');
+                    // Mostrar formulario de cortes inmediatamente para un nuevo registro
+                    document.getElementById('cuts-section').style.display = 'block';
+                    document.getElementById('submit-section').style.display = 'block';
+                }
+
+            } catch (error) {
+                console.error("Error en la búsqueda de vehículos:", error);
+                displayStatus(`Error al buscar vehículos: ${error.message}`, 'error');
+            }
+        }
+        
+        /**
+         * Maneja la acción después de encontrar una coincidencia.
+         * @param {boolean} isProceed Si es true, continúa para agregar al registro existente. Si es false, cancela.
+         */
+        function handleMatchAction(isProceed) {
+            document.getElementById('matchModal').style.display = 'none';
+
+            if (isProceed) {
+                displayStatus(`Continuando para agregar información a la fila ${document.getElementById('rowIndex').value}. Solo se actualizarán las celdas vacías (Cortes, Apertura, Alimentación) y el colaborador.`, 'info');
+            } else {
+                displayStatus('Acción cancelada. El corte/vehículo probablemente ya existe. El formulario se ha reiniciado.', 'info');
+                document.getElementById('vehicle-form').reset();
+                document.getElementById('cuts-section').style.display = 'none';
+                document.getElementById('submit-section').style.display = 'none';
+            }
+        }
+
+        /**
+         * FUNCIÓN PRINCIPAL DE ENVÍO
+         */
+        document.getElementById('vehicle-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            displayStatus('Procesando datos y subiendo archivos... Por favor, espere.', 'info');
+            
+            const isUpdate = document.getElementById('isUpdate').value === 'true';
+            const rowIndex = document.getElementById('rowIndex').value;
+            const form = e.target;
+            const formData = new FormData(form);
+            const dataToSheet = {};
+            let isAnyCutDataPresent = false;
+            
+            // 1. Recolectar datos y mapear a columnas
+            const dataArray = [];
+            const filesToUpload = [];
+            
+            // Mapear todos los campos del formulario a un array que representa la fila de la hoja
+            for (let i = 1; i <= 23; i++) {
+                dataArray[i] = ""; // Inicializar
+            }
+            
+            // Llenar el array de datos con valores del formulario
+            for (const [key, map] of Object.entries(COLUMN_MAP)) {
+                let value = formData.get(key) || '';
+                
+                // Si estamos en modo actualización, solo enviar datos de cortes nuevos/apertura/alimentacion
+                // Los datos de identificación (B-G) no deben ser modificados.
+                if (isUpdate) {
+                    if (['cutType1', 'cutDescription1', 'cutType2', 'cutDescription2', 'cutType3', 'cutDescription3', 'openingDescription', 'powerCables', 'importantNote'].includes(key) && value.trim() !== '') {
+                        dataArray[map.index] = value.trim();
+                        isAnyCutDataPresent = true;
+                    } else if (key === 'collaborator') {
+                        dataArray[map.index] = value.trim(); // Siempre enviamos colaborador en el payload de actualización, GAS lo manejará.
+                    }
+                } else {
+                    // Modo de nueva fila: llenar todos los campos
+                    dataArray[map.index] = value.trim();
+                }
+            }
+            
+            // Si es una actualización, y no se ingresó nada nuevo, no se procede con la hoja de cálculo.
+            if (isUpdate && !isAnyCutDataPresent) {
+                 displayStatus('Advertencia: Está en modo de actualización, pero no se ha ingresado ninguna descripción de corte/apertura/alimentación nueva. Envíe imágenes si es lo único que va a agregar.', 'info');
+            }
+
+
+            // 2. Recolectar archivos y convertirlos a Base64
+            const fileInputs = [
+                { inputId: 'vehicleImage', type: 'imagenVehiculo' },
+                { inputId: 'cutImage1', type: 'imagenCorte1' },
+                { inputId: 'cutImage2', type: 'imagenCorte2' },
+                { inputId: 'cutImage3', type: 'imagenCorte3' },
+                { inputId: 'openingImage', type: 'imagenApertura' },
+                { inputId: 'powerImage', type: 'imagenAlimentacion' }
+            ];
+
+            for (const { inputId, type } of fileInputs) {
+                const input = form.elements[inputId];
+                if (input.files && input.files.length > 0) {
+                    const file = input.files[0];
+                    const base64 = await toBase64(file);
+                    filesToUpload.push({
+                        fileName: file.name,
+                        mimeType: file.type,
+                        base64Data: base64.split(',')[1],
+                        type: type
+                    });
+                }
+            }
+
+            // 3. ENVIAR DATOS DE LA HOJA DE CÁLCULO (NO IMAGEN)
+            let finalRowIndex;
+
+            if (isUpdate) {
+                // Modo ACTUALIZACIÓN (PUT request)
+                finalRowIndex = rowIndex;
+                
+                // Crear el rango a actualizar (solo las columnas con datos nuevos)
+                // Usamos el array de 23 elementos. En la actualización, solo enviamos datos para las columnas:
+                // H, I, K, L, N, P, Q, T, U, V, y dejamos las demás como ""
+                const sheetData = [dataArray.slice(1, 23)]; // Ignora el índice 0 (ID) y S (col 19)
+                
+                // El rango de actualización empieza en B (col 2)
+                const range = `${DATA_SHEET_NAME}!B${finalRowIndex}:V${finalRowIndex}`;
+
+                if (isAnyCutDataPresent) {
+                    try {
+                        const updateUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+                        const updateResponse = await fetchWithRetry(updateUrl, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ values: sheetData })
+                        });
+
+                        if (!updateResponse.ok) throw new Error("Fallo al actualizar el registro en Google Sheets.");
+
+                    } catch (error) {
+                        displayStatus(`Error al actualizar datos: ${error.message}`, 'error');
+                        return;
+                    }
+                } else {
+                    displayStatus('Registro de hoja de cálculo NO actualizado (sin cambios en texto/selects). Procediendo solo con imágenes si existen.', 'info');
+                }
+
+            } else {
+                // Modo NUEVO REGISTRO (POST/Append request)
+                // Llenar el array con los valores del formulario
+                const sheetData = [dataArray.slice(1, 23)]; // Ignora el índice 0 (ID) y S (col 19)
+
+                try {
+                    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${DATA_SHEET_NAME}!B:V:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
+                    const appendResponse = await fetchWithRetry(appendUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ values: sheetData })
+                    });
+                    
+                    if (!appendResponse.ok) throw new Error("Fallo al crear el nuevo registro en Google Sheets.");
+                    
+                    const result = await appendResponse.json();
+                    // Obtener la fila de la celda de la última celda escrita
+                    const updatedRange = result.updates.updatedRange;
+                    finalRowIndex = parseInt(updatedRange.match(/([0-9]+)$/)[0]);
+                } catch (error) {
+                    displayStatus(`Error al crear nuevo registro: ${error.message}`, 'error');
+                    return;
+                }
+            }
+
+            // 4. ENVIAR IMÁGENES A GOOGLE APPS SCRIPT
+            if (filesToUpload.length > 0) {
+                displayStatus(`Registro de datos completado en la fila ${finalRowIndex}. Subiendo ${filesToUpload.length} imágenes a Google Drive...`, 'info');
+                
+                const gasPayload = {
+                    row: finalRowIndex,
+                    category: dataArray[COLUMN_MAP.category.index],
+                    make: dataArray[COLUMN_MAP.make.index],
+                    model: dataArray[COLUMN_MAP.model.index],
+                    year: dataArray[COLUMN_MAP.year.index],
+                    collaborator: dataArray[COLUMN_MAP.collaborator.index],
+                    isUpdate: isUpdate,
+                    files: filesToUpload
+                };
+                
+                try {
+                    const gasResponse = await fetchWithRetry(GAS_WEB_APP_URL, {
+                        method: 'POST',
+                        body: JSON.stringify(gasPayload),
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    const gasResult = await gasResponse.json();
+                    if (gasResult.status === 200) {
+                        displayStatus(`¡Éxito! Registro completo en la fila ${finalRowIndex}. Imágenes subidas y enlaces actualizados.`, 'success');
+                        form.reset();
+                        document.getElementById('cuts-section').style.display = 'none';
+                        document.getElementById('submit-section').style.display = 'none';
+                        setupImagePreviews(); // Limpiar previsualizaciones
+                    } else {
+                        throw new Error(gasResult.message || "Fallo en la respuesta de Google Apps Script.");
+                    }
+                } catch (error) {
+                    displayStatus(`Error al subir imágenes a Drive: ${error.message}. El registro de datos de texto ya fue guardado en la fila ${finalRowIndex}.`, 'error');
+                }
+            } else {
+                displayStatus(`¡Éxito! Registro de datos de texto completado en la fila ${finalRowIndex}. No se adjuntaron imágenes.`, 'success');
+                form.reset();
+                document.getElementById('cuts-section').style.display = 'none';
+                document.getElementById('submit-section').style.display = 'none';
+                setupImagePreviews(); // Limpiar previsualizaciones
+            }
         });
 
-        const jsonRes = await response.json();
-        
-        if (jsonRes.success) {
-            return jsonRes.url;
-        } else {
-            throw new Error(`Error al subir imagen (${tipo}): ${jsonRes.error || 'Desconocido'}`);
-        }
-    }
-    
-    /**
-     * Mapea los datos del formulario a un array para Sheets.
-     * Los valores se mapean a las columnas B a W (índices 1 a 22 en array).
-     * El índice 0 (Columna A - AID) no se toca, se deja vacío para que Sheets lo calcule.
-     */
-    function construirFilaNueva(urls) {
-        // Columna A (AID) queda vacía para que Sheets la calcule
-        const row = new Array(23).fill(''); 
-        
-        // Datos del paso 1
-        row[1] = document.getElementById('categoria').value; // B: Categoría
-        row[3] = document.getElementById('marca').value.trim(); // D: Marca
-        row[4] = document.getElementById('modelo').value.trim(); // E: Modelo
-        row[6] = document.getElementById('año').value; // G: Año / generación
-        row[5] = document.getElementById('tipoEncendido').value; // F: Tipo de encendido
-        
-        // Imágenes del paso 1
-        row[2] = urls.imagenVehiculo || ''; // C: Imagen del vehículo
-        
-        // Datos del Corte 1 (Acción Nuevo Modelo)
-        row[7] = document.getElementById('tipoCorte1').value; // H: Tipo de corte 1
-        row[8] = document.getElementById('descCorte1').value; // I: Descripción corte 1
-        row[9] = urls.corte1 || ''; // J: Imagen corte 1
-        row[19] = document.getElementById('colaborador').value.trim(); // T: Colaborador(es)
-        
-        return row;
-    }
-
-    /**
-     * Mapea los datos del formulario a un objeto de actualización para Sheets.
-     * Solo para la fila existente (índice 7 a 22).
-     */
-    function construirDatosActualizacion(accion, urls) {
-        const updateData = {}; // Usaremos un objeto para mapear al rango
-        const colaborador = document.getElementById('colaborador').value.trim();
-
-        const map = mapAcciones[accion];
-        
-        if (accion.includes('corte')) {
-            const tipoCorteInputId = map.tipoCorteInput; // ej: tipoCorte1
-            const descCorteId = `desc${map.titulo.split(' ')[1]}`; // ej: descCorte1
-            
-            // H: Tipo de corte 1 (o L, o U)
-            updateData[`${String.fromCharCode(72 + map.tipoColIndex - 7)}`] = document.getElementById(tipoCorteInputId).value; 
-            // I: Descripción corte 1 (o M, o V)
-            updateData[`${String.fromCharCode(73 + map.tipoColIndex - 7)}`] = document.getElementById(descCorteId).value; 
-            // J: Imagen corte 1 (o M, o W)
-            updateData[`${String.fromCharCode(74 + map.tipoColIndex - 7)}`] = urls[accion] || ''; 
-            
-            // Colaborador(es) T (índice 19)
-            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
-
-        } else if (accion === 'apertura') {
-            // N: Apertura
-            updateData['N'] = document.getElementById('descApertura').value;
-            // O: Imagen apertura
-            updateData['O'] = urls.apertura || '';
-            // Colaborador(es) T
-            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
-            
-        } else if (accion === 'cables') {
-            // Q: Cables de alimentación
-            updateData['Q'] = document.getElementById('descCables').value;
-            // R: Imagen cables alimentación
-            updateData['R'] = urls.cables || '';
-            // Colaborador(es) T
-            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
-            
-        } else if (accion === 'nota') {
-            // P: Nota importante
-            updateData['P'] = document.getElementById('notaImportante').value;
-            // S: Cómo desarmar plásticos (YouTube embed)
-            updateData['S'] = document.getElementById('youtubeUrl').value;
-            // Colaborador(es) T
-            updateData['T'] = datosExistentes[19] ? `${datosExistentes[19]}, ${colaborador}` : colaborador;
+        /**
+         * Convierte un objeto File a Base64.
+         * @param {File} file 
+         * @returns {Promise<string>} Base64 data URL.
+         */
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
 
-        // Convertir el objeto a un array de valores en el orden H-W.
-        const updateArray = new Array(16).fill(''); // H a W son 16 columnas
-        const columnKeys = ['H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W'];
-        
-        // Fusionar los datos existentes con los nuevos para la fila (H-W)
-        // Columna H es el índice 7 del array de la fila existente (datosExistentes)
-        for(let i = 0; i < columnKeys.length; i++) {
-            const col = columnKeys[i];
-            const existingValue = datosExistentes[i + 7] || ''; // Valor actual en Sheets
-            const newValue = updateData[col]; // Valor nuevo para esa columna
-            
-            if (col in updateData) {
-                updateArray[i] = updateData[col];
-            } else {
-                // Usar el valor existente si no se está actualizando
-                updateArray[i] = existingValue;
-            }
-        }
-        
-        return updateArray;
-    }
-
-
-    /**
-     * Lógica principal de envío: Coordina subida de imágenes y escritura en Sheets.
-     */
-    async function enviar() {
-        const loading = document.getElementById('loading');
-        loading.style.display = 'block';
-        document.getElementById('alerta-container').innerHTML = '';
-
-        const marca = document.getElementById('marca').value.trim();
-        const modelo = document.getElementById('modelo').value.trim();
-        const anio = Number(document.getElementById('año').value);
-        
-        let uploadedUrls = {};
-
-        try {
-            // 1. GESTIÓN DE SUBIDA DE IMÁGENES (APPS SCRIPT)
-            
-            // Siempre subimos la imagen del vehículo, ya sea nuevo registro o solo actualización de corte
-            const imgVehiculoFile = document.getElementById('imgVehiculo').files[0];
-            if (imgVehiculoFile) {
-                // Notar que la imagen del vehículo SÓLO se sube. La URL solo se usa si es nuevo registro.
-                // Si es un corte nuevo, ya existe la URL en la fila, pero la subimos igual por si es una actualización de la imagen del vehículo.
-                uploadedUrls.imagenVehiculo = await subirImagen(imgVehiculoFile, 'imagen_del_vehiculo', marca, modelo, anio);
-            }
-            
-            // Solo subimos las imágenes de corte/apertura/cables si la acción corresponde
-            if (accionSeleccionada === 'nuevoModelo' || accionSeleccionada === 'corte1') {
-                const imgCorte1File = document.getElementById('imgCorte1').files[0];
-                if (imgCorte1File) uploadedUrls.corte1 = await subirImagen(imgCorte1File, 'corte_1', marca, modelo, anio);
-            } else if (accionSeleccionada === 'corte2') {
-                const imgCorte2File = document.getElementById('imgCorte2').files[0];
-                if (imgCorte2File) uploadedUrls.corte2 = await subirImagen(imgCorte2File, 'corte_2', marca, modelo, anio);
-            } else if (accionSeleccionada === 'corte3') {
-                const imgCorte3File = document.getElementById('imgCorte3').files[0];
-                if (imgCorte3File) uploadedUrls.corte3 = await subirImagen(imgCorte3File, 'corte_3', marca, modelo, anio);
-            } else if (accionSeleccionada === 'apertura') {
-                const imgAperturaFile = document.getElementById('imgApertura').files[0];
-                if (imgAperturaFile) uploadedUrls.apertura = await subirImagen(imgAperturaFile, 'apertura', marca, modelo, anio);
-            } else if (accionSeleccionada === 'cables') {
-                const imgCablesFile = document.getElementById('imgCables').files[0];
-                if (imgCablesFile) uploadedUrls.cables = await subirImagen(imgCablesFile, 'cables_alimentacion', marca, modelo, anio);
-            }
-            
-            // 2. ESCRITURA EN GOOGLE SHEETS (SHEETS API)
-            let result;
-
-            if (accionSeleccionada === 'nuevoModelo') {
-                // CREAR NUEVA FILA (Solo si es nuevo Modelo/Generación)
-                const newRow = construirFilaNueva(uploadedUrls);
-                
-                result = await gapi.client.sheets.spreadsheets.values.append({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: `${SHEET_NAME}!A:W`, // Rango de escritura (Sheets encuentra la siguiente fila)
-                    valueInputOption: 'USER_ENTERED',
-                    insertDataOption: 'INSERT_ROWS',
-                    resource: {
-                        values: [newRow]
-                    }
-                });
-
-            } else {
-                // ACTUALIZAR FILA EXISTENTE (Solo para agregar un nuevo corte)
-                
-                // Mapear los datos de H a W
-                const updateArray = construirDatosActualizacion(accionSeleccionada, uploadedUrls); 
-                
-                // Determinar el rango de actualización (H a W) para la fila ya existente
-                const rangeToUpdate = `${SHEET_NAME}!H${filaExistenteIndex}:W${filaExistenteIndex}`;
-
-                result = await gapi.client.sheets.spreadsheets.values.update({
-                    spreadsheetId: SPREADSHEET_ID,
-                    range: rangeToUpdate,
-                    valueInputOption: 'USER_ENTERED',
-                    resource: {
-                        values: [updateArray]
-                    }
-                });
-            }
-
-            loading.style.display = 'none';
-            mostrarAlerta("✅ ¡Guardado Correctamente! Recargando...", 'success');
-            setTimeout(() => { location.reload(); }, 2000);
-
-        } catch (e) {
-            loading.style.display = 'none';
-            mostrarAlerta("❌ Error al guardar: " + e.message, 'error');
-            console.error("Error en función enviar:", e);
-        }
-    }
-</script>
+        // --- INICIALIZACIÓN ---
+        window.onload = () => {
+            loadDropdowns();
+            setupImagePreviews();
+            document.getElementById('search-btn').addEventListener('click', searchVehicle);
+        };
+    </script>
 </body>
 </html>
