@@ -3,49 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GPSpedia - Registro de Cortes</title>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <title>Registro de Cortes de Vehículos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Estilos Globales */
-        html {
-            height: 100%;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            min-height: 100%;
-        }
-        h1,h2,h3,h4 {
-            margin: 10px 0;
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
         }
         .container {
-            padding: 20px;
-            max-width: 1240px;
-            margin: 0 auto;
-            width: 100%;
-            box-sizing: border-box;
-            flex: 1 0 auto;
+            max-width: 900px;
         }
-        .backBtn {
-            margin-bottom: 15px;
-            cursor: pointer;
-            color: #007bff;
-            display: inline-flex;
-            align-items: center;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background 0.2s;
-        }
-        .backBtn:hover {
-            background: #e9f7ff;
-        }
-
-        /* --- ESTILOS DEL ENCABEZADO (Header) --- */
+         /* --- ESTILOS DEL ENCABEZADO (Header) --- */
         .header-container {
             display: flex;
             align-items: center;
@@ -57,231 +26,34 @@
             height: auto;
             border-radius: 8px;
             margin-right: 15px;
-        }
-        h1.app-title {
-            text-align: left;
-            margin: 0;
-            font-size: 2.2em;
-            color: #333;
-        }
-
-        #install-button {
-            display: none; /* Oculto por defecto, JS lo mostrará */
-            position: fixed; /* Fijo en la pantalla */
-            top: 20px;      /* Distancia desde arriba */
-            right: 20px;    /* Distancia desde la derecha */
-            z-index: 1001;   /* Por encima de otros elementos */
-            padding: 10px 20px;
-            font-size: 1em;
-            font-weight: bold;
-            color: #fff;
-            background-color: #28a745; /* Verde para la acción de instalar */
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
-            white-space: nowrap;
-        }
-
-        #install-button:hover {
-            background-color: #218838;
-            transform: scale(1.05); /* Efecto de zoom ligero */
-        }
-
-        @media (max-width: 480px) {
-            h1.app-title {
-                font-size: 1.8em;
             }
-            #install-button {
-                top: 10px;
-                right: 10px;
-                padding: 8px 12px;
-                font-size: 0.9em;
-            }
-        }
 
-        /* --- ESTILOS DEL BUSCADOR --- */
-        .search-container {
-            margin-bottom: 30px;
-            padding: 10px 0;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .search-container input[type="text"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-sizing: border-box;
-            font-size: 1em;
-            transition: border-color 0.3s, box-shadow 0.3s;
-        }
-        .search-container input[type="text"]:focus {
-            border-color: #007bff;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-            outline: none;
-        }
-
-        /* --- Estilos del Formulario --- */
-        .form-section {
-            background: #fff;
-            padding: 20px;
+        .card {
+            background-color: white;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 24px;
         }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-            font-size: 0.95em;
-        }
-
-        input[type="text"], input[type="number"], select, textarea, input[type="file"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
-            border-color: #007bff;
-            outline: none;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        .btn-submit, .btn-primary, .btn-secondary {
-            padding: 12px 25px;
-            border: none;
+        .status-info { color: #2563eb; background-color: #eff6ff; border: 1px solid #bfdbfe; }
+        .status-error { color: #dc2626; background-color: #fee2e2; border: 1px solid #fecaca; }
+        .status-success { color: #059669; background-color: #ecfdf5; border: 1px solid #a7f3d0; }
+        .status-message {
+            margin-bottom: 16px;
+            padding: 12px;
             border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-            margin-right: 10px;
-        }
-
-        .btn-submit {
-            background-color: #007bff;
-            color: #fff;
-        }
-        .btn-submit:hover {
-            background-color: #0056b3;
-            transform: scale(1.02);
-        }
-        .btn-primary {
-            background-color: #28a745;
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background-color: #218838;
-            transform: scale(1.02);
-        }
-        .btn-secondary {
-            background-color: #6c757d;
-            color: #fff;
-        }
-        .btn-secondary:hover {
-            background-color: #5a6268;
-            transform: scale(1.02);
-        }
-
-        /* Estilos para la previsualización de imágenes */
-        .image-preview-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
+            display: none;
+            font-weight: 600;
         }
         .image-preview {
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
+            max-width: 100px;
+            max-height: 100px;
             object-fit: cover;
-            border: 1px solid #ccc;
-        }
-        
-        /* Contenedores dinámicos de corte */
-        .cut-section {
-            border: 1px dashed #007bff66;
-            padding: 15px;
             border-radius: 8px;
-            margin-top: 20px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #e5e7eb;
         }
-
-        /* Mensajes de estado */
-        #status-message {
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            display: none;
-        }
-        .status-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .status-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
-            border: 1px solid #bee5eb;
-        }
-
-        /* Modal para confirmación de vehículo existente */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 1; 
-            left: 0;
-            top: 0;
-            width: 100%; 
-            height: 100%; 
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.4); 
-            padding-top: 60px;
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto; 
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%; 
-            max-width: 500px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-
-        .modal-buttons {
-            margin-top: 20px;
-            display: flex;
-            justify-content: space-around;
-        }
-
-        /* --- Footer --- */
+          /* --- Footer --- */
         .footer {
             text-align: center;
             padding: 20px 0;
@@ -293,217 +65,233 @@
         }
     </style>
 </head>
-<body>
+<body class="p-4 sm:p-8">
 
-    <div class="container">
-        <!-- HEADER ESTÁNDAR -->
-        <div class="header-container">
+    <div class="container mx-auto">
+                <div class="header-container">
             <img src="https://drive.google.com/thumbnail?id=1NxBx-W_gWmcq3fA9zog6Dpe-WXpH_2e8&sz=2048" alt="Logo de GPSpedia" class="app-logo">
-            <h1 class="app-title">GPSpedia - Registro de Cortes</h1>
-            <button id="install-button" style="display: none;">Instalar Aplicación</button>
-        </div>
+            <h1 class="app-title">GPSpedia - Registro de Cortes</h1></div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Registro de Cortes y Aperturas</h1>
 
-        <div id="status-message" class="status-info">Cargando formulario y validaciones...</div>
+        <div id="status-message" class="status-message"></div>
 
-        <form id="vehicle-form" style="display: none;">
-            <!-- SECCIÓN 1: IDENTIFICACIÓN DEL VEHÍCULO -->
-            <div class="form-section">
-                <h2>1. Identificación del Vehículo</h2>
-                <div class="form-grid">
-                    <div>
-                        <label for="category">Categoría (B) <span style="color:red">*</span></label>
-                        <select id="category" name="category" required></select>
-                    </div>
-                    <div>
-                        <label for="make">Marca (D) <span style="color:red">*</span></label>
-                        <input type="text" id="make" name="make" required placeholder="Ej: Toyota">
-                    </div>
-                    <div>
-                        <label for="model">Modelo (E) <span style="color:red">*</span></label>
-                        <input type="text" id="model" name="model" required placeholder="Ej: Corolla S">
-                    </div>
-                    <div>
-                        <label for="year">Año / Generación (G) <span style="color:red">*</span></label>
-                        <input type="text" id="year" name="year" required placeholder="Ej: 2018 - 2022">
-                    </div>
-                    <div>
-                        <label for="ignitionType">Tipo de Encendido (F) <span style="color:red">*</span></label>
-                        <select id="ignitionType" name="ignitionType" required></select>
-                    </div>
-                    <div>
-                        <label for="vehicleImage">Imagen del Vehículo (C)</label>
-                        <input type="file" id="vehicleImage" name="vehicleImage" accept="image/*">
-                        <div class="image-preview-container" id="vehicle-image-preview"></div>
-                    </div>
+        <form id="vehicle-form" class="space-y-6 card">
+            <!-- Datos de Búsqueda y Identificación -->
+            <h2 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">1. Identificación del Vehículo</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700">Categoría (Col B)</label>
+                    <select id="category" name="category" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                        <option value="">Cargando...</option>
+                    </select>
                 </div>
-                <div style="margin-top: 20px; text-align: right;">
-                    <button type="button" class="btn-primary" id="search-btn">Buscar Coincidencia (Marca + Modelo + Año)</button>
+                <div>
+                    <label for="make" class="block text-sm font-medium text-gray-700">Marca (Col D)</label>
+                    <input type="text" id="make" name="make" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                </div>
+                <div>
+                    <label for="model" class="block text-sm font-medium text-gray-700">Modelo (Col E)</label>
+                    <input type="text" id="model" name="model" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
                 </div>
             </div>
 
-            <!-- SECCIÓN 2: DATOS DEL CORTE (Estructura de Cortes Dinámica) -->
-            <div id="cuts-section" class="form-section" style="display:none;">
-                <h2>2. Cortes de Encendido y Combustible</h2>
-                <input type="hidden" id="rowIndex" name="rowIndex" value=""> <!-- Se llena si existe coincidencia -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label for="year" class="block text-sm font-medium text-gray-700">Año / Generación (Col G)</label>
+                    <input type="text" id="year" name="year" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                </div>
+                <div>
+                    <label for="ignitionType" class="block text-sm font-medium text-gray-700">Tipo de Encendido (Col F)</label>
+                    <select id="ignitionType" name="ignitionType" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button type="button" id="search-btn" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out">
+                        Buscar Coincidencia
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sección de Cortes (Se muestra después de la búsqueda) -->
+            <div id="cuts-section" style="display: none;" class="space-y-6 pt-6 border-t mt-6">
+                <h2 class="text-xl font-semibold text-gray-700 border-b pb-2 mb-4">2. Detalles de Cortes y Apertura</h2>
+
+                <!-- Corte 1 (Principal) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cutType1" class="block text-sm font-medium text-gray-700">Tipo de Corte 1 (Col H)</label>
+                        <select id="cutType1" name="cutType1" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="cutDescription1" class="block text-sm font-medium text-gray-700">Descripción del Corte 1 (Col I)</label>
+                        <textarea id="cutDescription1" name="cutDescription1" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cutImage1" class="block text-sm font-medium text-gray-700">Imagen del Corte 1 (Col J)</label>
+                        <input type="file" id="cutImage1" name="cutImage1" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                    <div id="cut-image-preview1" class="flex flex-wrap pt-2"></div>
+                </div>
+
+                <!-- Corte 2 (Secundario) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cutType2" class="block text-sm font-medium text-gray-700">Tipo de Corte 2 (Col L)</label>
+                        <select id="cutType2" name="cutType2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="cutDescription2" class="block text-sm font-medium text-gray-700">Descripción del Corte 2 (Col K)</label>
+                        <textarea id="cutDescription2" name="cutDescription2" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cutImage2" class="block text-sm font-medium text-gray-700">Imagen del Corte 2 (Col M)</label>
+                        <input type="file" id="cutImage2" name="cutImage2" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                    <div id="cut-image-preview2" class="flex flex-wrap pt-2"></div>
+                </div>
+
+                <!-- Corte 3 (Tercero) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cutType3" class="block text-sm font-medium text-gray-700">Tipo de Corte 3 (Col U)</label>
+                        <select id="cutType3" name="cutType3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="cutDescription3" class="block text-sm font-medium text-gray-700">Descripción del Corte 3 (Col V)</label>
+                        <textarea id="cutDescription3" name="cutDescription3" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cutImage3" class="block text-sm font-medium text-gray-700">Imagen del Corte 3 (Col W)</label>
+                        <input type="file" id="cutImage3" name="cutImage3" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                    <div id="cut-image-preview3" class="flex flex-wrap pt-2"></div>
+                </div>
+
+                <!-- Apertura y Cables de Alimentación -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="openingDescription" class="block text-sm font-medium text-gray-700">Apertura / Descripción (Col N)</label>
+                        <textarea id="openingDescription" name="openingDescription" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                    </div>
+                    <div>
+                        <label for="openingImage" class="block text-sm font-medium text-gray-700">Imagen de la Apertura (Col O)</label>
+                        <input type="file" id="openingImage" name="openingImage" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <div id="opening-image-preview" class="flex flex-wrap pt-2"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="powerCables" class="block text-sm font-medium text-gray-700">Cables de Alimentación (Col Q)</label>
+                        <textarea id="powerCables" name="powerCables" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                    </div>
+                    <div>
+                        <label for="powerImage" class="block text-sm font-medium text-gray-700">Imagen de los Cables de Alimentación (Col R)</label>
+                        <input type="file" id="powerImage" name="powerImage" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                        <div id="power-image-preview" class="flex flex-wrap pt-2"></div>
+                    </div>
+                </div>
+
+                <!-- Campos Adicionales -->
+                <div>
+                    <label for="plasticDisassembly" class="block text-sm font-medium text-gray-700">Cómo Desarmar los Plásticos (Col S)</label>
+                    <textarea id="plasticDisassembly" name="plasticDisassembly" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                </div>
+                <div>
+                    <label for="importantNote" class="block text-sm font-medium text-gray-700">Nota Importante (Col P)</label>
+                    <textarea id="importantNote" name="importantNote" rows="2" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border"></textarea>
+                </div>
+                <div>
+                    <label for="collaborator" class="block text-sm font-medium text-gray-700">Colaborador (Col T)</label>
+                    <input type="text" id="collaborator" name="collaborator" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 border">
+                </div>
+                
+                <!-- Imagen del Vehículo (Col C) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="vehicleImage" class="block text-sm font-medium text-gray-700">Imagen del Vehículo (Col C)</label>
+                        <input type="file" id="vehicleImage" name="vehicleImage" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                    </div>
+                    <div id="vehicle-image-preview" class="flex flex-wrap pt-2"></div>
+                </div>
+
+
+            </div>
+
+            <!-- Sección de Envío -->
+            <div id="submit-section" style="display: none;" class="pt-6 border-t mt-6">
+                <input type="hidden" id="rowIndex" name="rowIndex">
                 <input type="hidden" id="isUpdate" name="isUpdate" value="false">
-
-                <!-- Corte 1 (H, I, J) -->
-                <div class="cut-section" id="cut-1-container">
-                    <h3>Corte 1</h3>
-                    <div class="form-grid">
-                        <div>
-                            <label for="cutType1">Tipo de Corte 1 (H)</label>
-                            <select id="cutType1" name="cutType1"></select>
-                        </div>
-                        <div>
-                            <label for="cutDescription1">Descripción del Corte 1 (I)</label>
-                            <textarea id="cutDescription1" name="cutDescription1" rows="3" placeholder="Color del cable, ubicación y tipo de señal."></textarea>
-                        </div>
-                        <div>
-                            <label for="cutImage1">Imagen del Corte 1 (J)</label>
-                            <input type="file" id="cutImage1" name="cutImage1" accept="image/*">
-                            <div class="image-preview-container" id="cut-1-image-preview"></div>
-                        </div>
-                    </div>
-                </div>
-
-                 <!-- Corte 2 (L, K, M) -->
-                 <div class="cut-section" id="cut-2-container" style="margin-top: 20px;">
-                    <h3>Corte 2</h3>
-                    <div class="form-grid">
-                        <div>
-                            <label for="cutType2">Tipo de Corte 2 (L)</label>
-                            <select id="cutType2" name="cutType2"></select>
-                        </div>
-                        <div>
-                            <label for="cutDescription2">Descripción del Corte 2 (K)</label>
-                            <textarea id="cutDescription2" name="cutDescription2" rows="3" placeholder="Descripción del segundo corte."></textarea>
-                        </div>
-                        <div>
-                            <label for="cutImage2">Imagen del Corte 2 (M)</label>
-                            <input type="file" id="cutImage2" name="cutImage2" accept="image/*">
-                            <div class="image-preview-container" id="cut-2-image-preview"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Corte 3 (U, V, W) -->
-                <div class="cut-section" id="cut-3-container" style="margin-top: 20px;">
-                    <h3>Corte 3</h3>
-                    <div class="form-grid">
-                        <div>
-                            <label for="cutType3">Tipo de Corte 3 (U)</label>
-                            <select id="cutType3" name="cutType3"></select>
-                        </div>
-                        <div>
-                            <label for="cutDescription3">Descripción del Corte 3 (V)</label>
-                            <textarea id="cutDescription3" name="cutDescription3" rows="3" placeholder="Descripción del tercer corte."></textarea>
-                        </div>
-                        <div>
-                            <label for="cutImage3">Imagen del Corte 3 (W)</label>
-                            <input type="file" id="cutImage3" name="cutImage3" accept="image/*">
-                            <div class="image-preview-container" id="cut-3-image-preview"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Apertura y Alimentación -->
-                <h2 style="margin-top: 40px;">3. Apertura y Alimentación</h2>
-                <div class="form-grid">
-                    <!-- Apertura (N, O) -->
-                    <div style="grid-column: span 1;">
-                        <h3>Apertura</h3>
-                        <label for="openingDescription">Apertura (N)</label>
-                        <textarea id="openingDescription" name="openingDescription" rows="3" placeholder="Descripción del cable de apertura (Pestillos/Bloqueos)."></textarea>
-
-                        <label for="openingImage">Imagen de la Apertura (O)</label>
-                        <input type="file" id="openingImage" name="openingImage" accept="image/*">
-                        <div class="image-preview-container" id="opening-image-preview"></div>
-                    </div>
-
-                    <!-- Cables de Alimentación (Q, R) -->
-                    <div style="grid-column: span 1;">
-                        <h3>Alimentación GPS</h3>
-                        <label for="powerCables">Cables de Alimentación (Q)</label>
-                        <textarea id="powerCables" name="powerCables" rows="3" placeholder="Descripción de los cables de alimentación del GPS (Positivo, Negativo, Ignición)."></textarea>
-
-                        <label for="powerImage">Imagen de los cables de alimentación (R)</label>
-                        <input type="file" id="powerImage" name="powerImage" accept="image/*">
-                        <div class="image-preview-container" id="power-image-preview"></div>
-                    </div>
-                </div>
-
-                <!-- Notas y Colaborador -->
-                <h2 style="margin-top: 40px;">4. Notas y Colaborador</h2>
-                <div class="form-grid">
-                    <div>
-                        <label for="importantNote">Nota Importante (P)</label>
-                        <textarea id="importantNote" name="importantNote" rows="3" placeholder="Anotaciones importantes para la instalación del GPS."></textarea>
-                    </div>
-                    <div>
-                        <label for="collaborator">Colaborador (T) <span style="color:red">*</span></label>
-                        <input type="text" id="collaborator" name="collaborator" required placeholder="Tu Nombre o ID de Técnico">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Botón de Envío -->
-            <div id="submit-section" style="text-align: center; margin-top: 30px; display:none;">
-                <button type="submit" class="btn-submit">Guardar Registro Completo</button>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 px-4 rounded-md shadow-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-semibold">
+                    Enviar Registro
+                </button>
             </div>
         </form>
     </div>
 
-    <!-- Modal de Confirmación de Coincidencia -->
-    <div id="matchModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="document.getElementById('matchModal').style.display='none'">&times;</span>
-            <h2>¡Coincidencia Encontrada!</h2>
-            <p>Ya existe un registro para <strong id="matchVehicleInfo"></strong>.</p>
-            <p>Se encontraron los siguientes cortes existentes:</p>
-            <ul id="existingCutsList" style="text-align: left;"></ul>
-            <p>¿Deseas <strong>AGREGAR</strong> un nuevo corte/apertura/alimentación a este registro existente, o <strong>CANCELAR</strong> porque el corte ya está documentado?</p>
-            <div class="modal-buttons">
-                <button type="button" class="btn-primary" onclick="handleMatchAction(true)">Agregar a Registro Existente</button>
-                <button type="button" class="btn-secondary" onclick="handleMatchAction(false)">Cancelar / Ya Existe</button>
+    <!-- Modal de Coincidencia -->
+    <div id="matchModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" style="display:none;">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Vehículo Encontrado</h3>
+            <p class="text-sm text-gray-600 mb-4">Ya existe un registro para <span id="matchVehicleInfo" class="font-semibold text-indigo-600"></span>.</p>
+            <p class="text-sm text-gray-600 mb-2">Cortes existentes:</p>
+            <ul id="existingCutsList" class="list-disc list-inside text-sm text-gray-700 ml-4 mb-4 bg-gray-50 p-3 rounded-md"></ul>
+            <p class="text-sm text-red-600 mb-4">¿Desea continuar para **agregar** o **actualizar** la información de cortes, apertura o alimentación? Solo se llenarán las celdas vacías o el campo Colaborador.</p>
+            <div class="flex justify-end space-x-4">
+                <button onclick="handleMatchAction(false)" class="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition duration-150">
+                    Cancelar / Reiniciar
+                </button>
+                <button onclick="handleMatchAction(true)" class="px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition duration-150">
+                    Continuar y Actualizar
+                </button>
             </div>
         </div>
     </div>
-
-
-    <footer class="footer">
+        <footer class="footer">
         GPSpedia 2025© todos los derechos reservados.
     </footer>
-
     <script>
         // --- CONFIGURACIÓN GLOBAL ---
-        // ATENCIÓN: Se están utilizando las credenciales proporcionadas. 
+        // ATENCIÓN: Se están utilizando las credenciales proporcionadas.
         // Si el error 400/403 persiste, es casi seguro que la hoja no está COMPARTIDA PÚBLICAMENTE.
         const SPREADSHEET_ID = "1jEdC2NMc2a5F36xE2MJfgxMZiZFVfeDqnCdVizNGIMo";
         const API_KEY = "AIzaSyCooAsC52X4ccENCT6p3qh_82ErBxP47Lg";
         const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmLfwa5l35omn_CdpS7AHOcLYTR9Q8-9PvjiXY0e9oTtne1BA7mDh1_4oujjmj0vGQ/exec"; // REEMPLAZAR con la URL de su App Script publicada
 
         // Hoja donde están los datos de vehículos
-        const DATA_SHEET_NAME = "Cortes"; 
+        const DATA_SHEET_NAME = "Cortes";
         // Rango de la hoja de datos que leeremos para buscar coincidencias (Marca, Modelo, Año, Cortes 1, 2, 3).
         // Columnas D (Marca, 4) a U (Tipo de corte 3, 21)
-        const VEHICLE_DATA_RANGE = `${DATA_SHEET_NAME}!D:U`; 
+        const VEHICLE_DATA_RANGE = `${DATA_SHEET_NAME}!D:U`;
         
-        // Hoja donde están las validaciones para los desplegables (asumo una hoja llamada 'Validaciones' para consistencia)
-        const VALIDATION_SHEET_RANGE = `Cortes!A:Z`;
+        // Hoja donde están las validaciones. Se asume que es la misma hoja.
+        const VALIDATION_SHEET_RANGE = `${DATA_SHEET_NAME}!A:Z`;
 
-        // Columnas a buscar para las validaciones (asumiendo que están en la hoja 'Validaciones' en la Columna A)
+        // Columnas a buscar para las validaciones (Índice 0-based en el rango A:Z)
+        // **CORRECCIÓN CLAVE:** Los índices se ajustaron para reflejar las columnas B, F y H.
         const VALIDATION_COLUMNS = {
-            category: 0, // B2:B
-            ignitionType: 1, // F2:F
-            cutType1: 2, // H2:H
-            cutType2: 2, // L2:L (usa la misma lista que H)
-            cutType3: 2, // U2:U (usa la misma lista que H)
+            category: 1,       // B: Categoria (Index 1 en A:Z)
+            ignitionType: 5,   // F: Tipo de encendido (Index 5 en A:Z)
+            cutType1: 7,       // H: Tipo de corte 1 (Index 7 en A:Z) - Se usa para los 3 tipos de corte.
+            cutType2: 7,
+            cutType3: 7,
         };
         
         // Mapeo de campos del formulario a columnas del Spreadsheet (1-based index)
-        // Solo para campos de texto/select que se envían directamente por la API Key.
-        // Las imágenes y el ID se manejan aparte.
         const COLUMN_MAP = {
             category: { index: 2, col: 'B' }, 
             make: { index: 4, col: 'D' }, 
@@ -517,10 +305,11 @@
             openingDescription: { index: 14, col: 'N' }, 
             importantNote: { index: 16, col: 'P' }, 
             powerCables: { index: 17, col: 'Q' }, 
+            plasticDisassembly: { index: 19, col: 'S' }, // **COLUMNA FALTANTE AGREGADA**
             collaborator: { index: 20, col: 'T' },
             cutType3: { index: 21, col: 'U' }, 
             cutDescription3: { index: 22, col: 'V' }
-            // C, J, M, O, R, W son imágenes (GAS Script)
+            // Col 1 (A): ID, Col 3(C), 10(J), 13(M), 15(O), 18(R), 23(W) son imágenes o ID (GAS Script)
         };
 
         // --- FUNCIONES DE UTILIDAD Y API ---
@@ -535,6 +324,7 @@
             statusDiv.textContent = message;
             statusDiv.className = `status-${type}`;
             statusDiv.style.display = 'block';
+            // Se mantiene el mensaje de error por más tiempo
             if (type === 'success' || type === 'error') {
                 setTimeout(() => statusDiv.style.display = 'none', 10000);
             }
@@ -542,7 +332,6 @@
 
         /**
          * Realiza una solicitud fetch con reintento y retroceso exponencial.
-         * Se ha modificado para capturar y mostrar errores 400/403 detallados.
          * @param {string} url La URL del endpoint.
          * @param {Object} options Opciones de la solicitud fetch.
          * @param {number} retries Número actual de reintentos (interna).
@@ -555,20 +344,17 @@
                 if (!response.ok && response.status !== 404) {
                     let errorMessage = `Error HTTP ${response.status}: Fallo en la API de Google Sheets.`;
 
-                    // Intentar leer el cuerpo del error de Google para obtener detalles
                     try {
-                        // Clonamos la respuesta para poder leer el cuerpo JSON sin consumir el stream de respuesta original
                         const errorJson = await response.clone().json(); 
                         if (errorJson.error && errorJson.error.message) {
                             errorMessage += ` Detalle: ${errorJson.error.message}`;
                         }
                     } catch (jsonError) {
-                        // Si no es JSON o falla al parsear, usamos el mensaje HTTP genérico
+                        // Ignorar error de parsing si no es JSON
                     }
                     
-                    // Añadir la recomendación de solución para el error 400/403 (Permisos)
                     if (response.status === 400 || response.status === 403) {
-                         errorMessage += ` -> Solución: Verifique que el SPREADSHEET_ID y API_KEY sean correctos y que la hoja esté COMPARTIDA PÚBLICAMENTE ("Cualquier persona con el enlace" en modo "Lector").`;
+                         errorMessage += ` -> Solución: Verifique que el SPREADSHEET_ID y API_KEY sean correctos y que la hoja esté COMPARTIDA PÚBLICAMENTE.`;
                     }
 
                     throw new Error(errorMessage);
@@ -577,7 +363,7 @@
             } catch (error) {
                 if (retries < 5) { // 5 reintentos maximos
                     const delay = Math.pow(2, retries) * 1000;
-                    console.error(`Error en fetch. Reintentando en ${delay / 1000}s...`, error);
+                    // console.error(`Error en fetch. Reintentando en ${delay / 1000}s...`, error);
                     await new Promise(resolve => setTimeout(resolve, delay));
                     return fetchWithRetry(url, options, retries + 1);
                 } else {
@@ -600,18 +386,18 @@
 
                 const data = await response.json();
                 const values = data.values;
-                if (!values) throw new Error("No se encontraron datos de validación.");
+                if (!values || values.length === 0) throw new Error("No se encontraron datos de validación. Asegúrese que el rango A:Z tiene datos.");
 
-                const headers = values[0]; // Asume que la primera fila son encabezados
                 const dropdowns = {
                     category: [],
                     ignitionType: [],
-                    cutType: []
+                    cutType: [] // Lista única para los 3 Tipos de Corte
                 };
 
-                // Asumo que 'category' está en la columna A, 'ignitionType' en la columna B, y 'cutType' en la columna C de la hoja 'Validaciones'
-                for (let i = 1; i < values.length; i++) { // Empezar desde la segunda fila
+                // Iterar desde la segunda fila para obtener los datos de la lista (asumiendo que la fila 1 es encabezado)
+                for (let i = 1; i < values.length; i++) {
                     const row = values[i];
+                    // Usar los índices corregidos de VALIDATION_COLUMNS
                     if (row[VALIDATION_COLUMNS.category]) dropdowns.category.push(row[VALIDATION_COLUMNS.category]);
                     if (row[VALIDATION_COLUMNS.ignitionType]) dropdowns.ignitionType.push(row[VALIDATION_COLUMNS.ignitionType]);
                     if (row[VALIDATION_COLUMNS.cutType1]) dropdowns.cutType.push(row[VALIDATION_COLUMNS.cutType1]);
@@ -654,24 +440,28 @@
         function setupImagePreviews() {
             ['vehicleImage', 'cutImage1', 'cutImage2', 'cutImage3', 'openingImage', 'powerImage'].forEach(id => {
                 const input = document.getElementById(id);
-                const previewContainer = document.getElementById(id.replace('Image', '-image-preview').toLowerCase());
+                // Asegurar que el ID de preview es correcto y coincide con el HTML
+                const previewContainerId = id.replace('Image', '-image-preview').toLowerCase();
+                const previewContainer = document.getElementById(previewContainerId);
                 
-                input.addEventListener('change', (e) => {
-                    previewContainer.innerHTML = '';
-                    if (e.target.files && e.target.files.length > 0) {
-                        Array.from(e.target.files).forEach(file => {
-                            const reader = new FileReader();
-                            reader.onload = (event) => {
-                                const img = document.createElement('img');
-                                img.src = event.target.result;
-                                img.className = 'image-preview';
-                                img.alt = 'Vista previa de la imagen';
-                                previewContainer.appendChild(img);
-                            };
-                            reader.readAsDataURL(file);
-                        });
-                    }
-                });
+                if (input && previewContainer) {
+                    input.addEventListener('change', (e) => {
+                        previewContainer.innerHTML = '';
+                        if (e.target.files && e.target.files.length > 0) {
+                            Array.from(e.target.files).forEach(file => {
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                    const img = document.createElement('img');
+                                    img.src = event.target.result;
+                                    img.className = 'image-preview';
+                                    img.alt = 'Vista previa de la imagen';
+                                    previewContainer.appendChild(img);
+                                };
+                                reader.readAsDataURL(file);
+                            });
+                        }
+                    });
+                }
             });
         }
 
@@ -700,18 +490,19 @@
                 const data = await response.json();
                 const rows = data.values || [];
                 
-                // Buscar coincidencia (saltando el encabezado)
+                // Los índices son relativos al rango D:U
                 // Columna D (Marca): rows[i][0]
                 // Columna E (Modelo): rows[i][1]
                 // Columna G (Año): rows[i][3]
-                // El índice de fila real en la hoja es i + 2 (i=0 es la primera fila de datos, fila 2 de la hoja)
+                // Columna H (Tipo de corte 1): rows[i][4]
+                // Columna L (Tipo de corte 2): rows[i][8] (L=8 en el rango D:U)
+                // Columna U (Tipo de corte 3): rows[i][17] (U=17 en el rango D:U)
                 
                 let foundMatch = null;
                 let rowIndex = -1;
 
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i];
-                    // Si la fila tiene datos suficientes
                     if (row.length >= 4) {
                         const rowMake = (row[0] || '').toLowerCase();
                         const rowModel = (row[1] || '').toLowerCase();
@@ -721,9 +512,8 @@
                             rowModel === model.toLowerCase() && 
                             rowYear === year.toLowerCase()) {
                             
-                            // Match encontrado: (D:Marca, E:Modelo, G:Año)
                             foundMatch = row;
-                            rowIndex = i + 2; // Fila real en la hoja (1-based index)
+                            rowIndex = i + 2; // Fila real en la hoja (1-based index, asume encabezado en fila 1)
                             break; 
                         }
                     }
@@ -754,14 +544,14 @@
                     displayStatus(`Coincidencia encontrada en la fila ${rowIndex}. Confirme la acción.`, 'info');
                 } else {
                     // No hay coincidencia: Nuevo registro
-                    document.getElementById('rowIndex').value = ''; // Se usará append en el envío
+                    document.getElementById('rowIndex').value = ''; 
                     document.getElementById('isUpdate').value = 'false';
+                    // Limpiar descripciones para nuevo registro
                     document.getElementById('cutDescription1').value = '';
                     document.getElementById('cutDescription2').value = '';
                     document.getElementById('cutDescription3').value = '';
 
                     displayStatus("No se encontró coincidencia exacta. Se creará un NUEVO registro al enviar el formulario.", 'info');
-                    // Mostrar formulario de cortes inmediatamente para un nuevo registro
                     document.getElementById('cuts-section').style.display = 'block';
                     document.getElementById('submit-section').style.display = 'block';
                 }
@@ -790,8 +580,20 @@
         }
 
         /**
-         * FUNCIÓN PRINCIPAL DE ENVÍO
+         * Convierte un objeto File a Base64.
+         * @param {File} file 
+         * @returns {Promise<string>} Base64 data URL.
          */
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
+        }
+
+        // --- FUNCIÓN PRINCIPAL DE ENVÍO ---
         document.getElementById('vehicle-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             displayStatus('Procesando datos y subiendo archivos... Por favor, espere.', 'info');
@@ -800,14 +602,15 @@
             const rowIndex = document.getElementById('rowIndex').value;
             const form = e.target;
             const formData = new FormData(form);
-            const dataToSheet = {};
+            
             let isAnyCutDataPresent = false;
             
             // 1. Recolectar datos y mapear a columnas
             const dataArray = [];
             const filesToUpload = [];
             
-            // Mapear todos los campos del formulario a un array que representa la fila de la hoja
+            // Mapear todos los campos del formulario a un array que representa la fila de la hoja (23 columnas, A-W, usando índices 1 a 22)
+            // La columna 1 (A) es el ID, no se mapea aquí.
             for (let i = 1; i <= 23; i++) {
                 dataArray[i] = ""; // Inicializar
             }
@@ -816,14 +619,13 @@
             for (const [key, map] of Object.entries(COLUMN_MAP)) {
                 let value = formData.get(key) || '';
                 
-                // Si estamos en modo actualización, solo enviar datos de cortes nuevos/apertura/alimentacion
-                // Los datos de identificación (B-G) no deben ser modificados.
+                // Lógica de actualización: solo se envían datos no vacíos para cortes/apertura/alimentacion/colaborador.
                 if (isUpdate) {
-                    if (['cutType1', 'cutDescription1', 'cutType2', 'cutDescription2', 'cutType3', 'cutDescription3', 'openingDescription', 'powerCables', 'importantNote'].includes(key) && value.trim() !== '') {
+                    if (['cutType1', 'cutDescription1', 'cutType2', 'cutDescription2', 'cutType3', 'cutDescription3', 'openingDescription', 'powerCables', 'importantNote', 'plasticDisassembly'].includes(key) && value.trim() !== '') {
                         dataArray[map.index] = value.trim();
                         isAnyCutDataPresent = true;
                     } else if (key === 'collaborator') {
-                        dataArray[map.index] = value.trim(); // Siempre enviamos colaborador en el payload de actualización, GAS lo manejará.
+                        dataArray[map.index] = value.trim(); 
                     }
                 } else {
                     // Modo de nueva fila: llenar todos los campos
@@ -832,8 +634,9 @@
             }
             
             // Si es una actualización, y no se ingresó nada nuevo, no se procede con la hoja de cálculo.
-            if (isUpdate && !isAnyCutDataPresent) {
-                 displayStatus('Advertencia: Está en modo de actualización, pero no se ha ingresado ninguna descripción de corte/apertura/alimentación nueva. Envíe imágenes si es lo único que va a agregar.', 'info');
+            if (isUpdate && !isAnyCutDataPresent && form.elements['vehicleImage'].files.length === 0 && form.elements['cutImage1'].files.length === 0 && form.elements['cutImage2'].files.length === 0 && form.elements['cutImage3'].files.length === 0 && form.elements['openingImage'].files.length === 0 && form.elements['powerImage'].files.length === 0) {
+                 displayStatus('Advertencia: No se detectaron cambios en texto ni imágenes. Envío cancelado.', 'error');
+                 return;
             }
 
 
@@ -849,7 +652,7 @@
 
             for (const { inputId, type } of fileInputs) {
                 const input = form.elements[inputId];
-                if (input.files && input.files.length > 0) {
+                if (input && input.files && input.files.length > 0) {
                     const file = input.files[0];
                     const base64 = await toBase64(file);
                     filesToUpload.push({
@@ -864,16 +667,14 @@
             // 3. ENVIAR DATOS DE LA HOJA DE CÁLCULO (NO IMAGEN)
             let finalRowIndex;
 
+            // Rango de datos a enviar: De la columna B (index 2) a la columna V (index 22). 
+            // W (index 23) es la última imagen, manejada por GAS.
+            // ID (index 1) es la primera columna.
+            const dataSlice = dataArray.slice(2, 23); // Columna B (index 2) a V (index 22)
+
             if (isUpdate) {
                 // Modo ACTUALIZACIÓN (PUT request)
                 finalRowIndex = rowIndex;
-                
-                // Crear el rango a actualizar (solo las columnas con datos nuevos)
-                // Usamos el array de 23 elementos. En la actualización, solo enviamos datos para las columnas:
-                // H, I, K, L, N, P, Q, T, U, V, y dejamos las demás como ""
-                const sheetData = [dataArray.slice(1, 23)]; // Ignora el índice 0 (ID) y S (col 19)
-                
-                // El rango de actualización empieza en B (col 2)
                 const range = `${DATA_SHEET_NAME}!B${finalRowIndex}:V${finalRowIndex}`;
 
                 if (isAnyCutDataPresent) {
@@ -882,7 +683,7 @@
                         const updateResponse = await fetchWithRetry(updateUrl, {
                             method: 'PUT',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ values: sheetData })
+                            body: JSON.stringify({ values: [dataSlice] })
                         });
 
                         if (!updateResponse.ok) throw new Error("Fallo al actualizar el registro en Google Sheets.");
@@ -897,15 +698,13 @@
 
             } else {
                 // Modo NUEVO REGISTRO (POST/Append request)
-                // Llenar el array con los valores del formulario
-                const sheetData = [dataArray.slice(1, 23)]; // Ignora el índice 0 (ID) y S (col 19)
-
                 try {
+                    // Rango de append: B:V para evitar tocar la columna A (ID) y W (última imagen).
                     const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${DATA_SHEET_NAME}!B:V:append?valueInputOption=USER_ENTERED&key=${API_KEY}`;
                     const appendResponse = await fetchWithRetry(appendUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ values: sheetData })
+                        body: JSON.stringify({ values: [dataSlice] })
                     });
                     
                     if (!appendResponse.ok) throw new Error("Fallo al crear el nuevo registro en Google Sheets.");
@@ -966,20 +765,6 @@
             }
         });
 
-        /**
-         * Convierte un objeto File a Base64.
-         * @param {File} file 
-         * @returns {Promise<string>} Base64 data URL.
-         */
-        function toBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-            });
-        }
-
         // --- INICIALIZACIÓN ---
         window.onload = () => {
             loadDropdowns();
@@ -989,5 +774,3 @@
     </script>
 </body>
 </html>
-
-
